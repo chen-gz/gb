@@ -1,88 +1,95 @@
 package main
 
-//import (
-//"log"
-//"time"
-// "fmt"
-//"io/ioutil"
-//"github.com/minio/minio-go/v7"
-//"github.com/minio/minio-go/v7/pkg/credentials"
-//"context"
-// "github.com/gomarkdown/markdown"
-// auth "github.com/abbot/go-http-auth"
-//)
-// import "github.com/gin-gonic/gin"
-// import "net/http"
-// import local package "render"
 import (
     rd "go_blog/render"
-    "fmt"
+    _ "fmt"                        // no more error
+    "github.com/gin-gonic/gin"
+    _ "net/http"
+    _ "path/filepath"
+    _ "time"
+    "log"
+    _ "strings"
+    _ "io/ioutil"
+    "text/template"
+    _ "os"
+    db "go_blog/database"
+    "strconv"
+    "github.com/gin-contrib/cors"
 )
 
 
-// func render_file() {
-//     // read file
-//     file, _ := ioutil.ReadFile("test.md")
-//     // make sure the connect between "$" and "$$" is not change
-// 
-//     // render use gomarkdown
-//     html := markdown.ToHTML(file, nil, nil)
-//     // append mathjax script to html
-//     html = append(html, []byte(`<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>`)...)
-//     // write file
-//     ioutil.WriteFile("test.html", html, 0644)
-// }
 
-
-
-// gin
-// use minio to store the file
-// use gomarkdown to render the markdown file
-// use mathjax to render the math formula
-// use sqlite to store the blog data
-// use gin to build the web server
-
-// homepace handler
 func handler_homepage(c *gin.Context) {
-    c.HTML(http.StatusOK, "index.html", gin.H{})
+    // send index.html
+    // c.HTML(http.StatusOK, "index.html", gin.H{})
 
-    html, _ := rd.RenderMd("test.md")
-    fmt.Println(string(html))
+    // get all posts
+    posts, _ := db.GetAllPostIdAndName() 
+    tmpl, _ := template.ParseFiles("homepage.html")
+
+    html := ""
+    for index, title := range posts {
+        // convert index to string int -> string Itoa
+        ind := strconv.Itoa(index)
+        html += `<a href="/posts/` + ind + `">` + title + `</a>`
+        html += "<br>"
+        _ = index
+    }
+
+    tmpl.Execute(c.Writer, html)
+    // make an empty page
+    //c.String(http.StatusOK, "")
+    //c.String(http.StatusOK, html)
 }
 
-func handler_posts(c *gin.Context) {
 
-	post_name := c.Param("id")
-    // get post file
-    // render post 
-    // return html
+func handler_posts(c *gin.Context) {
+    post_index :=  c.Param("id") // post_name should be an unique string
+    // convert string to int
+    log.Println(post_index)
+    index, _ := strconv.Atoi(post_index)
+    log.Println("render post: ", index)
+    // get post by index
+    post, _ := db.GetPostByIndex(index)
+    log.Println(post.Title)
+    // log.Println(post.Content)
+    // convert content from string to []byte
+    content := rd.RenderMd([]byte(post.Content))
+    tmpl, _ := template.ParseFiles("posts.html")
+    BlogData := db.BlogData{Title: post.Title, Content: string(content)}
+    tmpl.Execute(c.Writer, BlogData)
+}
+func handler_admin(c *gin.Context) {
+    // send admin.html
+    // c.HTML(http.StatusOK, "admin.html", gin.H{})
+    tmpl, _ := template.ParseFiles("admin.html")
+    tmpl.Execute(c.Writer, nil)
 }
 
 func  gin_server() {
-    // gin server for home page
     r := gin.Default()
-    // r.LoadHTMLGlob("index.html")
+    r.Use(cors.Default())
     r.GET("/", func(c *gin.Context) {
+        // gin server for home page
         handler_homepage(c)
+        log.Println("home page")
     })
 
-	r.GET("/users/:id", func(c *gin.Context) {
-		c.String(200, "The user id is  %s", id)
-	})
-
-    r.GET("/post/:post_name", func(c *gin.Context) {
-        html := handler_posts(c, post_name)
-        c.HTML(http.StatusOK, "index.html", gin.H{})
-
+    r.GET("/posts/:id", func(c *gin.Context) {
+        handler_posts(c)
     })
+    r.GET("/admin", func(c *gin.Context) {
+        handler_admin(c)
+    })
+
     r.Run() // listen and serve on
 }
 
+
 func main() {
-    // html, _ := rd.RenderMd("test.md")
-    // fmt.Println(string(html))
-
-
-    // fmt.Println("done")
     gin_server()
+    // db.Init()
+    // get test data and insert to database
+    // var blog = db.BlogData{5, "test232sfdssfd3423", "tessfsdft", "test", []string{"test"}, []string{"test"}, time.Now()}
+    // db.InsertPost(blog)
 }
