@@ -3,6 +3,7 @@ package main
 import (
     "github.com/gin-gonic/gin"
     "github.com/gin-contrib/cors"
+    //"github.com/gin-contrib/static"
     hd "go_blog/handler"
 )
 
@@ -28,6 +29,10 @@ func  gin_server() {
     r.POST("/api/upload", func(c *gin.Context) {
         hd.HandlerUpload(c)
     })
+    // r.Use(static.Serve("/", static.LocalFile("dist", true)))
+    //r.Static("/dist/", "./dist")
+
+    //r.Static("/dist/", "./dist")
     r.Run() // listen and serve on
 }
 
