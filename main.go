@@ -10,7 +10,7 @@ import (
 func  gin_server() {
     r := gin.Default()
     r.Use(cors.Default())  // allow cross origin request
-    r.GET("/api/", func(c *gin.Context) {
+    r.GET("/api/home", func(c *gin.Context) {
         hd.HandlerHome(c)
     })
     r.GET("/api/admin", func(c *gin.Context) {
