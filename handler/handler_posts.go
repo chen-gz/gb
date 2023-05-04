@@ -7,39 +7,26 @@ import (
 )
 // get all posts
 func HandlerGetPosts(c *gin.Context) {
-    posts, _ := db.GetAllPostIdAndName() 
+    posts, _ := db.GetAllPostIdAndTitle() 
     c.JSON(200, posts)
 }
 
-/// This function is used to get post by id.
-/// The id is the index of the post in database.
-/// The index is the primary key of the post.
-/// When the post is setup as private post, 
-/// this function will return permission denied.
 func HanlderGetPostId(c *gin.Context) {
     post_index :=  c.Param("id") 
     index, _ := strconv.Atoi(post_index)
-    post, _ := db.GetPostByIndex(index)
-    // todo: check if the post is private
-    // if post.Private == true {
-    //     c.JSON(403, gin.H{
-    //         "status": "error",
-    //         "message": "permission denied",
-    //     })
-    //     return
-    // }
+    post, _ := db.GetPostById(index)
     html := rd.RenderMd([]byte(post.Content))
     c.JSON(200, gin.H{
         "post": post,
         "html": string(html),
     })
 }
+
 func HandlerGetPrivatePostId(c *gin.Context) {
     //todo verify the user and password before get the post content 
-
     post_index :=  c.Param("id") 
     index, _ := strconv.Atoi(post_index)
-    post, _ := db.GetPostByIndex(index)
+    post, _ := db.GetPostById(index)
     html := rd.RenderMd([]byte(post.Content))
     c.JSON(200, gin.H{
         "post": post,
