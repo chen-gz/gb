@@ -61,7 +61,7 @@ func InsertPost(blog BlogData) error {
 	Tags := strings.Join(blog.Tags, ",")
 	Categories := strings.Join(blog.Categories, ",")
 
-	_ , err = stmt.Exec(blog.Title, blog.Author,
+	_, err = stmt.Exec(blog.Title, blog.Author,
 		blog.Content, Tags, Categories,
 		blog.Datetime, blog.Url)
 	if err != nil {
@@ -89,15 +89,15 @@ func UpdatePost(blog BlogData) error {
 	Tags := strings.Join(blog.Tags, ",")
 	Categories := strings.Join(blog.Categories, "/")
 
-	_, err = stmt.Exec(blog.Title, blog.Content, 
-                          Tags, Categories, 
-                          blog.Datetime, blog.Author, blog.Url,
-                          blog.Id)
+	_, err = stmt.Exec(blog.Title, blog.Content,
+		Tags, Categories,
+		blog.Datetime, blog.Author, blog.Url,
+		blog.Id)
 
 	if err != nil {
 		log.Fatal(err)
 	}
-    return err
+	return err
 }
 
 // get all post id and title from database and return a map
@@ -107,15 +107,15 @@ func GetAllPostIdAndTitle() (map[int]string, error) {
 		log.Fatal(err)
 	}
 	defer database.Close()
-    rows, err := database.Query("SELECT id, title FROM posts")
+	rows, err := database.Query("SELECT id, title FROM posts")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
 	result := make(map[int]string)
 	for rows.Next() {
-	    var id int
-	    var title string
+		var id int
+		var title string
 		err := rows.Scan(&id, &title)
 		if err != nil {
 			log.Fatal(err)
@@ -133,40 +133,48 @@ func GetPostById(index int) (BlogData, error) {
 	defer database.Close()
 	query := database.QueryRow("SELECT * FROM posts WHERE Id = ?", index)
 	post := BlogData{}
-	err = query.Scan(&post.Id, &post.Title, &post.Author, 
-                    &post.Content, &post.Tags, &post.Categories, 
-                    &post.Datetime, &post.Url)
-    if err != nil {
-        log.Fatal(err)
-        log.Println("error in get post by id")
-        // todo: id not found should be handled and test
-    }
+	tag := ""
+	category := ""
+	err = query.Scan(&post.Id, &post.Title, &post.Author,
+		&post.Content, &tag, &category,
+		&post.Datetime, &post.Url)
+	post.Tags = strings.Split(tag, ",")
+	post.Categories = strings.Split(category, ",")
+	if err != nil {
+		log.Println("error in get post by id")
+		log.Fatal(err)
+		// todo: id not found should be handled and test
+	}
 	return post, err
 }
 
 func GetRecentPosts(num int) ([]BlogData, error) {
-    // sort by datetime and get the first `num` posts
-    database, err := sql.Open(dbType, dbPath)
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer database.Close()
-    rows, err := database.Query( "SELECT * FROM posts ORDER BY datetime DESC LIMIT ?", num)
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer rows.Close()
-    result := []BlogData{}
-    for rows.Next() {
-        post := BlogData{}
-        err := rows.Scan(&post.Id, &post.Title, &post.Author, 
-                        &post.Content, &post.Tags, &post.Categories, 
-                        &post.Datetime, &post.Url)
-        if err != nil {
-            log.Fatal(err)
-        }
-        result = append(result, post)
-    }
-    return result, err
-}
+	// sort by datetime and get the first `num` posts
+	database, err := sql.Open(dbType, dbPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer database.Close()
+	rows, err := database.Query("SELECT * FROM posts ORDER BY datetime DESC LIMIT ?", num)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+	result := []BlogData{}
+	tag := ""
+	category := ""
+	for rows.Next() {
+		post := BlogData{}
+		err := rows.Scan(&post.Id, &post.Title, &post.Author,
+			&post.Content, &tag, &category,
+			&post.Datetime, &post.Url)
+		post.Tags = strings.Split(tag, ",")
+		post.Categories = strings.Split(category, ",")
+		if err != nil {
+			log.Fatal(err)
+		}
+		result = append(result, post)
+	}
 
+	return result, err
+}
