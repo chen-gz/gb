@@ -9,6 +9,11 @@ import (
 func gin_server() {
 	r := gin.Default()
 	r.Use(cors.Default()) // allow cross origin request
+
+// /api/v1/get_post_by_id/:id?(params)
+    r.GET("/api/v1/get_post/:url", func(c *gin.Context) {
+        hd.V1GetPost(c);
+    })
 	r.GET("/api/home", func(c *gin.Context) {
 		hd.Home(c)
 	})
@@ -48,30 +53,24 @@ func main() {
 // version 1 support api
 // GET 
 
-// /api/v1/get_post_by_id/:id/
+// /api/v1/get_post_by_id/:id?(params)
 //      if post is private or not exist, return 404
 //      if post is public, return post
 //
-// /api/v1/get_post_by_id/:id/*params
-//      if params can be follwing things:
 //           :limit <-- (int) limit the number of posts
 //           :content <-- (bool) return content or not
 //           ... other post fields
 //
-// /api/v1/get_post_by_tag/:tag/ 
+// /api/v1/get_post_by_tag/:tag?(params)
 //      if tag is not exist, return 404
 //      if tag is exist, return all public posts
 //
-// /api/v1/get_post_by_tag/:tag/*params
 //      if params can be follwing things:
 //           :limit <-- (int) limit the number of posts
 //           :content <-- (bool) return content or not
 //           ... other post fields
 //      if tag is not exist, return 404
 //
-// /api/v1/get_post_by_category/:category
-//      if category is not exist, return 404
-//      if category is exist, return all public posts
 
 
 

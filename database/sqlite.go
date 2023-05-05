@@ -178,3 +178,51 @@ func GetRecentPosts(num int) ([]BlogData, error) {
 
 	return result, err
 }
+
+
+//////////////////////////////////////////////
+// database interface for v1 api
+
+type blogDataV1 struct {
+    Id             int,
+    Author         string,
+    Title          string,
+    Content        string,
+    Tags           string,
+    Categories     string,
+    Datetime       time.Time,
+    Url            string // for vue router and s3 storage. no space.
+    Like           int,
+    Dislike        int,
+    CoverImg       string,
+    IsDraft        bool,    // if true, only show to author, else show to everyone
+    IsDeleted      bool,
+    PrivateLevel   int,
+    ViewCount      int,
+    CreatedAt      time.Time,
+    UpdatedAt      time.Time,
+}
+
+func GetPostByUrl(url string) (blogDataV1, error) {
+    database, err := sql.Open(dbType, dbPath)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer database.Close()
+    query := database.QueryRow("SELECT * FROM posts WHERE url = ?", url)
+    post := blogDataV1{}
+    tag := ""
+    category := ""
+    err = query.Scan(&post.Id, &post.Title, &post.Author,
+        &post.Content, &tag, &category,
+        &post.Datetime, &post.Url)
+    post.Tags = strings.Split(tag, ",")
+    post.Categories = strings.Split(category, ",")
+    if err != nil {
+        log.Println("error in get post by id")
+        log.Fatal(err)
+    }
+}
+
+
+
