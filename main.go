@@ -10,9 +10,11 @@ func gin_server() {
 	r := gin.Default()
 	r.Use(cors.Default()) // allow cross origin request
 
-// /api/v1/get_post_by_id/:id?(params)
     r.GET("/api/v1/get_post/:url", func(c *gin.Context) {
-        hd.V1GetPost(c c.Param("url"));
+        hd.V1GetPost(c, c.Param("url"));
+    })
+    r.GET("/api/v1/search_posts/", func(c *gin.Context) {
+        hd.V1SearchPosts(c);
     })
 	r.GET("/api/home", func(c *gin.Context) {
 		hd.Home(c)

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+    "net/http"
 	db "go_blog/database"
 	rd "go_blog/render"
 	"strconv"
@@ -56,59 +57,31 @@ func AddPost(c *gin.Context) {
 	})
 }
 
-// id, title, content, created_at, updated_at, 
-// is_private, is_draft, is_deleted, 
-// tags, category, author, comments, likes, 
-// views, cover_image
-
 
 func V1GetPost(c *gin.Context, url string) {
-    url := c.Param("url")
-	database, err := sql.Open(dbType, dbPath)
-	rows, err := database.Query("SELECT * FROM posts WHERE url = ?", url)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{
-            "status": "error",
-            "message": "post not found",
-        })
-        return
-    }
-    defer rows.Close()
-    post := BlogData{}
-
-	tag := ""
-	category := ""
-	err = query.Scan(&post.Id, &post.Title, &post.Author,
-		&post.Content, &tag, &category,
-		&post.Datetime, &post.Url)
-	post.Tags = strings.Split(tag, ",")
-	post.Categories = strings.Split(category, ",")
-
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{
-            "status": "error",
-            "message": "post not found",
-        })
-        return
-    }
-
+    post := db.GetPostByUrlV1(url);
     html := rd.RenderMd([]byte(post.Content))
-    c.JSON(200, gin.H{
+    c.JSON(http.StatusOK, gin.H{
         "title": post.Title,
         "author": post.Author,
-        "datetime": post.Datetime,
+        "datetime": post.CreatedAt,
         "tags": post.Tags,
         "categories": post.Categories,
         "content": post.Content,
         "html": string(html),
+        "url": post.Url,
     })
 }
 
+func V1SearchPosts(c *gin.Context) {
+    // get query params as map[string][]string
+    params := make(map[string]string)
+    for k, v := range c.Request.URL.Query() {
+        params[k] = v[0]
+    }
+    posts := db.SearchPostV1(params);
+    c.JSON(http.StatusOK, gin.H{
+        "posts": posts,
+    })
+}
 
-// /api/v1/get_post_by_id/:id?(params)
-//      if post is private or not exist, return 404
-//      if post is public, return post
-//
-//           :limit <-- (int) limit the number of posts
-//           :content <-- (bool) return content or not
-//           ... other post fields
