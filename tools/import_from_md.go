@@ -6,10 +6,13 @@ import (
     "os"
     "path/filepath"
     "io/ioutil"
-    "strings"
+    // "strings"
+    "strconv"
     //"fmt"
     "time"
-    "gopkg.in/yaml.v3"
+    // "gopkg.in/yaml.v3"
+	"database/sql"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func walk(root string) ([]string, error) {
@@ -82,28 +85,63 @@ type BlogFrontMatter struct {
 }
 
 
-func main() {
-    db.Init()
-    root := "posts"
-    files, _ := walk(root)
-    for _, f := range files {
-        if strings.HasSuffix(f, ".md") {
-            frontMatter, content := parse(f)
-            // parse front front matter use yaml
-            var blogFrontData BlogFrontMatter
-            yaml.Unmarshal(frontMatter, &blogFrontData)
-            //log.Println(blogFrontData)
-            _ = content
-            _ = blogFrontData
-            log.Println(string(content))
-            var dbBlogData db.BlogData
-            dbBlogData.Title = blogFrontData.Title
-            dbBlogData.Content = string(content)
-            dbBlogData.Datetime = blogFrontData.Date
-            dbBlogData.Author = blogFrontData.Author
-            dbBlogData.Tags = blogFrontData.Tags
-            dbBlogData.Categories = blogFrontData.Categories
-            db.InsertPost(dbBlogData)
+// func main() {
+//     db.Init()
+//     root := "posts"
+//     files, _ := walk(root)
+//     for _, f := range files {
+//         if strings.HasSuffix(f, ".md") {
+//             frontMatter, content := parse(f)
+//             // parse front front matter use yaml
+//             var blogFrontData BlogFrontMatter
+//             yaml.Unmarshal(frontMatter, &blogFrontData)
+//             //log.Println(blogFrontData)
+//             _ = content
+//             _ = blogFrontData
+//             log.Println(string(content))
+//             var dbBlogData db.BlogData
+//             dbBlogData.Title = blogFrontData.Title
+//             dbBlogData.Content = string(content)
+//             dbBlogData.Datetime = blogFrontData.Date
+//             dbBlogData.Author = blogFrontData.Author
+//             dbBlogData.Tags = blogFrontData.Tags
+//             dbBlogData.Categories = blogFrontData.Categories
+//             db.InsertPost(dbBlogData)
+//         }
+//     }
+// }
+
+const dbTypev1 = "sqlite3"
+const dbPathv1 = "./blogv1.db"
+
+func Migration0To1() {
+    // Init database version 2
+    db.InitDatabasev1();
+    // get all posts from version 0
+    // posts := db.GetAllPosts();
+    database, _ := sql.Open("sqlite3", "./blog.db")
+    defer database.Close()
+    rows, _ := database.Query(`SELECT * FROM posts`)
+    // all posts
+    posts := []db.BlogDataV1{}
+    for rows.Next() {
+        data := db.BlogDataV1{}
+        rows.Scan(&data.Id, &data.Title, &data.Author, 
+                  &data.Content, &data.Tags, &data.Categories, 
+                  &data.CreatedAt, &data.Url)
+        posts = append(posts, data)
+    }
+    // insert all posts to version 1
+    for _, post := range posts {
+        post.UpdatedAt = post.CreatedAt
+        if post.Url == "" {
+            post.Url = strconv.Itoa(post.Id)
         }
+        db.InsertPostV1(post)
+        log.Println(post.Url)
     }
 }
+func main() {
+    Migration0To1()
+}
+

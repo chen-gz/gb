@@ -5,6 +5,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"strings"
+    "errors"
 	"time"
 )
 
@@ -183,7 +184,8 @@ func GetRecentPosts(num int) ([]BlogData, error) {
 //////////////////////////////////////////////
 // database interface for v1 api
 
-type blogDataV1 struct {
+
+type BlogDataV1 struct {
     Id             int
     Author         string
     Title          string
@@ -202,17 +204,48 @@ type blogDataV1 struct {
     UpdatedAt      time.Time
 }
 
-func GetPostByUrl(url string) (blogDataV1, error) {
-    database, err := sql.Open(dbType, dbPath)
+const dbTypev1 = "sqlite3"
+const dbPathv1 = "./blogv1.db"
+func InitDatabasev1() {
+    database, err := sql.Open(dbTypev1, dbPathv1)
     if err != nil {
         log.Fatal(err)
     }
     defer database.Close()
-    query := database.QueryRow(`SELECT (id, author,title, content, tags, categories, url,
+    // create table if not exist
+    _, err = database.Exec(`CREATE TABLE IF NOT EXISTS posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        author TEXT,
+        title TEXT,
+        content TEXT,
+        tags TEXT,
+        categories TEXT,
+        url TEXT UNIQUE NOT NULL,
+        like INTEGER,
+        dislike INTEGER,
+        cover_img TEXT,
+        is_draft INTEGER,
+        is_deleted INTEGER,
+        private_level INTEGER,
+        view_count INTEGER,
+        created_at DATETIME,
+        updated_at DATETIME
+    )`)
+    if err != nil {
+        log.Fatal(err)
+    }
+}
+func GetPostByUrl(url string) (BlogDataV1, error) {
+    database, err := sql.Open(dbTypev1, dbPathv1)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer database.Close()
+    query := database.QueryRow(`SELECT (id, author, title, content, tags, categories, url,
                                 like, dislike, cover_img, is_draft, is_deleted,
                                 private_level, view_count, created_at, updated_at)
                                 FROM posts WHERE url = ?`, url)
-    post := blogDataV1{}
+    post := BlogDataV1{}
     err = query.Scan(&post.Id, &post.Author, &post.Title, &post.Content, &post.Tags,
                      &post.Categories, &post.Url, &post.Like, &post.Dislike, &post.CoverImg,
                      &post.IsDraft, &post.IsDeleted, &post.PrivateLevel, &post.ViewCount,
@@ -223,8 +256,9 @@ func GetPostByUrl(url string) (blogDataV1, error) {
     }
     return post, err
 }
-func SearchPost(keys map[string]string) ([]blogDataV1, error) {
-    database, err := sql.Open(dbType, dbPath)
+
+func SearchPost(keys map[string]string) ([]BlogDataV1, error) {
+    database, err := sql.Open(dbTypev1, dbPathv1)
     if err != nil {
         log.Fatal(err)
     }
@@ -233,18 +267,24 @@ func SearchPost(keys map[string]string) ([]blogDataV1, error) {
     if len(keys) == 0 {
         return nil, errors.New("no search key")
     }
+    // todo: make limit under 50
+    if (keys["limit"] == "") {
+        keys["limit"] = "50"
+        
+    }
     for key, value := range keys {
         query += key + "=" + value + " AND "
     }
+
     query = query[:len(query)-5]
     rows, err := database.Query(query)
     if err != nil {
         log.Fatal(err)
     }
     defer rows.Close()
-    result := []blogDataV1{}
+    result := []BlogDataV1{}
     for rows.Next() {
-        post := blogDataV1{}
+        post := BlogDataV1{}
         err := rows.Scan(&post.Id, &post.Author, &post.Title, &post.Url)
         if err != nil {
             log.Fatal(err)
@@ -254,5 +294,23 @@ func SearchPost(keys map[string]string) ([]blogDataV1, error) {
     return result, err
 }
 
+func InsertPostV1(blog BlogDataV1) error {
+    database, err := sql.Open(dbTypev1, dbPathv1)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer database.Close()
+    stmt, err := database.Prepare(`INSERT INTO posts (author, title, content, tags, categories, url,
+                                    like, dislike, cover_img, is_draft, is_deleted,
+                                    private_level, view_count, created_at, updated_at) VALUES
+                                    (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    _, err = stmt.Exec(blog.Author, blog.Title, blog.Content, blog.Tags, blog.Categories, blog.Url,
+                       blog.Like, blog.Dislike, blog.CoverImg, blog.IsDraft, blog.IsDeleted,
+                       blog.PrivateLevel, blog.ViewCount, blog.CreatedAt, blog.UpdatedAt)
 
+    if err != nil {
+        log.Fatal(err)
+    }
+    return err
+}
 
