@@ -12,7 +12,7 @@ func gin_server() {
 
 // /api/v1/get_post_by_id/:id?(params)
     r.GET("/api/v1/get_post/:url", func(c *gin.Context) {
-        hd.V1GetPost(c);
+        hd.V1GetPost(c c.Param("url"));
     })
 	r.GET("/api/home", func(c *gin.Context) {
 		hd.Home(c)

@@ -184,23 +184,22 @@ func GetRecentPosts(num int) ([]BlogData, error) {
 // database interface for v1 api
 
 type blogDataV1 struct {
-    Id             int,
-    Author         string,
-    Title          string,
-    Content        string,
-    Tags           string,
-    Categories     string,
-    Datetime       time.Time,
+    Id             int
+    Author         string
+    Title          string
+    Content        string
+    Tags           string
+    Categories     string
     Url            string // for vue router and s3 storage. no space.
-    Like           int,
-    Dislike        int,
-    CoverImg       string,
-    IsDraft        bool,    // if true, only show to author, else show to everyone
-    IsDeleted      bool,
-    PrivateLevel   int,
-    ViewCount      int,
-    CreatedAt      time.Time,
-    UpdatedAt      time.Time,
+    Like           int
+    Dislike        int
+    CoverImg       string
+    IsDraft        bool    // if true, only show to author, else show to everyone
+    IsDeleted      bool
+    PrivateLevel   int
+    ViewCount      int
+    CreatedAt      time.Time
+    UpdatedAt      time.Time
 }
 
 func GetPostByUrl(url string) (blogDataV1, error) {
@@ -209,19 +208,50 @@ func GetPostByUrl(url string) (blogDataV1, error) {
         log.Fatal(err)
     }
     defer database.Close()
-    query := database.QueryRow("SELECT * FROM posts WHERE url = ?", url)
+    query := database.QueryRow(`SELECT (id, author,title, content, tags, categories, url,
+                                like, dislike, cover_img, is_draft, is_deleted,
+                                private_level, view_count, created_at, updated_at)
+                                FROM posts WHERE url = ?`, url)
     post := blogDataV1{}
-    tag := ""
-    category := ""
-    err = query.Scan(&post.Id, &post.Title, &post.Author,
-        &post.Content, &tag, &category,
-        &post.Datetime, &post.Url)
-    post.Tags = strings.Split(tag, ",")
-    post.Categories = strings.Split(category, ",")
+    err = query.Scan(&post.Id, &post.Author, &post.Title, &post.Content, &post.Tags,
+                     &post.Categories, &post.Url, &post.Like, &post.Dislike, &post.CoverImg,
+                     &post.IsDraft, &post.IsDeleted, &post.PrivateLevel, &post.ViewCount,
+                     &post.CreatedAt, &post.UpdatedAt)
     if err != nil {
-        log.Println("error in get post by id")
+        log.Println("error in get post by url")
         log.Fatal(err)
     }
+    return post, err
+}
+func SearchPost(keys map[string]string) ([]blogDataV1, error) {
+    database, err := sql.Open(dbType, dbPath)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer database.Close()
+    query := `SELECT (id, author, title, url) FROM posts WHERE `
+    if len(keys) == 0 {
+        return nil, errors.New("no search key")
+    }
+    for key, value := range keys {
+        query += key + "=" + value + " AND "
+    }
+    query = query[:len(query)-5]
+    rows, err := database.Query(query)
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer rows.Close()
+    result := []blogDataV1{}
+    for rows.Next() {
+        post := blogDataV1{}
+        err := rows.Scan(&post.Id, &post.Author, &post.Title, &post.Url)
+        if err != nil {
+            log.Fatal(err)
+        }
+        result = append(result, post)
+    }
+    return result, err
 }
 
 

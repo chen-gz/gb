@@ -61,7 +61,8 @@ func AddPost(c *gin.Context) {
 // tags, category, author, comments, likes, 
 // views, cover_image
 
-func V1GetPost(c *gin.Context) {
+
+func V1GetPost(c *gin.Context, url string) {
     url := c.Param("url")
 	database, err := sql.Open(dbType, dbPath)
 	rows, err := database.Query("SELECT * FROM posts WHERE url = ?", url)
