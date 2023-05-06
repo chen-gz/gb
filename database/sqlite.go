@@ -340,7 +340,7 @@ func V1GetCategories() []BlogCategories {
 			log.Fatal(err)
 		}
 		if cate != "" {
-			cate = append(cates, strings.TrimSpace(cate))
+			cates = append(cates, strings.TrimSpace(cate))
 		}
 	}
 	// list 5 post title for each category
@@ -357,7 +357,7 @@ func V1GetCategories() []BlogCategories {
 		}
 		log.Println(cate, count)
 		params := map[string]string{
-			"categories": cate,
+			"categories": "'" + cate + "'",
 			"limit":      "5",
 			"sort":       "updated_at DESC",
 			"summary":    "true",
