@@ -19,6 +19,9 @@ func gin_server() {
 	r.GET("/api/v1/get_tags", func(c *gin.Context) {
 		hd.V1GetTags(c)
 	})
+	r.GET("/api/vi/get_cateories", func(c *gin.Context) {
+		hd.V1GetCategories(c)
+	})
 
 	r.Run(":2009") // listen and serve on
 }

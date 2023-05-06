@@ -27,26 +27,6 @@ type BlogData struct {
 	Url        string // for vue router and s3 storage. no space.
 }
 
-func Init() {
-	// create sqlite database
-	database, err := sql.Open(dbType, dbPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer database.Close()
-
-	database.Exec(`CREATE TABLE IF NOT EXISTS posts 
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT, 
-    author TEXT, 
-    content TEXT, 
-    tags TEXT, 
-    categories TEXT, 
-    datetime DATETIME,
-    url TEXT UNIQUE NOT NULL
-    `)
-}
-
 func InsertPost(blog BlogData) error {
 	// log the title and author
 	log.Println("insert post, title", blog.Title, "\t author", blog.Author)
@@ -103,85 +83,6 @@ func UpdatePost(blog BlogData) error {
 		log.Fatal(err)
 	}
 	return err
-}
-
-// get all post id and title from database and return a map
-func GetAllPostIdAndTitle() (map[int]string, error) {
-	database, err := sql.Open(dbType, dbPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer database.Close()
-	rows, err := database.Query("SELECT id, title FROM posts")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	result := make(map[int]string)
-	for rows.Next() {
-		var id int
-		var title string
-		err := rows.Scan(&id, &title)
-		if err != nil {
-			log.Fatal(err)
-		}
-		result[id] = title
-	}
-	return result, err
-}
-
-func GetPostById(index int) (BlogData, error) {
-	database, err := sql.Open(dbType, dbPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer database.Close()
-	query := database.QueryRow("SELECT * FROM posts WHERE Id = ?", index)
-	post := BlogData{}
-	tag := ""
-	category := ""
-	err = query.Scan(&post.Id, &post.Title, &post.Author,
-		&post.Content, &tag, &category,
-		&post.Datetime, &post.Url)
-	post.Tags = strings.Split(tag, ",")
-	post.Categories = strings.Split(category, ",")
-	if err != nil {
-		log.Println("error in get post by id")
-		log.Fatal(err)
-		// todo: id not found should be handled and test
-	}
-	return post, err
-}
-
-func GetRecentPosts(num int) ([]BlogData, error) {
-	// sort by datetime and get the first `num` posts
-	database, err := sql.Open(dbType, dbPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer database.Close()
-	rows, err := database.Query("SELECT * FROM posts ORDER BY datetime DESC LIMIT ?", num)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	result := []BlogData{}
-	tag := ""
-	category := ""
-	for rows.Next() {
-		post := BlogData{}
-		err := rows.Scan(&post.Id, &post.Title, &post.Author,
-			&post.Content, &tag, &category,
-			&post.Datetime, &post.Url)
-		post.Tags = strings.Split(tag, ",")
-		post.Categories = strings.Split(category, ",")
-		if err != nil {
-			log.Fatal(err)
-		}
-		result = append(result, post)
-	}
-
-	return result, err
 }
 
 //////////////////////////////////////////////
@@ -363,6 +264,12 @@ func V1InsertPost(blog BlogDataV1) error {
 	}
 	return err
 }
+
+type BlogTags struct {
+	Name  string
+	Count int
+}
+
 func V1GetTags() map[string]int {
 	database, err := sql.Open(dbTypev1, dbPathv1)
 	if err != nil {
@@ -407,4 +314,57 @@ func V1GetTags() map[string]int {
 	defer rows.Close()
 	return result
 
+}
+
+type BlogCategories struct {
+	Name  string
+	Count int
+	Posts []BlogDataV1
+}
+
+func V1GetCategories() []BlogCategories {
+	database, err := sql.Open(dbTypev1, dbPathv1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer database.Close()
+	rows, err := database.Query("select distinct categories from posts")
+	if err != nil {
+		log.Fatal(err)
+	}
+	cates := []string{}
+	for rows.Next() {
+		var cate string
+		err = rows.Scan(&cate)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if cate != "" {
+			cate = append(cates, strings.TrimSpace(cate))
+		}
+	}
+	// list 5 post title for each category
+	result := []BlogCategories{}
+	for _, cate := range cates {
+		rows := database.QueryRow("select count(*) from posts where categories='" + cate + "'")
+		if err != nil {
+			log.Fatal(err)
+		}
+		var count int
+		err = rows.Scan(&count)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println(cate, count)
+		params := map[string]string{
+			"categories": cate,
+			"limit":      "5",
+			"sort":       "updated_at DESC",
+			"summary":    "true",
+		}
+		posts := V1SearchPost(params)
+		result = append(result, BlogCategories{Name: cate, Count: count, Posts: posts})
+	}
+	defer rows.Close()
+	return result
 }
