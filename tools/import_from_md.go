@@ -141,6 +141,7 @@ func Migration0To1() {
 		log.Println(post.Url)
 	}
 }
+
 func main() {
 	Migration0To1()
 }

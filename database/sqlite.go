@@ -363,3 +363,48 @@ func V1InsertPost(blog BlogDataV1) error {
 	}
 	return err
 }
+func V1GetTags() map[string]int {
+	database, err := sql.Open(dbTypev1, dbPathv1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer database.Close()
+	rows, err := database.Query("select distinct tags from posts")
+	if err != nil {
+		log.Fatal(err)
+	}
+	tags := []string{}
+	for rows.Next() {
+		var tag string
+		err = rows.Scan(&tag)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if tag != "" {
+			// seperate by comma and remove space in front and back
+			split_tags := strings.Split(tag, ",")
+			for _, tag := range split_tags {
+				tags = append(tags, strings.TrimSpace(tag))
+			}
+			// tags = append(tags, strings.Split(tag, ",")...)
+		}
+	}
+	result := map[string]int{}
+	// get the number of post for each tag
+	for _, tag := range tags {
+		rows := database.QueryRow("select count(*) from posts where tags like '%" + tag + "%'")
+		if err != nil {
+			log.Fatal(err)
+		}
+		var count int
+		err = rows.Scan(&count)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println(tag, count)
+		result[tag] += count
+	}
+	defer rows.Close()
+	return result
+
+}
