@@ -208,11 +208,14 @@ func V1SearchPost(keys map[string]string) []BlogDataV1 {
 		for key, value := range keys {
 			query += key + "=" + value + " AND "
 		}
-		query = query[:len(query)-5]
-		if sort != "" {
-			query += " ORDER BY " + sort
+		if len(keys) != 0 {
+			query = query[:len(query)-5]
 		}
 	}
+	if sort != "" {
+		query += " ORDER BY " + sort
+	}
+
 	if summary {
 		query += " LIMIT " + strconv.Itoa(limit)
 		query_items += " , content"
