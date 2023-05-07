@@ -206,7 +206,13 @@ func V1SearchPost(keys map[string]string) []BlogDataV1 {
 	if len(keys) != 0 {
 		query += "WHERE "
 		for key, value := range keys {
-			query += key + "=" + value + " AND "
+			if key == "tags" {
+				query += key + " LIKE '%" + value + "%' AND "
+			} else {
+				query += key + "=" + value + " AND "
+
+			}
+
 		}
 		if len(keys) != 0 {
 			query = query[:len(query)-5]
@@ -302,6 +308,7 @@ func V1GetTags() map[string]int {
 	result := map[string]int{}
 	// get the number of post for each tag
 	for _, tag := range tags {
+		log.Println("select count(*) from posts where tags like '%" + tag + "%'")
 		rows := database.QueryRow("select count(*) from posts where tags like '%" + tag + "%'")
 		if err != nil {
 			log.Fatal(err)
