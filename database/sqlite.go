@@ -378,3 +378,23 @@ func V1GetCategories() []BlogCategories {
 	defer rows.Close()
 	return result
 }
+
+func V1UpdatePost(blogData BlogDataV1) {
+	database, err := sql.Open(dbTypev1, dbPathv1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer database.Close()
+	stmt, err := database.Prepare(`UPDATE posts SET author=?, title=?, content=?, tags=?, categories=?, url=?,
+                 															like=?, dislike=?, cover_img=?, is_draft=?, is_deleted=?,
+                 															private_level=?, view_count=?, created_at=?, updated_at=? WHERE id=?`)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = stmt.Exec(blogData.Author, blogData.Title, blogData.Content, blogData.Tags, blogData.Categories, blogData.Url,
+		blogData.Like, blogData.Dislike, blogData.CoverImg, blogData.IsDraft, blogData.IsDeleted,
+		blogData.PrivateLevel, blogData.ViewCount, blogData.CreatedAt, blogData.UpdatedAt, blogData.Id)
+	if err != nil {
+		log.Fatal(err)
+	}
+}

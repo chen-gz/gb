@@ -4,7 +4,6 @@ import (
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"
 	"github.com/gomarkdown/markdown/parser"
-	"log"
 )
 
 func PreRenderMd(mddata []byte) []byte {
@@ -13,7 +12,7 @@ func PreRenderMd(mddata []byte) []byte {
 		if mddata[i] == '$' && mddata[i+1] == '$' {
 			if i-2 >= 0 && mddata[i-2] != '\n' {
 				mddata = append(mddata[:i], append([]byte("\n"), mddata[i:]...)...)
-				log.Println("add empty line before math block")
+				//log.Println("add empty line before math block")
 			}
 			i += 2
 			var j int

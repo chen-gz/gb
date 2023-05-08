@@ -1,10 +1,12 @@
-// package main
+//package main
+
 package handler
 
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"log"
 	"net/http"
 	"time"
 )
@@ -15,9 +17,9 @@ func V1Login(c *gin.Context) {
 	email := c.Query("email")
 	password := c.Query("password")
 
-	if email == "test" && password == "test" {
+	if email == "chen-gz@outlook.com" && password == "Connie" {
 		c.JSON(http.StatusOK, gin.H{
-			"token": V1ReleaseToken(email),
+			"token": V1GenerateToken(email),
 			"msg":   "log in success",
 			"name":  "test",
 		})
@@ -28,24 +30,21 @@ func V1Login(c *gin.Context) {
 	}
 }
 
-func V1ReleaseToken(user string) string {
-	signingMethod := jwt.SigningMethodHS256
-	//signingMethod := jwt.SigningMethodHMAC{}
+func V1GenerateToken(email string) string {
+	log.Println("Generating token for user: ", email, " ...")
+	signingMethod := jwt.SigningMethodHS256 // HS256 is an instance of HMAC
 	claims := jwt.MapClaims{
-		"user": user,
-		"name": "test",
-		"iat":  time.Now().Unix(),
-		"exp":  time.Now().Add(time.Hour * 24 * 7).Unix(),
+		"email": email,
+		"iat":   time.Now().Unix(),
+		"exp":   time.Now().Add(time.Hour * 7).Unix(),
 	}
 	token := jwt.NewWithClaims(signingMethod, claims)
 	signedToken, err := token.SignedString(secreteKey)
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
-	fmt.Println("Generated token: ", signedToken)
-	//Verify token
+	log.Println("Generated token success")
 	return signedToken
-
 }
 
 func V1VerifyToken(token string) (bool, interface{}) {
