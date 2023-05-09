@@ -155,7 +155,8 @@ func V1GetPostByUrl(url string) BlogDataV1 {
 		log.Fatal(err)
 	}
 	defer database.Close()
-	log.Print("sql command: SELECT id, author, title, content, tags, categories, url, like, dislike, cover_img, is_draft, is_deleted, private_level, view_count, created_at, updated_at FROM posts WHERE url = ?")
+	log.Print("sql command: SELECT id, author, title, content, tags, categories, url, like, dislike, cover_img, is_draft, " +
+		"is_deleted, private_level, view_count, created_at, updated_at FROM posts WHERE url = ?")
 	database.QueryRow(`SELECT id, author, title,
     content, tags, categories, url,
     like, dislike, cover_img, is_draft, is_deleted,

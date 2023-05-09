@@ -48,12 +48,16 @@ func V1GenerateToken(email string) string {
 }
 
 func V1VerifyToken(token string) (bool, interface{}) {
-	parsedToken, _ := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
+	parsedToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return secreteKey, nil
 	})
+	if err != nil {
+		log.Println("verify token failed: ", err)
+		return false, nil
+	}
 	valid := parsedToken.Valid
 	email := parsedToken.Claims.(jwt.MapClaims)["email"]
 	return valid, email
