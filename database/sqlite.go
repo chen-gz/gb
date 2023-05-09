@@ -154,19 +154,45 @@ func V1GetPostByUrl(url string) BlogDataV1 {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer database.Close()
+	defer func(database *sql.DB) {
+		err := database.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}(database)
 	log.Print("sql command: SELECT id, author, title, content, tags, categories, url, like, dislike, cover_img, is_draft, " +
 		"is_deleted, private_level, view_count, created_at, updated_at FROM posts WHERE url = ?")
-	database.QueryRow(`SELECT id, author, title,
-    content, tags, categories, url,
-    like, dislike, cover_img, is_draft, is_deleted,
-    private_level, view_count, created_at, updated_at
-    FROM posts WHERE url = ?`, url).Scan(&post.Id, &post.Author, &post.Title, &post.Content, &post.Tags,
+	if database.QueryRow(`SELECT id, author, title,
+	    content, tags, categories, url,
+	    like, dislike, cover_img, is_draft, is_deleted,
+	    private_level, view_count, created_at, updated_at
+	    FROM posts WHERE url = ?`, url).Scan(&post.Id, &post.Author, &post.Title, &post.Content, &post.Tags,
 		&post.Categories, &post.Url, &post.Like, &post.Dislike, &post.CoverImg,
 		&post.IsDraft, &post.IsDeleted,
 		&post.PrivateLevel, &post.ViewCount,
-		&post.CreatedAt, &post.UpdatedAt)
+		&post.CreatedAt, &post.UpdatedAt) != nil {
+		return BlogDataV1{}
+	}
 	return post
+}
+func V1GetPostById(id int) BlogDataV1 {
+	log.Println("API V1: Get post by id: ", id)
+	post := BlogDataV1{}
+	database, err := sql.Open(dbTypev1, dbPathv1)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer database.Close()
+	if database.QueryRow(`SELECT id, author, title, content, tags, categories, url, like, dislike, cover_img, is_draft,
+		is_deleted, private_level, view_count, created_at, updated_at FROM posts WHERE id = ?`, id).Scan(&post.Id, &post.Author, &post.Title, &post.Content, &post.Tags,
+		&post.Categories, &post.Url, &post.Like, &post.Dislike, &post.CoverImg,
+		&post.IsDraft, &post.IsDeleted,
+		&post.PrivateLevel, &post.ViewCount,
+		&post.CreatedAt, &post.UpdatedAt) != nil {
+		return BlogDataV1{}
+	}
+	return post
+
 }
 
 func V1SearchPost(keys map[string]string) []BlogDataV1 {
