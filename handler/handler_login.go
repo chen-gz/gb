@@ -29,6 +29,20 @@ func V1Login(c *gin.Context) {
 		})
 	}
 }
+func V1Verify(c *gin.Context) {
+	token := c.Query("token")
+	valid, _ := V1VerifyToken(token)
+	if valid {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "token valid",
+		})
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"msg": "token invalid",
+		})
+	}
+
+}
 
 func V1GenerateToken(email string) string {
 	log.Println("Generating token for user: ", email, " ...")

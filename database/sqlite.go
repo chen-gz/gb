@@ -1,5 +1,7 @@
 package database
 
+//package main
+
 import (
 	"database/sql"
 	"math"
@@ -14,7 +16,8 @@ import (
 
 const dbPath = "./blog.db"
 const dbType = "sqlite3"
-const max_post_num = 50 // max number of posts when summary is needed
+const max_post_num_in_search = 50 // max number of posts when summary is needed
+const summary_length = 300        // length of summary
 
 type BlogData struct {
 	Id         int
@@ -68,7 +71,8 @@ func UpdatePost(blog BlogData) error {
     datetime = ?, author = ?, url = ?, 
     WHERE id = ?`)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 	// connect Tags to a single string and connect use ',' to connect
 	Tags := strings.Join(blog.Tags, ",")
@@ -80,7 +84,8 @@ func UpdatePost(blog BlogData) error {
 		blog.Id)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 	return err
 }
@@ -89,24 +94,24 @@ func UpdatePost(blog BlogData) error {
 // database interface for v1 api
 
 type BlogDataV1 struct {
-	Id           int
-	Author       string
-	Title        string
-	Content      string
-	Tags         string
-	Categories   string
-	Url          string // for vue router and s3 storage. no space.
-	Like         int
-	Dislike      int
-	CoverImg     string
-	IsDraft      bool // if true, only show to author, else show to everyone
-	IsDeleted    bool
-	PrivateLevel int
-	ViewCount    int
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	Summary      string // summary of the post. This only used return the post to the front end
-	Rendered     string // rendered html content, this only is used to return the post to the front end
+	Id           int       `json:"id"`
+	Author       string    `json:"author"`
+	Title        string    `json:"title"`
+	Content      string    `json:"content"`
+	Tags         string    `json:"tags"`
+	Categories   string    `json:"categories"`
+	Url          string    `json:"url"`
+	Like         int       `json:"like"`
+	Dislike      int       `json:"dislike"`
+	CoverImg     string    `json:"cover_img"`
+	IsDraft      bool      `json:"is_draft"`
+	IsDeleted    bool      `json:"is_deleted"`
+	PrivateLevel int       `json:"private_level"`
+	ViewCount    int       `json:"view_count"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+	Summary      string    `json:"summary"`
+	Rendered     string    `json:"rendered"`
 }
 
 const dbTypev1 = "sqlite3"
@@ -425,3 +430,106 @@ func V1UpdatePost(blogData BlogDataV1) {
 		log.Fatal(err)
 	}
 }
+
+type SearchParams struct {
+	Author     string         `json:"author"`     // exact match
+	Title      string         `json:"title"`      // use like to search
+	Content    string         `json:"content"`    // use like to search
+	Tags       string         `json:"tags"`       // will use like to search
+	Categories string         `json:"categories"` // will use like to search
+	Limit      map[string]int `json:"limit"`      // two values: start, size the number of post to return
+	Sort       string         `json:"sort"`       // directly apply to sql
+	Summary    bool           `json:"summary"`    // if true, summary and render content will be returned, default false;
+}
+
+// token should be verify before search in database
+
+// search will not return full content. only summary is allowed
+func V1SearchPostBySearchParams(params SearchParams) []BlogDataV1 {
+	log.Println("API V1 Search use params: ", params)
+	if params.Limit == nil {
+		params.Limit = map[string]int{"start": 0, "size": 10}
+	}
+
+	if params.Limit["start"] < 0 {
+		params.Limit["start"] = 0
+	}
+	if params.Limit["size"] < 0 || params.Limit["size"] > max_post_num_in_search {
+		params.Limit["size"] = 10
+	}
+	database, _ := sql.Open(dbTypev1, dbPathv1)
+	defer database.Close()
+	prepareString := ""
+	//prepareParams := make(map[string]string)
+	var prepareParams []any
+	if params.Author != "" {
+		prepareString += "author=? "
+		prepareParams = append(prepareParams, params.Author)
+	}
+	if params.Title != "" {
+		prepareString += "title like ? "
+		prepareParams = append(prepareParams, "%"+params.Title+"%")
+	}
+	if params.Content != "" {
+		prepareString += "content like ? "
+		prepareParams = append(prepareParams, "%"+params.Content+"%")
+	}
+	if params.Tags != "" {
+		prepareString += "tags like ? "
+		prepareParams = append(prepareParams, "%"+params.Tags+"%")
+	}
+	if params.Categories != "" {
+		prepareString += "categories like ? "
+		prepareParams = append(prepareParams, "%"+params.Categories+"%")
+	}
+	if prepareString != "" {
+		prepareString = "select * from posts where " + prepareString
+	} else {
+		prepareString = "select * from posts "
+	}
+	if params.Sort != "" {
+		prepareString += "order by " + params.Sort + " "
+	}
+	prepareString += "limit ?,?"
+
+	prepareParams = append(prepareParams, params.Limit["start"])
+	prepareParams = append(prepareParams, params.Limit["size"])
+	log.Println("prepareString: ", prepareString)
+	log.Println("prepareParams: ", prepareParams)
+
+	stmt, err := database.Prepare(prepareString)
+	if err != nil {
+		log.Println("prepare error: ", err)
+		return nil
+	}
+	rows, err := stmt.Query(prepareParams...)
+	if err != nil {
+		log.Print("query error: ")
+		log.Println(err)
+		return nil
+	}
+	post := BlogDataV1{}
+	var result []BlogDataV1
+	for rows.Next() {
+		err := rows.Scan(&post.Id, &post.Author, &post.Title, &post.Content, &post.Tags, &post.Categories, &post.Url,
+			&post.Like, &post.Dislike, &post.CoverImg, &post.IsDraft, &post.IsDeleted,
+			&post.PrivateLevel, &post.ViewCount, &post.CreatedAt, &post.UpdatedAt)
+		if err != nil {
+			log.Println("scan error: ", err)
+			return nil
+		}
+		if params.Summary {
+			post.Summary = post.Content[:int(math.Min(float64(len(post.Content)), summary_length))]
+		}
+		post.Content = ""
+		result = append(result, post)
+	}
+	return result
+
+}
+
+//func main() {
+//	tmp := SearchParams{}
+//	tmp.Author = "Guangzong"
+//	V1SearchPostBySearchParams(tmp)
+//}
