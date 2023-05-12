@@ -425,3 +425,23 @@ func V1UpdatePost(blogData BlogDataV1) {
 		log.Fatal(err)
 	}
 }
+
+func V1DeletePost(url string) error {
+	database, err := sql.Open(dbTypev1, dbPathv1)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	defer database.Close()
+	stmt, err := database.Prepare(`DELETE FROM posts WHERE url=?`)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	_, err = stmt.Exec(url)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}

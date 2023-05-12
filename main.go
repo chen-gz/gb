@@ -12,12 +12,12 @@ import (
 
 func gin_server() {
 	r := gin.Default()
-	r.Use(cors.Default()) // allow cross origin request
+	//r.Use(cors.Default()) // allow cross origin request
 	// all all cross origin request
-	r.Use(cors.New(cors.Config{
-		AllowAllOrigins: true,
-		AllowMethods:    []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-	}))
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
+	r.Use(cors.New(config))
 
 	r.GET("/api/v1/get_post/:url", func(c *gin.Context) {
 		hd.V1GetPost(c, c.Param("url"))
@@ -37,11 +37,8 @@ func gin_server() {
 	r.GET("/api/v1/user_get/:url", func(c *gin.Context) {
 		token := c.Request.URL.Query()["token"][0]
 		valid, email := hd.V1VerifyToken(token)
-
 		if !valid {
-			c.JSON(http.StatusForbidden, gin.H{
-				"error": "invalid token",
-			})
+			c.JSON(http.StatusForbidden, gin.H{"error": "invalid token"})
 			return
 		}
 		//
