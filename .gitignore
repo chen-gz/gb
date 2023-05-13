@@ -3,3 +3,4 @@
 go_blog
 *.db
 *.bak
+.idea/
