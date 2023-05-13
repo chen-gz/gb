@@ -212,7 +212,7 @@ func V2SearchPost(c *gin.Context) {
 		return
 	}
 	// todo: some result are not allow to see for all user
-	result := db.V1SearchPostBySearchParams(search_params)
+	result, lengh := db.V1SearchPostBySearchParams(search_params)
 	if search_params.Summary == true && search_params.Rendered == true {
 		for i := range result {
 			result[i].Rendered = string(rd.RenderMd([]byte(result[i].Summary)))
@@ -224,6 +224,7 @@ func V2SearchPost(c *gin.Context) {
 		"status":  "success",
 		"message": "search success",
 		"posts":   result,
+		"count":   lengh,
 	})
 
 }

@@ -14,7 +14,7 @@ import (
 
 const dbPath = "./blog.db"
 const dbType = "sqlite3"
-const max_post_num_in_search = 50 // max number of posts when summary is needed
+const max_post_num_in_search = 30 // max number of posts when summary is needed
 const summary_length = 300        // length of summary
 
 type BlogData struct {
@@ -443,23 +443,22 @@ type SearchParams struct {
 	Sort       string         `json:"sort"`       // directly apply to sql
 	Summary    bool           `json:"summary"`    // if true, summary and render content will be returned, default false;
 	Rendered   bool           `json:"rendered"`   // if true, rendered content will be returned, default false;
-	count      bool           `json:"count"`      // if true, only return the number of post, default false;
 }
 
 // token should be verify before search in database
 
 // search will not return full content. only summary is allowed
-func V1SearchPostBySearchParams(params SearchParams) []BlogDataV1 {
+func V1SearchPostBySearchParams(params SearchParams) ([]BlogDataV1, int) {
 	log.Println("API V1 Search use params: ", params)
 	if params.Limit == nil {
-		params.Limit = map[string]int{"start": 0, "size": 10}
+		params.Limit = map[string]int{"start": 0, "size": -1}
 	}
 
 	if params.Limit["start"] < 0 {
 		params.Limit["start"] = 0
 	}
-	if params.Limit["size"] < 0 || params.Limit["size"] > max_post_num_in_search {
-		params.Limit["size"] = 10
+	if params.Limit["size"] == 0 {
+		params.Limit["size"] = -1
 	}
 	database, _ := sql.Open(dbTypev1, dbPathv1)
 	defer database.Close()
@@ -504,13 +503,13 @@ func V1SearchPostBySearchParams(params SearchParams) []BlogDataV1 {
 	stmt, err := database.Prepare(prepareString)
 	if err != nil {
 		log.Println("prepare error: ", err)
-		return nil
+		return nil, 0
 	}
 	rows, err := stmt.Query(prepareParams...)
 	if err != nil {
 		log.Print("query error: ")
 		log.Println(err)
-		return nil
+		return nil, 0
 	}
 	post := BlogDataV1{}
 	var result []BlogDataV1
@@ -520,7 +519,7 @@ func V1SearchPostBySearchParams(params SearchParams) []BlogDataV1 {
 			&post.PrivateLevel, &post.ViewCount, &post.CreatedAt, &post.UpdatedAt)
 		if err != nil {
 			log.Println("scan error: ", err)
-			return nil
+			return nil, 0
 		}
 		if params.Summary {
 			post.Summary = post.Content[:int(math.Min(float64(len(post.Content)), summary_length))]
@@ -528,7 +527,7 @@ func V1SearchPostBySearchParams(params SearchParams) []BlogDataV1 {
 		post.Content = ""
 		result = append(result, post)
 	}
-	return result
+	return result[0:int(math.Min(float64(len(result)), float64(max_post_num_in_search)))], len(result)
 
 }
 
