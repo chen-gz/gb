@@ -1,6 +1,10 @@
 package database
 
-//package main
+// This  is first version of user database design.
+
+// The Role determine user is admin or not.
+// The Level determine user's permission.
+// The group can be defined by admin. The post will apply filter based on group.
 
 type UserData struct {
 	Email string `json:"email"`

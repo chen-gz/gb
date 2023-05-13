@@ -77,26 +77,14 @@ func gin_server() {
 	r.GET("/api/v1/login", func(c *gin.Context) {
 		hd.V1Login(c)
 	})
-	r.GET("/api/v1/user_get_post/:url", func(c *gin.Context) {
-		// contain url and token in the query
-		var token string
-		if c.Request.URL.Query()["token"] == nil || len(c.Request.URL.Query()["token"]) == 0 {
-			token = ""
-		} else {
-			token = c.Request.URL.Query()["token"][0]
+	r.GET("/api/v1/user_get/:url", func(c *gin.Context) {
+		token := c.Request.URL.Query()["token"][0]
+		valid, email := hd.V1VerifyToken(token)
+		if !valid {
+			c.JSON(http.StatusForbidden, gin.H{"error": "invalid token"})
+			return
 		}
-		email := ""
-		if token != "" {
-			var valid bool
-			valid, email = hd.V1VerifyToken(token)
-			if !valid {
-				c.JSON(http.StatusForbidden, gin.H{
-					"error": "invalid token",
-				})
-				return
-			}
-		}
-
+		//
 		url := c.Param("url")
 		hd.V1UserGetPost(c, url, email)
 	})

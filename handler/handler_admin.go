@@ -19,8 +19,8 @@ func V1UserGetPost(c *gin.Context, url string, userEmail string) {
 			"error": "permission denied",
 		})
 	}
-
 }
+
 func V1UserUpdatePost(c *gin.Context, blogData db.BlogDataV1, userEmail string) {
 	// check user permission
 	// todo: this should get by id instead of url
@@ -33,24 +33,5 @@ func V1UserUpdatePost(c *gin.Context, blogData db.BlogDataV1, userEmail string) 
 		c.JSON(http.StatusForbidden, gin.H{
 			"error": "permission denied",
 		})
-	}
-}
-
-func V1UserInsertPost(c *gin.Context, blogData db.BlogDataV1, userToken string) {
-	valid, email := V1VerifyToken(userToken)
-	if !valid {
-		c.JSON(http.StatusForbidden, gin.H{
-			"error": "invalid token",
-		})
-		return
-	}
-	// check user permission
-	if email != "admin" {
-		_ = db.V1InsertPost(blogData)
-		c.JSON(http.StatusOK, gin.H{
-			"success": true,
-		})
-	} else {
-		c.JSON(http.StatusForbidden, gin.H{"error": "permission denied"})
 	}
 }
