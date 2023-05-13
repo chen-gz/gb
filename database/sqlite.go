@@ -409,24 +409,28 @@ func V1GetCategories() []BlogCategories {
 	return result
 }
 
-func V1UpdatePost(blogData BlogDataV1) {
+func V1UpdatePost(blogData BlogDataV1) error {
 	database, err := sql.Open(dbTypev1, dbPathv1)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 	defer database.Close()
 	stmt, err := database.Prepare(`UPDATE posts SET author=?, title=?, content=?, tags=?, categories=?, url=?,
                  															like=?, dislike=?, cover_img=?, is_draft=?, is_deleted=?,
                  															private_level=?, view_count=?, created_at=?, updated_at=? WHERE id=?`)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
 	_, err = stmt.Exec(blogData.Author, blogData.Title, blogData.Content, blogData.Tags, blogData.Categories, blogData.Url,
 		blogData.Like, blogData.Dislike, blogData.CoverImg, blogData.IsDraft, blogData.IsDeleted,
 		blogData.PrivateLevel, blogData.ViewCount, blogData.CreatedAt, blogData.UpdatedAt, blogData.Id)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return err
 	}
+	return nil
 }
 
 type SearchParams struct {
@@ -438,6 +442,8 @@ type SearchParams struct {
 	Limit      map[string]int `json:"limit"`      // two values: start, size the number of post to return
 	Sort       string         `json:"sort"`       // directly apply to sql
 	Summary    bool           `json:"summary"`    // if true, summary and render content will be returned, default false;
+	Rendered   bool           `json:"rendered"`   // if true, rendered content will be returned, default false;
+	count      bool           `json:"count"`      // if true, only return the number of post, default false;
 }
 
 // token should be verify before search in database

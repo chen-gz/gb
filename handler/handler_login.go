@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	db "go_blog/database"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -75,4 +77,62 @@ func V1VerifyToken(token string) (bool, string) {
 	valid := parsedToken.Valid
 	email := parsedToken.Claims.(jwt.MapClaims)["email"].(string)
 	return valid, email
+}
+
+func GetUserByAuthHeader(info string) db.UserData {
+	// if auth type is Bearer get token
+	if len(info) < 7 {
+		return db.UserData{}
+	}
+	if info[0:7] == "Bearer " {
+		token := info[7:]
+		valid, email := V1VerifyToken(token)
+		if !valid {
+			return db.UserData{}
+		} else {
+			return db.GetUser(email)
+		}
+	} else if info[0:6] == "Basic " {
+		userPass := info[6:]
+		email := userPass[0:strings.Index(userPass, ":")]
+		pass := userPass[strings.Index(userPass, ":")+1:]
+		// get
+		if login(email, pass) {
+			return db.GetUser(email)
+		}
+		return db.UserData{}
+	}
+	return db.UserData{}
+}
+
+func login(email string, password string) bool {
+	if email == "chen-gz@look.com" && password == "Connie" {
+		return true
+	}
+	return false
+}
+
+func V2Login(c *gin.Context) {
+	auth := c.GetHeader("Authorization")
+	user := GetUserByAuthHeader(auth)
+	if user.Email != "" && auth[0:6] == "Basic " {
+		c.JSON(http.StatusOK, gin.H{
+			"email": user.Email,
+			"token": V1GenerateToken(user.Email),
+			"msg":   "log in success",
+		})
+	} else if user.Email != "" && auth[0:7] == "Bearer " {
+		c.JSON(http.StatusOK, gin.H{
+			"email": user.Email,
+			"token": auth[7:],
+			"msg":   "log in success",
+		})
+	} else {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"email": "",
+			"token": "",
+			"msg":   "log in failed",
+		})
+
+	}
 }

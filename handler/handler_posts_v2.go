@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/mapstructure"
 	db "go_blog/database"
 	rd "go_blog/render"
+	"log"
 	"math"
 	"net/http"
 	"time"
@@ -38,40 +40,43 @@ func V2GetPost(c *gin.Context) {
 	var jsonData map[string]interface{}
 	var postRequest GetPostRequest
 	if c.BindJSON(&jsonData) != nil || mapstructure.Decode(jsonData, &postRequest) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid data"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "failed",
+			"message": "invalid request",
+			"post":    db.BlogDataV1{}})
 		return
 	}
-	// get user based on token
-	user := db.GetUser("")
-	if postRequest.Token != "" {
-		valid, email := V1VerifyToken(postRequest.Token)
-		if !valid {
-			c.JSON(http.StatusForbidden, gin.H{"error": "invalid token"})
-			return
-		}
-		user = db.GetUser(email)
-	}
-	// get post based on user, Role , PrivateLevel and Group
+	auth := c.Request.Header.Get("Authorization")
+	user := GetUserByAuthHeader(auth)
+
 	post := db.V1GetPostByUrl(postRequest.Url)
 	// todo: introduce group to post || user.Group == post.Group {
 	if user.Group == "admin" || user.Level >= post.PrivateLevel {
 
 	} else {
-		c.JSON(http.StatusForbidden, gin.H{"error": "permission denied"})
+		c.JSON(http.StatusForbidden, gin.H{
+			"status":  "failed",
+			"message": "permission denied",
+			"post":    db.BlogDataV1{}})
 		return
 	}
 	if postRequest.Summary {
 		post.Summary = post.Content[:int(math.Min(float64(len(post.Content)), 500))]
 	}
 	if postRequest.Rendered {
-		post.Rendered = string(rd.RenderMd([]byte(post.Content)))
+		if postRequest.Summary {
+			post.Rendered = string(rd.RenderMd([]byte(post.Summary)))
+		} else {
+			post.Rendered = string(rd.RenderMd([]byte(post.Content)))
+		}
 	}
 	if !postRequest.Content {
 		post.Content = ""
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"post":   post,
-		"status": "success",
+		"status":  "success",
+		"message": "post found",
+		"post":    post,
 	})
 }
 
@@ -80,26 +85,21 @@ type NewPostRequest struct {
 }
 
 func V2NewPost(c *gin.Context) {
-	var jsonData map[string]interface{}
-	var postRequest NewPostRequest
-	if c.BindJSON(&jsonData) != nil || mapstructure.Decode(jsonData, &postRequest) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid data"})
-		return
-	}
-	// get user based on token
-	user, valid := getUserFromToken(postRequest.Token)
-	if !valid {
-		c.JSON(http.StatusForbidden, gin.H{"error": "invalid token"})
-		return
-	}
-	// check user permission
+	auth := c.Request.Header.Get("Authorization")
+	user := GetUserByAuthHeader(auth)
 	if user.Role != "admin" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "permission denied"})
+		c.JSON(http.StatusForbidden, gin.H{
+			"status":  "failed",
+			"message": "permission denied",
+			"post":    db.BlogDataV1{},
+		})
 		return
 	}
-	// generate url
 	post := db.BlogDataV1{
-		Url: time.Now().String(),
+		Title:     "New Post",
+		Url:       time.Now().String(), // url should be unique
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 	// if this get error, generate new url and try again
 	tries := 0
@@ -108,47 +108,52 @@ func V2NewPost(c *gin.Context) {
 		post.Url = time.Now().String()
 		if tries > newPostRetry {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"status": "failed",
-				"error":  "failed to generate url",
+				"status":  "failed",
+				"message": "internal error, please try again later",
+				"post":    db.BlogDataV1{},
 			})
 			return
 		}
 	}
 	post = db.V1GetPostByUrl(post.Url)
-	c.JSON(http.StatusOK, gin.H{"status": "success", "post": post})
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "new post created",
+		"post":    post},
+	)
 }
 
 type DeletePostRequest struct {
-	Token string `json:"token"`
-	Url   string `json:"url"`
+	Url string `json:"url"`
 }
 
 func V2DeletePost(c *gin.Context) {
+	auth := c.Request.Header.Get("Authorization")
+	user := GetUserByAuthHeader(auth)
+	log.Println("user :", user)
+
 	var jsonData map[string]interface{}
 	var postRequest DeletePostRequest
 	if c.BindJSON(&jsonData) != nil || mapstructure.Decode(jsonData, &postRequest) != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid data"})
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status:": "failed",
+			"message": "invalid data"})
 		return
 	}
-	// get user based on token
-	user, valid := getUserFromToken(postRequest.Token)
-	if !valid {
-		c.JSON(http.StatusForbidden, gin.H{"error": "invalid token"})
-		return
-	}
-	// check user permission
 	if user.Role != "admin" {
-		c.JSON(http.StatusForbidden, gin.H{"error": "permission denied"})
+		c.JSON(http.StatusForbidden, gin.H{
+			"status":  "failed",
+			"message": "permission denied"})
 		return
 	}
 	// delete post
 	if db.V1DeletePost(postRequest.Url) != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"status": "failed",
-		})
+			"status":  "failed",
+			"message": "internal error"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": "success"})
+	c.JSON(http.StatusOK, gin.H{"status": "success", "message": "post deleted"})
 }
 
 type RenderMdRequest struct {
@@ -179,5 +184,80 @@ func V2Render(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
 		"html":   string(rd.RenderMd([]byte(renderRequest.Content))),
+	})
+}
+
+func V2SearchPost(c *gin.Context) {
+	auth := c.Request.Header.Get("Authorization")
+	user := GetUserByAuthHeader(auth)
+	_ = user
+	var searchRequest map[string]interface{}
+	c.BindJSON(&searchRequest)
+	var search_params db.SearchParams
+	dataStr, err := json.Marshal(searchRequest)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "failed",
+			"message": "error when marshal search_params",
+			"posts":   []db.BlogDataV1{},
+		})
+		return
+	}
+	if json.Unmarshal(dataStr, &search_params) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "failed",
+			"message": "error when unmarshal search_params",
+			"posts":   []db.BlogDataV1{},
+		})
+		return
+	}
+	// todo: some result are not allow to see for all user
+	result := db.V1SearchPostBySearchParams(search_params)
+	if search_params.Summary == true && search_params.Rendered == true {
+		for i := range result {
+			result[i].Rendered = string(rd.RenderMd([]byte(result[i].Summary)))
+		}
+
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "search success",
+		"posts":   result,
+	})
+
+}
+func V2UpdatePost(c *gin.Context) {
+	auth := c.Request.Header.Get("Authorization")
+	user := GetUserByAuthHeader(auth)
+	var jsonData map[string]interface{}
+	var postRequest db.BlogDataV1
+	if c.BindJSON(&jsonData) != nil || mapstructure.Decode(jsonData, &postRequest) != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "failed",
+			"message": "invalid data",
+		})
+		return
+	}
+	// check permission
+	if user.Role != "admin" {
+		c.JSON(http.StatusForbidden, gin.H{
+			"status":  "failed",
+			"message": "permission denied",
+		})
+		return
+	}
+	// update post
+	postRequest.UpdatedAt = time.Now()
+	if db.V1UpdatePost(postRequest) != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "failed",
+			"message": "internal error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "post updated",
 	})
 }
