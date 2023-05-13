@@ -71,6 +71,9 @@ func gin_server() {
 	r.POST("/api/v2/new_post", func(c *gin.Context) {
 		hd.V2NewPost(c)
 	})
+	r.POST("/api/v2/render_md", func(c *gin.Context) {
+		hd.V2RenderMd(c)
+	})
 
 	r.Run(":2009") // listen and serve on
 }
