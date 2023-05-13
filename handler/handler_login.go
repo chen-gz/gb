@@ -93,7 +93,9 @@ func GetUserByAuthHeader(info string) db.UserData {
 			return db.GetUser(email)
 		}
 	} else if info[0:6] == "Basic " {
+		// todo: handle invalid auth header.
 		userPass := info[6:]
+		log.Println(userPass)
 		email := userPass[0:strings.Index(userPass, ":")]
 		pass := userPass[strings.Index(userPass, ":")+1:]
 		// get
@@ -106,7 +108,7 @@ func GetUserByAuthHeader(info string) db.UserData {
 }
 
 func login(email string, password string) bool {
-	if email == "chen-gz@look.com" && password == "Connie" {
+	if email == "chen-gz@outlook.com" && password == "Connie" {
 		return true
 	}
 	return false

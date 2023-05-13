@@ -52,7 +52,7 @@ func gin_server() {
 	//	hd.V1Login(c)
 	//})
 	////////////////////////  above api will be deprecated ////////////////////////
-	r.GET("/api/v2/login", func(c *gin.Context) {
+	r.POST("/api/v2/login", func(c *gin.Context) {
 		hd.V2Login(c)
 	})
 	// bellow are finished api
