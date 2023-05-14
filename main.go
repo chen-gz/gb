@@ -17,7 +17,7 @@ func gin_server() {
 			"Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Access-Control-Allow-Credentials"},
 
 		AllowCredentials: true,
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     []string{"http://localhost:3000", "http://blog.ggeta.com", "https://blog.ggeta.com"},
 	}))
 	//////////////////////// following api will be deprecated ////////////////////////
 	//r.GET("/api/v1/get_post/:url", func(c *gin.Context) {
@@ -27,12 +27,7 @@ func gin_server() {
 	////	hd.V1SearchPosts(c)
 	////})
 	//
-	//r.GET("/api/v1/get_tags", func(c *gin.Context) {
-	//	hd.V1GetTags(c)
-	//})
-	//r.GET("/api/v1/get_categories", func(c *gin.Context) {
-	//	hd.V1GetCategories(c)
-	//})
+
 	//r.GET("/api/v1/user_get/:url", func(c *gin.Context) {
 	//	token := c.Request.URL.Query()["token"][0]
 	//	valid, email := hd.V1VerifyToken(token)
@@ -52,6 +47,13 @@ func gin_server() {
 	//	hd.V1Login(c)
 	//})
 	////////////////////////  above api will be deprecated ////////////////////////
+
+	r.GET("/api/v1/get_tags", func(c *gin.Context) {
+		hd.V1GetTags(c)
+	})
+	r.GET("/api/v1/get_categories", func(c *gin.Context) {
+		hd.V1GetCategories(c)
+	})
 	r.POST("/api/v2/login", func(c *gin.Context) {
 		hd.V2Login(c)
 	})
