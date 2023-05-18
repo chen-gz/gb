@@ -9,10 +9,10 @@ import (
 func TestV2SearchPosts(t *testing.T) {
 	// get count
 	param := V2SearchParams{
-		Title:  "Segment Tree",
-		Author: "Guangzong",
-		Tags:   "Math",
-		Count:  true,
+		Title:      "Segment Tree",
+		Author:     "Guangzong",
+		Tags:       "Math",
+		CountsOnly: true,
 	}
 	result, cnt := V2SearchPosts(param)
 	log.Println(result)
@@ -39,7 +39,7 @@ func TestV2SearchPosts3(t *testing.T) {
 }
 
 func TestV2UpdatePost(t *testing.T) {
-	post := BlogDataV2{
+	post := BlogDataV2Meta{
 		Id: 1,
 	}
 	post.Title = "test"
@@ -50,8 +50,8 @@ func TestV2UpdatePost(t *testing.T) {
 		Content: "test",
 	}
 	params := V2UpdateParams{
-		Post:          post,
-		PostUpdate:    true,
+		Meta:          post,
+		MetaUpdate:    true,
 		Content:       postContent,
 		ContentUpdate: true,
 	}

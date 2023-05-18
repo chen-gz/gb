@@ -25,7 +25,7 @@ func Migrate1to2() {
 			log.Println(err)
 		}
 		// insert to v2 database
-		postv2 := database.BlogDataV2{}
+		postv2 := database.BlogDataV2Meta{}
 		postv2.Id = post.Id
 		postv2.Author = post.Author
 		postv2.Title = post.Title

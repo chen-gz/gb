@@ -97,7 +97,7 @@ func V2NewPost(c *gin.Context) {
 		return
 	}
 	post := db.BlogDataV1{
-		Title:     "New Post",
+		Title:     "New Meta",
 		Url:       time.Now().String(), // url should be unique
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),

@@ -52,13 +52,12 @@ func gin_server() {
 	r.POST("/api/v3/get_post", func(c *gin.Context) {
 		// get url param
 		hd.V3GetPost(c)
-
 	})
 	r.POST("/api/v3/search_posts", func(c *gin.Context) {
-
+		hd.V3SearchPosts(c)
 	})
 	r.POST("/api/v3/update_post", func(c *gin.Context) {
-
+		hd.V3UpdatePost(c)
 	})
 	r.POST("/api/v3/new_post", func(c *gin.Context) {
 

@@ -47,7 +47,7 @@ func InitV2() {
 	stmt.Exec()
 }
 
-type BlogDataV2 struct {
+type BlogDataV2Meta struct {
 	Id            int       `json:"id"`
 	Title         string    `json:"title"`
 	Author        string    `json:"author"`
@@ -73,8 +73,13 @@ type BlogDataV2Comment struct {
 	ViewCount int    `json:"view_count"`
 	Comments  string `json:"comments"`
 }
+type BlogDataV2 struct {
+	Meta    BlogDataV2Meta    `json:"meta"`
+	Content BlogDataV2Content `json:"content"`
+	Comment BlogDataV2Comment `json:"comment"`
+}
 
-func V2InsertPost(post BlogDataV2, content BlogDataV2Content, comment BlogDataV2Comment) {
+func V2InsertPost(post BlogDataV2Meta, content BlogDataV2Content, comment BlogDataV2Comment) {
 	log.Println("insert post", post)
 	// the id of content and comment is the same as post.
 	db, _ := sql.Open(dbTypeV2, dbPathV2)
@@ -128,11 +133,11 @@ func V2InsertPost(post BlogDataV2, content BlogDataV2Content, comment BlogDataV2
 	}
 }
 
-func V2GetPostByUrl(url string) (BlogDataV2, BlogDataV2Content, BlogDataV2Comment) {
+func V2GetPostByUrl(url string) (BlogDataV2Meta, BlogDataV2Content, BlogDataV2Comment) {
 	db, _ := sql.Open(dbTypeV2, dbPathV2)
 	defer db.Close()
 	row := db.QueryRow(`SELECT * FROM post WHERE url=?`, url)
-	post := BlogDataV2{}
+	post := BlogDataV2Meta{}
 	err := row.Scan(&post.Id, &post.Title, &post.Author, &post.Url,
 		&post.CreateTime, &post.UpdateTime, &post.PrivateLevel, &post.Summary, &post.VisibleGroups,
 		&post.IsDraft, &post.IsDeleted)
@@ -159,8 +164,8 @@ func V2GetPostByUrl(url string) (BlogDataV2, BlogDataV2Content, BlogDataV2Commen
 
 type V2UpdateParams struct {
 	Id            int
-	Post          BlogDataV2
-	PostUpdate    bool
+	Meta          BlogDataV2Meta
+	MetaUpdate    bool
 	Content       BlogDataV2Content
 	ContentUpdate bool
 	Comment       BlogDataV2Comment
@@ -170,12 +175,12 @@ type V2UpdateParams struct {
 func V2UpdatePost(params V2UpdateParams) {
 	db, _ := sql.Open(dbTypeV2, dbPathV2)
 	defer db.Close()
-	if params.PostUpdate {
+	if params.MetaUpdate {
 		stmt, _ := db.Prepare(`UPDATE post SET title=?, author=?, url=?,  create_time=?, update_time=?,
                 					private_level=?, summary=?, visible_groups=?, is_draft=?, is_deleted=? WHERE id=?`)
-		_, err := stmt.Exec(params.Post.Title, params.Post.Author, params.Post.Url,
-			params.Post.CreateTime, params.Post.UpdateTime, params.Post.PrivateLevel, params.Post.Summary, params.Post.VisibleGroups,
-			params.Post.IsDraft, params.Post.IsDeleted, params.Post.Id)
+		_, err := stmt.Exec(params.Meta.Title, params.Meta.Author, params.Meta.Url,
+			params.Meta.CreateTime, params.Meta.UpdateTime, params.Meta.PrivateLevel, params.Meta.Summary, params.Meta.VisibleGroups,
+			params.Meta.IsDraft, params.Meta.IsDeleted, params.Meta.Id)
 		if err != nil {
 			log.Println(err)
 		}
@@ -197,18 +202,19 @@ func V2UpdatePost(params V2UpdateParams) {
 }
 
 type V2SearchParams struct {
-	Author     string         `json:"author"`     // exact match
-	Title      string         `json:"title"`      // use like to search
-	Limit      map[string]int `json:"limit"`      // two values: start, size the number of post to return
-	Sort       string         `json:"sort"`       // directly apply to sql
-	Rendered   bool           `json:"rendered"`   // if true, rendered content will be returned, default false;
-	Count      bool           `json:"count"`      // if true, only return the count of the result
-	Content    string         `json:"content"`    // use match to search
-	Tags       string         `json:"tags"`       // use match to search
-	Categories string         `json:"categories"` // use match to search
+	Author     string         `json:"author"`      // exact match
+	Title      string         `json:"title"`       // use like to search
+	Limit      map[string]int `json:"limit"`       // two values: start, size the number of post to return
+	Sort       string         `json:"sort"`        // directly apply to sql
+	Rendered   bool           `json:"rendered"`    // if true, rendered content will be returned, default false;
+	CountsOnly bool           `json:"counts_only"` // if true, only return the count of the result, default false;
+	Content    string         `json:"content"`     // use match to search
+	Tags       string         `json:"tags"`        // use match to search
+	Categories string         `json:"categories"`  // use match to search
+	Level      int            `json:"level"`       // 0: public, 1: private, 2: group
 }
 
-func V2SearchPosts(params V2SearchParams) ([]BlogDataV2, int) {
+func V2SearchPosts(params V2SearchParams) ([]BlogDataV2Meta, int) {
 	// make query for content first to get the id
 	contentCondition := ""
 	contentParams := []any{}
@@ -239,50 +245,32 @@ func V2SearchPosts(params V2SearchParams) ([]BlogDataV2, int) {
 	log.Println(contentCondition)
 	// make a query based on the id
 	// select * from post where id in (select id from post_content where content match 'test')
-
-	sqlPrepare := ""
-	//sqlFront := `SELECT * FROM post `
-	sqlPrepare += `SELECT * FROM post `
+	sqlPrepare := `SELECT * FROM post `
 	wherePrepare := ""
 	var prepareParams []any
-	hasCondition := false
 
+	wherePrepare += `WHERE Level <= ? `
+	prepareParams = append(prepareParams, params.Level)
 	if params.Author != "" {
-		if hasCondition {
-			wherePrepare += ` AND `
-		}
-		wherePrepare += `author = ? `
+		wherePrepare += ` AND author = ? `
 		prepareParams = append(prepareParams, params.Author)
-		hasCondition = true
 	}
 	if params.Title != "" {
-		if hasCondition {
-			wherePrepare += ` AND `
-		}
-		wherePrepare += `title LIKE ? `
+		wherePrepare += ` AND title LIKE ? `
 		prepareParams = append(prepareParams, "%"+params.Title+"%")
-		hasCondition = true
 	}
 	if params.Limit != nil {
-		wherePrepare += `LIMIT ?,? `
+		wherePrepare += ` AND LIMIT ?,? `
 		prepareParams = append(prepareParams, params.Limit["start"], params.Limit["size"])
 	}
 	if params.Sort != "" {
-		wherePrepare += `ORDER BY ? `
+		wherePrepare += ` AND ORDER BY ? `
 		prepareParams = append(prepareParams, params.Sort)
 	}
+	sqlPrepare += wherePrepare
 	if contentCondition != "" {
-		if wherePrepare != "" {
-			sqlPrepare += `WHERE ` + wherePrepare + ` AND id IN ` + contentCondition
-			prepareParams = append(prepareParams, contentParams...)
-		} else {
-			sqlPrepare += `WHERE id IN ` + contentCondition
-			prepareParams = append(prepareParams, contentParams...)
-		}
-	} else {
-		if wherePrepare != "" {
-			sqlPrepare += `WHERE ` + wherePrepare
-		}
+		sqlPrepare += ` AND id IN ` + contentCondition
+		prepareParams = append(prepareParams, contentParams...)
 	}
 	// make a query
 	db, _ := sql.Open(dbTypeV2, dbPathV2)
@@ -299,11 +287,11 @@ func V2SearchPosts(params V2SearchParams) ([]BlogDataV2, int) {
 	}
 	defer rows.Close()
 	// get the result
-	var result []BlogDataV2
+	var result []BlogDataV2Meta
 	resultCount := 0
 	for rows.Next() {
 		resultCount++
-		post := BlogDataV2{}
+		post := BlogDataV2Meta{}
 		err := rows.Scan(&post.Id, &post.Title, &post.Author, &post.Url, &post.CreateTime, &post.UpdateTime,
 			&post.PrivateLevel, &post.Summary, &post.VisibleGroups, &post.IsDraft, &post.IsDeleted)
 		if err != nil {
@@ -311,8 +299,8 @@ func V2SearchPosts(params V2SearchParams) ([]BlogDataV2, int) {
 		}
 		result = append(result, post)
 	}
-	if params.Count {
-		return []BlogDataV2{}, resultCount
+	if params.CountsOnly {
+		return []BlogDataV2Meta{}, resultCount
 	}
 	return result, resultCount
 }
