@@ -214,15 +214,22 @@ func V2SearchPosts(params V2SearchParams) ([]BlogDataV2, int) {
 	contentParams := []any{}
 
 	if params.Content != "" {
-		contentCondition += `content MATCH ?`
+		contentCondition += `content MATCH ? `
 		contentParams = append(contentParams, params.Content)
 	}
 	if params.Tags != "" {
-		contentCondition += `tags MATCH ?`
+		if contentCondition != "" {
+			contentCondition += `AND `
+		}
+		contentCondition += `tags MATCH ? `
+
 		contentParams = append(contentParams, params.Tags)
 	}
 	if params.Categories != "" {
-		contentCondition += `category MATCH ?`
+		if contentCondition != "" {
+			contentCondition += `AND `
+		}
+		contentCondition += `category MATCH ? `
 		contentParams = append(contentParams, params.Categories)
 	}
 	if contentCondition != "" {
@@ -234,17 +241,27 @@ func V2SearchPosts(params V2SearchParams) ([]BlogDataV2, int) {
 	// select * from post where id in (select id from post_content where content match 'test')
 
 	sqlPrepare := ""
+	//sqlFront := `SELECT * FROM post `
 	sqlPrepare += `SELECT * FROM post `
 	wherePrepare := ""
 	var prepareParams []any
+	hasCondition := false
 
 	if params.Author != "" {
-		wherePrepare += `author = ? "`
+		if hasCondition {
+			wherePrepare += ` AND `
+		}
+		wherePrepare += `author = ? `
 		prepareParams = append(prepareParams, params.Author)
+		hasCondition = true
 	}
 	if params.Title != "" {
+		if hasCondition {
+			wherePrepare += ` AND `
+		}
 		wherePrepare += `title LIKE ? `
 		prepareParams = append(prepareParams, "%"+params.Title+"%")
+		hasCondition = true
 	}
 	if params.Limit != nil {
 		wherePrepare += `LIMIT ?,? `
@@ -256,7 +273,7 @@ func V2SearchPosts(params V2SearchParams) ([]BlogDataV2, int) {
 	}
 	if contentCondition != "" {
 		if wherePrepare != "" {
-			sqlPrepare += `WHERE ` + wherePrepare + `id IN ` + contentCondition
+			sqlPrepare += `WHERE ` + wherePrepare + ` AND id IN ` + contentCondition
 			prepareParams = append(prepareParams, contentParams...)
 		} else {
 			sqlPrepare += `WHERE id IN ` + contentCondition
