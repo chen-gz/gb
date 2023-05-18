@@ -142,6 +142,6 @@ func Migration0To1() {
 	}
 }
 
-func main() {
-	Migration0To1()
-}
+//func main() {
+//	Migration0To1()
+//}

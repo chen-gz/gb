@@ -112,11 +112,11 @@ type BlogDataV1 struct {
 	Rendered     string    `json:"rendered"`
 }
 
-const dbTypev1 = "sqlite3"
-const dbPathv1 = "./blogv1.db"
+const DbTypev1 = "sqlite3"
+const DbPathv1 = "./blogv1.db"
 
 func V1InitDatabase() {
-	database, err := sql.Open(dbTypev1, dbPathv1)
+	database, err := sql.Open(DbTypev1, DbPathv1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -153,7 +153,7 @@ func V1GetPostByUrl(url string) BlogDataV1 {
 		log.Println("API V1: url is empty")
 		return post
 	}
-	database, err := sql.Open(dbTypev1, dbPathv1)
+	database, err := sql.Open(DbTypev1, DbPathv1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -181,7 +181,7 @@ func V1GetPostByUrl(url string) BlogDataV1 {
 func V1GetPostById(id int) BlogDataV1 {
 	log.Println("API V1: Get post by id: ", id)
 	post := BlogDataV1{}
-	database, err := sql.Open(dbTypev1, dbPathv1)
+	database, err := sql.Open(DbTypev1, DbPathv1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -200,7 +200,7 @@ func V1GetPostById(id int) BlogDataV1 {
 
 func V1SearchPost(keys map[string]string) []BlogDataV1 {
 	log.Println("API V1: Search post by keys: ", keys)
-	database, err := sql.Open(dbTypev1, dbPathv1)
+	database, err := sql.Open(DbTypev1, DbPathv1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -285,7 +285,7 @@ func V1SearchPost(keys map[string]string) []BlogDataV1 {
 }
 
 func V1InsertPost(blog BlogDataV1) error {
-	database, err := sql.Open(dbTypev1, dbPathv1)
+	database, err := sql.Open(DbTypev1, DbPathv1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -310,7 +310,7 @@ type BlogTags struct {
 }
 
 func V1GetTags() map[string]int {
-	database, err := sql.Open(dbTypev1, dbPathv1)
+	database, err := sql.Open(DbTypev1, DbPathv1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -363,7 +363,7 @@ type BlogCategories struct {
 }
 
 func V1GetCategories() []BlogCategories {
-	database, err := sql.Open(dbTypev1, dbPathv1)
+	database, err := sql.Open(DbTypev1, DbPathv1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -410,7 +410,7 @@ func V1GetCategories() []BlogCategories {
 }
 
 func V1UpdatePost(blogData BlogDataV1) error {
-	database, err := sql.Open(dbTypev1, dbPathv1)
+	database, err := sql.Open(DbTypev1, DbPathv1)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -460,7 +460,7 @@ func V1SearchPostBySearchParams(params SearchParams) ([]BlogDataV1, int) {
 	if params.Limit["size"] == 0 {
 		params.Limit["size"] = -1
 	}
-	database, _ := sql.Open(dbTypev1, dbPathv1)
+	database, _ := sql.Open(DbTypev1, DbPathv1)
 	defer database.Close()
 	prepareString := ""
 	//prepareParams := make(map[string]string)
@@ -538,7 +538,7 @@ func V1SearchPostBySearchParams(params SearchParams) ([]BlogDataV1, int) {
 //}
 
 func V1DeletePost(url string) error {
-	database, err := sql.Open(dbTypev1, dbPathv1)
+	database, err := sql.Open(DbTypev1, DbPathv1)
 	if err != nil {
 		log.Println(err)
 		return err
