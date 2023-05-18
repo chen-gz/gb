@@ -19,35 +19,6 @@ func gin_server() {
 		AllowCredentials: true,
 		AllowOrigins:     []string{"http://localhost:3000", "http://blog.ggeta.com", "https://blog.ggeta.com"},
 	}))
-	//////////////////////// following api will be deprecated ////////////////////////
-	//r.GET("/api/v1/get_post/:url", func(c *gin.Context) {
-	//	hd.V1GetPost(c, c.Param("url"))
-	//})
-	////r.GET("/api/v1/search_posts", func(c *gin.Context) {
-	////	hd.V1SearchPosts(c)
-	////})
-	//
-
-	//r.GET("/api/v1/user_get/:url", func(c *gin.Context) {
-	//	token := c.Request.URL.Query()["token"][0]
-	//	valid, email := hd.V1VerifyToken(token)
-	//	if !valid {
-	//		c.JSON(http.StatusForbidden, gin.H{"error": "invalid token"})
-	//		return
-	//	}
-	//	//
-	//	url := c.Param("url")
-	//	hd.V1UserGetPost(c, url, email)
-	//})
-	//r.GET("/api/v1/user_verify", func(c *gin.Context) {
-	//	hd.V1Verify(c)
-	//})
-	//
-	//r.GET("/api/v1/login", func(c *gin.Context) {
-	//	hd.V1Login(c)
-	//})
-	////////////////////////  above api will be deprecated ////////////////////////
-
 	r.GET("/api/v1/get_tags", func(c *gin.Context) {
 		hd.V1GetTags(c)
 	})
@@ -75,6 +46,22 @@ func gin_server() {
 	})
 	r.POST("/api/v2/render_md", func(c *gin.Context) {
 		hd.V2RenderMd(c)
+	})
+	///////////////////// V3 api. the database does not compatible with v2
+	///////////////////// so v2 will be deprecated
+	r.POST("/api/v3/get_post", func(c *gin.Context) {
+		// get url param
+		hd.V3GetPost(c)
+
+	})
+	r.POST("/api/v3/search_posts", func(c *gin.Context) {
+
+	})
+	r.POST("/api/v3/update_post", func(c *gin.Context) {
+
+	})
+	r.POST("/api/v3/new_post", func(c *gin.Context) {
+
 	})
 
 	r.Run(":2009") // listen and serve on
