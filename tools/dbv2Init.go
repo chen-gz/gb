@@ -25,7 +25,7 @@ func Migrate1to2() {
 			log.Println(err)
 		}
 		// insert to v2 database
-		postv2 := database.BlogDataV2Meta{}
+		postv2 := database.PostDataV2Meta{}
 		postv2.Id = post.Id
 		postv2.Author = post.Author
 		postv2.Title = post.Title
@@ -37,12 +37,21 @@ func Migrate1to2() {
 		postv2.VisibleGroups = ""
 		postv2.IsDraft = post.IsDraft
 		postv2.IsDeleted = post.IsDeleted
-		postv2content := database.BlogDataV2Content{}
+		postv2content := database.PostDataV2Content{}
 		postv2content.Id = post.Id
 		postv2content.Category = post.Categories
 		postv2content.Tags = post.Tags
 		postv2content.Content = post.Content
-		database.V2InsertPost(postv2, postv2content, database.BlogDataV2Comment{})
+		post2 := database.PostDataV2{
+			Meta:    postv2,
+			Content: postv2content,
+			Comment: database.PostDataV2Comment{},
+		}
+		err = database.V2InsertPost(post2)
+		if err != nil {
+			return
+		}
+		//postv2, postv2content, database.PostDataV2Comment{})
 	}
 }
 

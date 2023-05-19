@@ -39,13 +39,13 @@ func TestV2SearchPosts3(t *testing.T) {
 }
 
 func TestV2UpdatePost(t *testing.T) {
-	post := BlogDataV2Meta{
+	post := PostDataV2Meta{
 		Id: 1,
 	}
 	post.Title = "test"
 	post.Summary = "test"
 	post.VisibleGroups = "test"
-	postContent := BlogDataV2Content{
+	postContent := PostDataV2Content{
 		Id:      1,
 		Content: "test",
 	}
@@ -67,4 +67,11 @@ func TestV2GetPostByUrl(t *testing.T) {
 	log.Println(post)
 	log.Println(post_content)
 	log.Println(comments)
+}
+func TestV2GetDistinct(t *testing.T) {
+	// get tags
+	tags, err := V2GetDistinct("author")
+	log.Println(tags)
+	log.Println(err)
+
 }

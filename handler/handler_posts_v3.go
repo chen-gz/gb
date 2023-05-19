@@ -6,6 +6,7 @@ import (
 	"go_blog/database"
 	renders "go_blog/render"
 	"net/http"
+	"time"
 )
 
 type GetPostRequestV3 struct {
@@ -15,7 +16,7 @@ type GetPostRequestV3 struct {
 type GetPostResponseV3 struct {
 	Status  string              `json:"status"`
 	Message string              `json:"message"`
-	Post    database.BlogDataV2 `json:"post"`
+	Post    database.PostDataV2 `json:"post"`
 	Html    string              `json:"html"`
 }
 
@@ -42,7 +43,7 @@ func V3GetPost(c *gin.Context) {
 	result.Status = "success"
 	result.Message = "ok"
 
-	result.Post = database.BlogDataV2{post, post_content, post_comment}
+	result.Post = database.PostDataV2{post, post_content, post_comment}
 	result.Html = string(renders.RenderMd([]byte(post_content.Content)))
 	c.JSON(http.StatusOK, result)
 }
@@ -51,7 +52,7 @@ type SearchPostsRequestV3 database.V2SearchParams
 type SearchPostsResponseV3 struct {
 	Status        string                    `json:"status"`
 	Message       string                    `json:"message"`
-	Posts         []database.BlogDataV2Meta `json:"posts"`
+	Posts         []database.PostDataV2Meta `json:"posts"`
 	NumberOfPosts int                       `json:"number_of_posts"`
 }
 
@@ -68,7 +69,7 @@ func V3SearchPosts(c *gin.Context) {
 		return
 	}
 	user := GetUserByAuthHeader(c.Request.Header.Get("Authorization"))
-	searchRequest.Level = user.Level
+	searchRequest.PrivateLevel = user.Level
 
 	posts, cnt := database.V2SearchPosts(database.V2SearchParams(searchRequest))
 	result.Status = "success"
@@ -119,6 +120,73 @@ func V3UpdatePost(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-func V3NewPost(c *gin.Context) {
+type NewPostResponse struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Url     string `json:"url"`
+}
 
+func V3NewPost(c *gin.Context) {
+	response := NewPostResponse{
+		Status: "failed",
+	}
+	auth := c.Request.Header.Get("Authorization")
+	user := GetUserByAuthHeader(auth)
+	if user.Role != "admin" {
+		response.Message = "permission denied"
+		c.JSON(http.StatusForbidden, response)
+	}
+	post := database.PostDataV2{
+		database.PostDataV2Meta{
+			Url:        time.Now().String(),
+			CreateTime: time.Now(),
+			UpdateTime: time.Now(),
+		},
+		database.PostDataV2Content{},
+		database.PostDataV2Comment{},
+	}
+
+	err := database.V2InsertPost(post)
+	if err != nil {
+		response.Message = "internal error"
+		c.JSON(http.StatusInternalServerError, response)
+		return
+	}
+	response.Status = "success"
+	response.Message = "ok"
+	response.Url = post.Meta.Url
+}
+
+type GetDistinctRequest struct {
+	Column string `json:"column"`
+}
+type GetDistinctResponse struct {
+	Status  string   `json:"status"`
+	Message string   `json:"message"`
+	Values  []string `json:"values"`
+	Length  int      `json:"length"`
+}
+
+func V3GetDistinct(c *gin.Context) {
+	response := GetDistinctResponse{
+		Status: "failed",
+	}
+	var jsonData map[string]interface{}
+	var request GetDistinctRequest
+	if c.BindJSON(&jsonData) != nil || mapstructure.Decode(jsonData, &request) != nil {
+		response.Message = "invalid request"
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	values, err := database.V2GetDistinct(request.Column)
+	if err != nil {
+		response.Message = "internal error"
+		c.JSON(http.StatusInternalServerError, response)
+		return
+	}
+	response.Status = "success"
+	response.Message = "ok"
+	response.Values = values
+	response.Length = len(values)
+	c.JSON(http.StatusOK, response)
 }
