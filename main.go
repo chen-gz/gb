@@ -8,14 +8,10 @@ import (
 
 func gin_server() {
 	r := gin.Default()
-	//r.Use(cors.Default()) // allow cross origin request
-	// all all cross origin request
 	r.Use(cors.New(cors.Config{
-		//AllowAllOrigins: true,
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders: []string{"Authorization", "Content-Length", "Content-Type", "Origin", "Access-Control-Allow-Headers",
 			"Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Access-Control-Allow-Credentials"},
-
 		AllowCredentials: true,
 		AllowOrigins:     []string{"http://localhost:3000", "http://blog.ggeta.com", "https://blog.ggeta.com"},
 	}))
@@ -48,7 +44,7 @@ func gin_server() {
 		hd.V2RenderMd(c)
 	})
 	///////////////////// V3 api. the database does not compatible with v2
-	///////////////////// so v2 will be deprecated
+	///////////////////// so most v2 api will be deprecated
 	r.POST("/api/v3/get_post", func(c *gin.Context) {
 		// get url param
 		hd.V3GetPost(c)
@@ -60,7 +56,10 @@ func gin_server() {
 		hd.V3UpdatePost(c)
 	})
 	r.POST("/api/v3/new_post", func(c *gin.Context) {
-
+		hd.V3NewPost(c)
+	})
+	r.POST("/api/v3/get_distinct", func(c *gin.Context) {
+		hd.V3GetDistinct(c)
 	})
 
 	r.Run(":2009") // listen and serve on
