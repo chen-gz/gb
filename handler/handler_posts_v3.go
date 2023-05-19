@@ -105,17 +105,20 @@ func V3UpdatePost(c *gin.Context) {
 		c.JSON(http.StatusForbidden, result)
 		return
 	}
-	if user.Role != "Admin" &&
-		(updateRequest.MetaUpdate || updateRequest.CommentUpdate) {
+	if user.Role != "Admin" {
+		// && (updateRequest.MetaUpdate || updateRequest.CommentUpdate) {
 		result.Message = "permission denied"
 		c.JSON(http.StatusForbidden, result)
 		return
 	}
 	// update post
 	database.V2UpdatePost(database.V2UpdateParams(updateRequest))
-	// todo: hander error and limit update comment by user
 	result.Status = "success"
 	result.Message = "ok"
 	result.Url = updateRequest.Meta.Url
 	c.JSON(http.StatusOK, result)
+}
+
+func V3NewPost(c *gin.Context) {
+
 }
