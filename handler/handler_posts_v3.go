@@ -2,7 +2,6 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/mitchellh/mapstructure"
 	"go_blog/database"
 	renders "go_blog/render"
 	"log"
@@ -26,10 +25,8 @@ func V3GetPost(c *gin.Context) {
 	result := GetPostResponseV3{
 		Status: "failed",
 	}
-	var jsonData map[string]interface{}
-
 	var postRequest GetPostRequestV3
-	if c.BindJSON(&jsonData) != nil || mapstructure.Decode(jsonData, &postRequest) != nil {
+	if c.BindJSON(&postRequest) != nil {
 		result.Message = "invalid request"
 		c.JSON(http.StatusBadRequest, result)
 		return
@@ -63,7 +60,6 @@ func V3SearchPosts(c *gin.Context) {
 	result := SearchPostsResponseV3{
 		Status: "failed",
 	}
-	// use database.V2SearchParams to search
 	var searchRequest SearchPostsRequestV3
 	log.Println(searchRequest.IsDeleted)
 	if c.BindJSON(&searchRequest) != nil {
@@ -87,7 +83,7 @@ func V3SearchPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// type UpdatePostRequestV3 database.V2UpdateParams
+type UpdatePostRequestV3 database.V2UpdateParams
 type UpdatePostResponseV3 struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
@@ -95,13 +91,10 @@ type UpdatePostResponseV3 struct {
 }
 
 func V3UpdatePost(c *gin.Context) {
-	// only author and admin can update meta and post of a post
-	// other registered user can only update comment
-	// if user is not registered, return http.StatusForbidden
 	result := UpdatePostResponseV3{
 		Status: "failed",
 	}
-	updateRequest := database.V2UpdateParams{}
+	updateRequest := UpdatePostRequestV3{}
 	if c.BindJSON(&updateRequest) != nil {
 		result.Message = "invalid request"
 		c.JSON(http.StatusBadRequest, result)
@@ -180,9 +173,8 @@ func V3GetDistinct(c *gin.Context) {
 	response := GetDistinctResponse{
 		Status: "failed",
 	}
-	var jsonData map[string]interface{}
 	var request GetDistinctRequest
-	if c.BindJSON(&jsonData) != nil || mapstructure.Decode(jsonData, &request) != nil {
+	if c.BindJSON(&request) != nil {
 		response.Message = "invalid request"
 		c.JSON(http.StatusBadRequest, response)
 		return
