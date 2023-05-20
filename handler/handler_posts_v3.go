@@ -5,6 +5,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"go_blog/database"
 	renders "go_blog/render"
+	"log"
 	"net/http"
 	"time"
 )
@@ -34,17 +35,19 @@ func V3GetPost(c *gin.Context) {
 		return
 	}
 	user := GetUserByAuthHeader(c.Request.Header.Get("Authorization"))
-	post, post_content, post_comment := database.V2GetPostByUrl(postRequest.Url)
-	if user.Level < post.PrivateLevel {
+	//post, post_content, post_comment
+	postData := database.V2GetPostByUrl(postRequest.Url)
+
+	if user.Level < postData.Meta.PrivateLevel {
 		result.Message = "permission denied"
 		c.JSON(http.StatusForbidden, result)
 		return
 	}
 	result.Status = "success"
 	result.Message = "ok"
-
-	result.Post = database.PostDataV2{post, post_content, post_comment}
-	result.Html = string(renders.RenderMd([]byte(post_content.Content)))
+	result.Post = postData
+	//database.PostDataV2{post, post_content, post_comment}
+	result.Html = string(renders.RenderMd([]byte(postData.Content.Content)))
 	c.JSON(http.StatusOK, result)
 }
 
@@ -61,9 +64,9 @@ func V3SearchPosts(c *gin.Context) {
 		Status: "failed",
 	}
 	// use database.V2SearchParams to search
-	var jsonData map[string]interface{}
 	var searchRequest SearchPostsRequestV3
-	if c.BindJSON(&jsonData) != nil || mapstructure.Decode(jsonData, &searchRequest) != nil {
+	log.Println(searchRequest.IsDeleted)
+	if c.BindJSON(&searchRequest) != nil {
 		result.Message = "invalid request"
 		c.JSON(http.StatusBadRequest, result)
 		return
@@ -72,6 +75,11 @@ func V3SearchPosts(c *gin.Context) {
 	searchRequest.PrivateLevel = user.Level
 
 	posts, cnt := database.V2SearchPosts(database.V2SearchParams(searchRequest))
+	if searchRequest.Rendered {
+		for i := 0; i < len(posts); i++ {
+			posts[i].Summary = string(renders.RenderMd([]byte(posts[i].Summary)))
+		}
+	}
 	result.Status = "success"
 	result.Message = "ok"
 	result.Posts = posts
@@ -79,7 +87,7 @@ func V3SearchPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-type UpdatePostRequestV3 database.V2UpdateParams
+// type UpdatePostRequestV3 database.V2UpdateParams
 type UpdatePostResponseV3 struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
@@ -93,9 +101,8 @@ func V3UpdatePost(c *gin.Context) {
 	result := UpdatePostResponseV3{
 		Status: "failed",
 	}
-	var jsonData map[string]interface{}
-	var updateRequest UpdatePostRequestV3
-	if c.BindJSON(&jsonData) != nil || mapstructure.Decode(jsonData, &updateRequest) != nil {
+	updateRequest := database.V2UpdateParams{}
+	if c.BindJSON(&updateRequest) != nil {
 		result.Message = "invalid request"
 		c.JSON(http.StatusBadRequest, result)
 		return
@@ -106,13 +113,14 @@ func V3UpdatePost(c *gin.Context) {
 		c.JSON(http.StatusForbidden, result)
 		return
 	}
-	if user.Role != "Admin" {
+	if user.Role != "admin" {
 		// && (updateRequest.MetaUpdate || updateRequest.CommentUpdate) {
 		result.Message = "permission denied"
 		c.JSON(http.StatusForbidden, result)
 		return
 	}
 	// update post
+	log.Println("updateRequest", updateRequest)
 	database.V2UpdatePost(database.V2UpdateParams(updateRequest))
 	result.Status = "success"
 	result.Message = "ok"
@@ -155,6 +163,7 @@ func V3NewPost(c *gin.Context) {
 	response.Status = "success"
 	response.Message = "ok"
 	response.Url = post.Meta.Url
+	c.JSON(http.StatusOK, response)
 }
 
 type GetDistinctRequest struct {
@@ -180,6 +189,7 @@ func V3GetDistinct(c *gin.Context) {
 	}
 	values, err := database.V2GetDistinct(request.Column)
 	if err != nil {
+		log.Println(err)
 		response.Message = "internal error"
 		c.JSON(http.StatusInternalServerError, response)
 		return
@@ -189,4 +199,53 @@ func V3GetDistinct(c *gin.Context) {
 	response.Values = values
 	response.Length = len(values)
 	c.JSON(http.StatusOK, response)
+}
+
+type LoginResponseV3 struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Email   string `json:"email"`
+	Token   string `json:"token"`
+	Name    string `json:"name"`
+}
+
+func V3Login(c *gin.Context) {
+	res := LoginResponseV3{Status: "failed"}
+	auth := c.GetHeader("Authorization")
+	user := GetUserByAuthHeader(auth)
+	if user.Email != "" && auth[0:6] == "Basic " {
+		res = LoginResponseV3{
+			Status:  "success",
+			Message: "log in success",
+			Email:   user.Email,
+			Token:   V1GenerateToken(user.Email),
+			Name:    user.Name,
+		}
+		c.JSON(http.StatusOK, res)
+	} else if user.Email != "" && auth[0:7] == "Bearer " {
+		res = LoginResponseV3{
+			Status:  "success",
+			Message: "log in success",
+			Email:   user.Email,
+			Token:   auth[7:],
+			Name:    user.Name,
+		}
+		c.JSON(http.StatusOK, res)
+	} else {
+		res = LoginResponseV3{
+			Status:  "failed",
+			Message: "log in failed",
+			Email:   "",
+			Token:   "",
+			Name:    "",
+		}
+		c.JSON(http.StatusUnauthorized, res)
+	}
+}
+
+func passwordLogin(email string, password string) bool {
+	if email == "chen-gz@outlook.com" && password == "Connie" {
+		return true
+	}
+	return false
 }

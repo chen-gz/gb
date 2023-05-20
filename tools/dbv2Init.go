@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"go_blog/database"
 	"log"
+	"math"
 )
 
 func Migrate1to2() {
@@ -54,9 +55,29 @@ func Migrate1to2() {
 		//postv2, postv2content, database.PostDataV2Comment{})
 	}
 }
+func V2SummaryUpdate() {
+	param := database.V2SearchParams{
+		PrivateLevel: 10,
+	}
+	posts, _ := database.V2SearchPosts(param)
+	for _, post := range posts {
+		np := database.V2GetPostByUrl(post.Url)
+		np.Meta.Summary = np.Content.Content[:int(math.Min(300, float64(len(np.Content.Content))))]
+		updateParam := database.V2UpdateParams{
+			Id:            np.Meta.Id,
+			Meta:          np.Meta,
+			MetaUpdate:    true,
+			ContentUpdate: false,
+			CommentUpdate: false,
+		}
+		database.V2UpdatePost(updateParam)
+	}
+
+}
 
 func main() {
-	database.InitV2()
-	Migrate1to2()
+	//database.InitV2()
+	//Migrate1to2()
+	V2SummaryUpdate()
 
 }

@@ -20,7 +20,7 @@ func GetUser(email string) UserData {
 		return UserData{
 			Email: "chen-gz@outlook.com",
 			Role:  "admin",
-			Level: 0,
+			Level: 100,
 			Name:  "Guangzong",
 			Group: "admin",
 		}

@@ -61,7 +61,9 @@ func gin_server() {
 	r.POST("/api/v3/get_distinct", func(c *gin.Context) {
 		hd.V3GetDistinct(c)
 	})
-
+	r.POST("/api/v3/login", func(c *gin.Context) {
+		hd.V3Login(c)
+	})
 	r.Run(":2009") // listen and serve on
 }
 

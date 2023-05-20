@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -138,7 +139,7 @@ func V2InsertPost(postData PostDataV2) error {
 	return nil
 }
 
-func V2GetPostByUrl(url string) (PostDataV2Meta, PostDataV2Content, PostDataV2Comment) {
+func V2GetPostByUrl(url string) PostDataV2 {
 	db, _ := sql.Open(dbTypeV2, dbPathV2)
 	defer db.Close()
 	row := db.QueryRow(`SELECT * FROM post WHERE url=?`, url)
@@ -164,17 +165,17 @@ func V2GetPostByUrl(url string) (PostDataV2Meta, PostDataV2Content, PostDataV2Co
 	if err != nil {
 		log.Println(err)
 	}
-	return post, content, comment
+	return PostDataV2{post, content, comment}
 }
 
 type V2UpdateParams struct {
-	Id            int
-	Meta          PostDataV2Meta
-	MetaUpdate    bool
-	Content       PostDataV2Content
-	ContentUpdate bool
-	Comment       PostDataV2Comment
-	CommentUpdate bool
+	Id            int               `json:"id"`
+	Meta          PostDataV2Meta    `json:"meta"`
+	MetaUpdate    bool              `json:"meta_update"`
+	Content       PostDataV2Content `json:"content"`
+	ContentUpdate bool              `json:"content_update"`
+	Comment       PostDataV2Comment `json:"comment"`
+	CommentUpdate bool              `json:"comment_update"`
 }
 
 func V2UpdatePost(params V2UpdateParams) {
@@ -217,6 +218,8 @@ type V2SearchParams struct {
 	Tags         string         `json:"tags"`          // use match to search
 	Categories   string         `json:"categories"`    // use match to search
 	PrivateLevel int            `json:"private_level"` // 0: public, 1: private, 2: group
+	IsDraft      bool           `json:"is_draft"`      // if true, only return the draft post, default false;
+	IsDeleted    bool           `json:"is_deleted"`    // if true, only return the deleted post, default false;
 }
 
 func V2SearchPosts(params V2SearchParams) ([]PostDataV2Meta, int) {
@@ -256,6 +259,17 @@ func V2SearchPosts(params V2SearchParams) ([]PostDataV2Meta, int) {
 
 	wherePrepare += `WHERE private_level <= ? `
 	prepareParams = append(prepareParams, params.PrivateLevel)
+
+	if params.IsDraft {
+		wherePrepare += ` AND is_draft = 1 `
+	} else {
+		wherePrepare += ` AND is_draft = 0 `
+	}
+	if params.IsDeleted {
+		wherePrepare += ` AND is_deleted = 1 `
+	} else {
+		wherePrepare += ` AND is_deleted = 0 `
+	}
 	if params.Author != "" {
 		wherePrepare += ` AND author = ? `
 		prepareParams = append(prepareParams, params.Author)
@@ -264,18 +278,19 @@ func V2SearchPosts(params V2SearchParams) ([]PostDataV2Meta, int) {
 		wherePrepare += ` AND title LIKE ? `
 		prepareParams = append(prepareParams, "%"+params.Title+"%")
 	}
-	if params.Limit != nil {
-		wherePrepare += ` AND LIMIT ?,? `
-		prepareParams = append(prepareParams, params.Limit["start"], params.Limit["size"])
-	}
 	if params.Sort != "" {
-		wherePrepare += ` AND ORDER BY ? `
+		wherePrepare += ` ORDER BY ? `
 		prepareParams = append(prepareParams, params.Sort)
 	}
+
 	sqlPrepare += wherePrepare
 	if contentCondition != "" {
 		sqlPrepare += ` AND id IN ` + contentCondition
 		prepareParams = append(prepareParams, contentParams...)
+	}
+	if params.Limit != nil {
+		sqlPrepare += ` LIMIT ?,? `
+		prepareParams = append(prepareParams, params.Limit["start"], params.Limit["size"])
 	}
 	// make a query
 	db, _ := sql.Open(dbTypeV2, dbPathV2)
@@ -324,7 +339,7 @@ func V2GetDistinct(col string) ([]string, error) {
 		col == "update_time" || col == "private_level" || col == "summary" ||
 		col == "visible_groups" || col == "is_draft" || col == "is_deleted" {
 		sqlquery = `SELECT DISTINCT ` + col + ` FROM post`
-	} else if col == "content" || col == "tags" || col == "categories" {
+	} else if col == "content" || col == "tags" || col == "category" {
 		sqlquery = `SELECT DISTINCT ` + col + ` FROM post_content`
 	} else if col == "like" || col == "dislike" || col == "comment" {
 		sqlquery = `SELECT DISTINCT ` + col + ` FROM post_comment`
@@ -351,6 +366,23 @@ func V2GetDistinct(col string) ([]string, error) {
 			log.Println(err)
 		}
 		result = append(result, col)
+	}
+	if col == "tags" {
+		// seperate the tags by comma and remove the space and return the unique tags
+		var uniqueTags []string
+		for _, tag := range result {
+			if tag == "" {
+				continue
+			}
+			tags := strings.Split(tag, ",")
+			for _, t := range tags {
+				t = strings.TrimSpace(t)
+				if t != "" {
+					uniqueTags = append(uniqueTags, t)
+				}
+			}
+		}
+		result = uniqueTags
 	}
 	return result, nil
 }

@@ -21,8 +21,7 @@ func TestV2SearchPosts(t *testing.T) {
 }
 func TestV2SearchPosts2(t *testing.T) {
 	param := V2SearchParams{
-		Tags:    "Algorithm",
-		Content: "Segment Tree",
+		Tags: "Misc",
 	}
 	result, cnt := V2SearchPosts(param)
 	log.Println(result)
@@ -63,10 +62,11 @@ func TestV2UpdatePost(t *testing.T) {
 
 func TestV2GetPostByUrl(t *testing.T) {
 	url := "20"
-	post, post_content, comments := V2GetPostByUrl(url)
-	log.Println(post)
-	log.Println(post_content)
-	log.Println(comments)
+	post := V2GetPostByUrl(url)
+	//post, post_content, comments := V2GetPostByUrl(url)
+	log.Println(post.Meta)
+	log.Println(post.Content)
+	log.Println(post.Comment)
 }
 func TestV2GetDistinct(t *testing.T) {
 	// get tags
