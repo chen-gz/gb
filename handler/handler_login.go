@@ -15,37 +15,6 @@ import (
 
 var secreteKey = []byte("bcb967bec859b86e96564992792636bb442548af35a2e3374cee7a0f92542c18")
 
-func V1Login(c *gin.Context) {
-	email := c.Query("email")
-	password := c.Query("password")
-
-	if email == "chen-gz@outlook.com" && password == "Connie" {
-		c.JSON(http.StatusOK, gin.H{
-			"token": V1GenerateToken(email),
-			"msg":   "log in success",
-			"name":  "test",
-		})
-	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"msg": "log in failed",
-		})
-	}
-}
-func V1Verify(c *gin.Context) {
-	token := c.Query("token")
-	valid, _ := V1VerifyToken(token)
-	if valid {
-		c.JSON(http.StatusOK, gin.H{
-			"msg": "token valid",
-		})
-	} else {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"msg": "token invalid",
-		})
-	}
-
-}
-
 func V1GenerateToken(email string) string {
 	log.Println("Generating token for user: ", email, " ...")
 	signingMethod := jwt.SigningMethodHS256 // HS256 is an instance of HMAC

@@ -1,17 +1,14 @@
 package main
 
 import (
-	db "go_blog/database"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
-	// "strings"
-	"strconv"
+
 	//"fmt"
 	"time"
-	// "gopkg.in/yaml.v3"
-	"database/sql"
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -113,35 +110,3 @@ type BlogFrontMatter struct {
 
 const dbTypev1 = "sqlite3"
 const dbPathv1 = "./blogv1.db"
-
-func Migration0To1() {
-	// Init database version 2
-	db.V1InitDatabase()
-	// get all posts from version 0
-	// posts := db.GetAllPosts();
-	database, _ := sql.Open("sqlite3", "./blog.db")
-	defer database.Close()
-	rows, _ := database.Query(`SELECT * FROM posts`)
-	// all posts
-	posts := []db.BlogDataV1{}
-	for rows.Next() {
-		data := db.BlogDataV1{}
-		rows.Scan(&data.Id, &data.Title, &data.Author,
-			&data.Content, &data.Tags, &data.Categories,
-			&data.CreatedAt, &data.Url)
-		posts = append(posts, data)
-	}
-	// insert all posts to version 1
-	for _, post := range posts {
-		post.UpdatedAt = post.CreatedAt
-		if post.Url == "" {
-			post.Url = strconv.Itoa(post.Id)
-		}
-		db.V1InsertPost(post)
-		log.Println(post.Url)
-	}
-}
-
-//func main() {
-//	Migration0To1()
-//}

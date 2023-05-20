@@ -26,33 +26,33 @@ func Migrate1to2() {
 			log.Println(err)
 		}
 		// insert to v2 database
-		postv2 := database.PostDataV2Meta{}
-		postv2.Id = post.Id
-		postv2.Author = post.Author
-		postv2.Title = post.Title
-		postv2.Url = post.Url
-		postv2.CreateTime = post.CreatedAt
-		postv2.UpdateTime = post.UpdatedAt
-		postv2.PrivateLevel = post.PrivateLevel
-		postv2.Summary = ""
-		postv2.VisibleGroups = ""
-		postv2.IsDraft = post.IsDraft
-		postv2.IsDeleted = post.IsDeleted
-		postv2content := database.PostDataV2Content{}
-		postv2content.Id = post.Id
-		postv2content.Category = post.Categories
-		postv2content.Tags = post.Tags
-		postv2content.Content = post.Content
+		meta := database.PostDataV2Meta{}
+		meta.Id = post.Id
+		meta.Author = post.Author
+		meta.Title = post.Title
+		meta.Url = post.Url
+		meta.CreateTime = post.CreatedAt
+		meta.UpdateTime = post.UpdatedAt
+		meta.PrivateLevel = post.PrivateLevel
+		meta.Summary = ""
+		meta.VisibleGroups = ""
+		meta.IsDraft = post.IsDraft
+		meta.IsDeleted = post.IsDeleted
+		content := database.PostDataV2Content{}
+		content.Id = post.Id
+		content.Category = post.Categories
+		content.Tags = post.Tags
+		content.Content = post.Content
 		post2 := database.PostDataV2{
-			Meta:    postv2,
-			Content: postv2content,
+			Meta:    meta,
+			Content: content,
 			Comment: database.PostDataV2Comment{},
 		}
 		err = database.V2InsertPost(post2)
 		if err != nil {
 			return
 		}
-		//postv2, postv2content, database.PostDataV2Comment{})
+		//meta, content, database.PostDataV2Comment{})
 	}
 }
 func V2SummaryUpdate() {
@@ -76,8 +76,7 @@ func V2SummaryUpdate() {
 }
 
 func main() {
-	//database.InitV2()
-	//Migrate1to2()
+	database.InitV2()
+	Migrate1to2()
 	V2SummaryUpdate()
-
 }

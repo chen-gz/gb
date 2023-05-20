@@ -241,3 +241,36 @@ func passwordLogin(email string, password string) bool {
 	}
 	return false
 }
+
+type RenderMdRequestV3 struct {
+	Content string `json:"content"`
+}
+type RenderMdResponseV3 struct {
+	Status  string `json:"status"`
+	Message string `json:"message"`
+	Html    string `json:"html"`
+}
+
+func V2RenderMdV3(c *gin.Context) {
+	// get auth header
+	res := RenderMdResponseV3{
+		Status: "failed",
+	}
+
+	auth := c.Request.Header.Get("Authorization")
+	user := GetUserByAuthHeader(auth)
+
+	if user.Role != "admin" {
+		res.Message = "permission denied"
+		c.JSON(http.StatusForbidden, res)
+		return
+	}
+	// get body to string
+	body := []byte("")
+	c.Request.Body.Read(body)
+	//body, _ := ioutil.ReadAll(c.Request.Body)
+	c.JSON(http.StatusOK, gin.H{
+		"status": "success",
+		"html":   string(rd.RenderMd(body)),
+	})
+}
