@@ -279,8 +279,7 @@ func V2SearchPosts(params V2SearchParams) ([]PostDataV2Meta, int) {
 		prepareParams = append(prepareParams, "%"+params.Title+"%")
 	}
 	if params.Sort != "" {
-		wherePrepare += ` ORDER BY ? `
-		prepareParams = append(prepareParams, params.Sort)
+		wherePrepare += ` ORDER BY ` + params.Sort + " "
 	}
 
 	sqlPrepare += wherePrepare
@@ -295,8 +294,6 @@ func V2SearchPosts(params V2SearchParams) ([]PostDataV2Meta, int) {
 	// make a query
 	db, _ := sql.Open(dbTypeV2, dbPathV2)
 	defer db.Close()
-	log.Println(sqlPrepare)
-	log.Println(prepareParams)
 	stmt, err := db.Prepare(sqlPrepare)
 	if err != nil {
 		log.Println(err)
