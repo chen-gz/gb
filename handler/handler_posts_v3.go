@@ -114,6 +114,8 @@ func V3UpdatePost(c *gin.Context) {
 	}
 	// update post
 	log.Println("updateRequest", updateRequest)
+	// set update time
+	updateRequest.Meta.UpdateTime = time.Now()
 	database.V2UpdatePost(database.V2UpdateParams(updateRequest))
 	result.Status = "success"
 	result.Message = "ok"
@@ -266,11 +268,10 @@ func V2RenderMdV3(c *gin.Context) {
 		return
 	}
 	// get body to string
-	body := []byte("")
+	body := make([]byte, 1024)
 	c.Request.Body.Read(body)
-	//body, _ := ioutil.ReadAll(c.Request.Body)
 	c.JSON(http.StatusOK, gin.H{
 		"status": "success",
-		"html":   string(rd.RenderMd(body)),
+		"html":   string(renders.RenderMd(body)),
 	})
 }
