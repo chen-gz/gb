@@ -21,7 +21,7 @@ func V1GenerateToken(email string) string {
 	claims := jwt.MapClaims{
 		"email": email,
 		"iat":   time.Now().Unix(),
-		"exp":   time.Now().Add(time.Hour * 7).Unix(),
+		"exp":   time.Now().Add(time.Hour * 24 * 7).Unix(),
 	}
 	token := jwt.NewWithClaims(signingMethod, claims)
 	signedToken, err := token.SignedString(secreteKey)

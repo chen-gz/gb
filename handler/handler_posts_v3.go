@@ -69,6 +69,10 @@ func V3SearchPosts(c *gin.Context) {
 	}
 	user := GetUserByAuthHeader(c.Request.Header.Get("Authorization"))
 	searchRequest.PrivateLevel = user.Level
+	if user.Role != "admin" {
+		searchRequest.IsDeleted = false
+		searchRequest.IsDraft = false
+	}
 
 	posts, cnt := database.V2SearchPosts(database.V2SearchParams(searchRequest))
 	if searchRequest.Rendered {
