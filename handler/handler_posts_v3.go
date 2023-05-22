@@ -144,6 +144,7 @@ func V3NewPost(c *gin.Context) {
 			Url:        time.Now().String(),
 			CreateTime: time.Now(),
 			UpdateTime: time.Now(),
+			IsDraft:    true,
 		},
 		database.PostDataV2Content{},
 		database.PostDataV2Comment{},
