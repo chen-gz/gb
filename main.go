@@ -6,7 +6,7 @@ import (
 	hd "go_blog/handler"
 )
 
-func gin_server() {
+func ginServer() {
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -15,31 +15,9 @@ func gin_server() {
 		AllowCredentials: true,
 		AllowOrigins:     []string{"http://localhost:3000", "http://blog.ggeta.com", "https://blog.ggeta.com"},
 	}))
-	//r.GET("/api/v1/get_tags", func(c *gin.Context) {
-	//	hd.V1GetTags(c)
-	//})
-	//r.GET("/api/v1/get_categories", func(c *gin.Context) {
-	//	hd.V1GetCategories(c)
-	//})
-	//r.POST("/api/v2/login", func(c *gin.Context) {
-	//	hd.V2Login(c)
-	//})
-	// bellow are finished api
-	//r.POST("/api/v2/update_post", func(c *gin.Context) {
-	//	hd.V2UpdatePost(c)
-	//})
-	//r.POST("/api/v2/search_posts", func(c *gin.Context) {
-	//	hd.V2SearchPost(c)
-	//})
-	//r.POST("/api/v2/get_post", func(c *gin.Context) {
-	//	hd.V2GetPost(c)
-	//})
 	r.POST("/api/v2/delete_post", func(c *gin.Context) {
 		hd.V2DeletePost(c)
 	})
-	//r.POST("/api/v2/new_post", func(c *gin.Context) {
-	//	hd.V2NewPost(c)
-	//})
 	r.POST("/api/v2/render_md", func(c *gin.Context) {
 		hd.V2RenderMd(c)
 	})
@@ -68,5 +46,5 @@ func gin_server() {
 }
 
 func main() {
-	gin_server()
+	ginServer()
 }
