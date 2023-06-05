@@ -15,12 +15,12 @@ func ginServer() {
 		AllowCredentials: true,
 		AllowOrigins:     []string{"http://localhost:3000", "http://blog.ggeta.com", "https://blog.ggeta.com"},
 	}))
-	r.POST("/api/v2/delete_post", func(c *gin.Context) {
-		hd.V2DeletePost(c)
-	})
-	r.POST("/api/v2/render_md", func(c *gin.Context) {
-		hd.V2RenderMd(c)
-	})
+	//r.POST("/api/v2/delete_post", func(c *gin.Context) {
+	//	hd.V2DeletePost(c)
+	//})
+	//r.POST("/api/v2/render_md", func(c *gin.Context) {
+	//	hd.V2RenderMd(c)
+	//})
 	///////////////////// V3 api. the database does not compatible with v2
 	///////////////////// so most v2 api will be deprecated
 	r.POST("/api/v3/get_post", func(c *gin.Context) {

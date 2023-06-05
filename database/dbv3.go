@@ -267,7 +267,7 @@ func V3SearchPosts(params V3SearchParams) ([]PostDataV3Meta, int) {
 	log.Println(contentCondition)
 	// make a query based on the id
 	// select * from post where id in (select id from post_content where content match 'test')
-	sqlPrepare := `SELECT * FROM post `
+	sqlPrepare := `SELECT * FROM post_meta `
 	wherePrepare := ""
 	var prepareParams []any
 
@@ -277,7 +277,7 @@ func V3SearchPosts(params V3SearchParams) ([]PostDataV3Meta, int) {
 	if params.IsDraft {
 		wherePrepare += ` AND is_draft = 1 `
 	} else {
-		wherePrepare += ` AND is_draft = 0 `
+		wherePrepare += ` AND is_draft = false `
 	}
 	if params.IsDeleted {
 		wherePrepare += ` AND is_deleted = 1 `
@@ -308,6 +308,7 @@ func V3SearchPosts(params V3SearchParams) ([]PostDataV3Meta, int) {
 	// make a query
 	db, _ := sql.Open(dbTypeV3, dbPathV3)
 	defer db.Close()
+	log.Println(sqlPrepare)
 	stmt, err := db.Prepare(sqlPrepare)
 	if err != nil {
 		log.Println(err)
@@ -349,7 +350,7 @@ func V3GetDistinct(col string) ([]string, error) {
 	if col == "author" || col == "title" || col == "url" || col == "create_time" ||
 		col == "update_time" || col == "private_level" || col == "summary" ||
 		col == "visible_groups" || col == "is_draft" || col == "is_deleted" {
-		sqlquery = `SELECT DISTINCT ` + col + ` FROM post`
+		sqlquery = `SELECT DISTINCT ` + col + ` FROM post_meta`
 	} else if col == "content" || col == "tags" || col == "category" {
 		sqlquery = `SELECT DISTINCT ` + col + ` FROM post_content`
 	} else if col == "like" || col == "dislike" || col == "comment" {

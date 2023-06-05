@@ -20,6 +20,8 @@ func PreRenderMd(mddata []byte) []byte {
 				if mddata[j] == '$' && mddata[j+1] == '$' && mddata[j+3] != '\n' {
 					mddata = append(mddata[:j+2], append([]byte("\n"), mddata[j+2:]...)...)
 					break
+				} else if mddata[j] == '$' && mddata[j+1] == '$' && mddata[j+3] == '\n' {
+					break
 				}
 			}
 			i = j + 2

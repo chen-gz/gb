@@ -16,7 +16,7 @@ type GetPostRequestV3 struct {
 type GetPostResponseV3 struct {
 	Status  string              `json:"status"`
 	Message string              `json:"message"`
-	Post    database.PostDataV2 `json:"post"`
+	Post    database.PostDataV3 `json:"post"`
 	Html    string              `json:"html"`
 }
 
@@ -33,7 +33,7 @@ func V3GetPost(c *gin.Context) {
 	}
 	user := GetUserByAuthHeader(c.Request.Header.Get("Authorization"))
 	//post, post_content, post_comment
-	postData := database.V2GetPostByUrl(postRequest.Url)
+	postData := database.V3GetPostByUrl(postRequest.Url)
 
 	if user.Level < postData.Meta.PrivateLevel {
 		result.Message = "permission denied"
@@ -48,11 +48,11 @@ func V3GetPost(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-type SearchPostsRequestV3 database.V2SearchParams
+type SearchPostsRequestV3 database.V3SearchParams
 type SearchPostsResponseV3 struct {
 	Status        string                    `json:"status"`
 	Message       string                    `json:"message"`
-	Posts         []database.PostDataV2Meta `json:"posts"`
+	Posts         []database.PostDataV3Meta `json:"posts"`
 	NumberOfPosts int                       `json:"number_of_posts"`
 }
 
@@ -74,7 +74,7 @@ func V3SearchPosts(c *gin.Context) {
 		searchRequest.IsDraft = false
 	}
 
-	posts, cnt := database.V2SearchPosts(database.V2SearchParams(searchRequest))
+	posts, cnt := database.V3SearchPosts(database.V3SearchParams(searchRequest))
 	if searchRequest.Rendered {
 		for i := 0; i < len(posts); i++ {
 			posts[i].Summary = string(renders.RenderMd([]byte(posts[i].Summary)))
@@ -87,7 +87,7 @@ func V3SearchPosts(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-type UpdatePostRequestV3 database.V2UpdateParams
+type UpdatePostRequestV3 database.V3UpdateParams
 type UpdatePostResponseV3 struct {
 	Status  string `json:"status"`
 	Message string `json:"message"`
@@ -120,7 +120,7 @@ func V3UpdatePost(c *gin.Context) {
 	log.Println("updateRequest", updateRequest)
 	// set update time
 	updateRequest.Meta.UpdateTime = time.Now()
-	database.V2UpdatePost(database.V2UpdateParams(updateRequest))
+	database.V3UpdatePost(database.V3UpdateParams(updateRequest))
 	result.Status = "success"
 	result.Message = "ok"
 	result.Url = updateRequest.Meta.Url
@@ -143,18 +143,18 @@ func V3NewPost(c *gin.Context) {
 		response.Message = "permission denied"
 		c.JSON(http.StatusForbidden, response)
 	}
-	post := database.PostDataV2{
-		database.PostDataV2Meta{
+	post := database.PostDataV3{
+		database.PostDataV3Meta{
 			Url:        time.Now().String(),
 			CreateTime: time.Now(),
 			UpdateTime: time.Now(),
 			IsDraft:    true,
 		},
-		database.PostDataV2Content{},
-		database.PostDataV2Comment{},
+		database.PostDataV3Content{},
+		database.PostDataV3Comment{},
 	}
 
-	err := database.V2InsertPost(post)
+	err := database.V3InsertPost(post)
 	if err != nil {
 		response.Message = "internal error"
 		c.JSON(http.StatusInternalServerError, response)
@@ -186,7 +186,7 @@ func V3GetDistinct(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	values, err := database.V2GetDistinct(request.Column)
+	values, err := database.V3GetDistinct(request.Column)
 	if err != nil {
 		log.Println(err)
 		response.Message = "internal error"
@@ -258,25 +258,25 @@ type RenderMdResponseV3 struct {
 	Html    string `json:"html"`
 }
 
-func V2RenderMdV3(c *gin.Context) {
-	// get auth header
-	res := RenderMdResponseV3{
-		Status: "failed",
-	}
-
-	auth := c.Request.Header.Get("Authorization")
-	user := GetUserByAuthHeader(auth)
-
-	if user.Role != "admin" {
-		res.Message = "permission denied"
-		c.JSON(http.StatusForbidden, res)
-		return
-	}
-	// get body to string
-	body := make([]byte, 1024)
-	c.Request.Body.Read(body)
-	c.JSON(http.StatusOK, gin.H{
-		"status": "success",
-		"html":   string(renders.RenderMd(body)),
-	})
-}
+//func V2RenderMdV3(c *gin.Context) {
+//	// get auth header
+//	res := RenderMdResponseV3{
+//		Status: "failed",
+//	}
+//
+//	auth := c.Request.Header.Get("Authorization")
+//	user := GetUserByAuthHeader(auth)
+//
+//	if user.Role != "admin" {
+//		res.Message = "permission denied"
+//		c.JSON(http.StatusForbidden, res)
+//		return
+//	}
+//	// get body to string
+//	body := make([]byte, 1024)
+//	c.Request.Body.Read(body)
+//	c.JSON(http.StatusOK, gin.H{
+//		"status": "success",
+//		"html":   string(renders.RenderMd(body)),
+//	})
+//}
