@@ -292,14 +292,15 @@ func V3SearchPosts(params V3SearchParams) ([]PostDataV3Meta, int) {
 		wherePrepare += ` AND title LIKE ? `
 		prepareParams = append(prepareParams, "%"+params.Title+"%")
 	}
-	if params.Sort != "" {
-		wherePrepare += ` ORDER BY ` + params.Sort + " "
-	}
 
 	sqlPrepare += wherePrepare
 	if contentCondition != "" {
 		sqlPrepare += ` AND id IN ` + contentCondition
 		prepareParams = append(prepareParams, contentParams...)
+	}
+
+	if params.Sort != "" {
+		sqlPrepare += ` ORDER BY ` + params.Sort + " "
 	}
 	if params.Limit != nil {
 		sqlPrepare += ` LIMIT ?,? `

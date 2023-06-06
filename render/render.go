@@ -41,7 +41,8 @@ func RenderMd(mddata []byte) []byte {
 	parser := parser.NewWithExtensions(extensions)
 
 	// Create a new renderer
-	renderer := html.NewRenderer(html.RendererOptions{})
+	flags := html.CommonFlags | html.TOC
+	renderer := html.NewRenderer(html.RendererOptions{Flags: flags})
 
 	//renderer := html.NewRenderer(html.RendererOptions{Flags: html.MathJax})
 	// renderer := &customHTMLRenderer{html.NewRenderer(html.RendererOptions{})}
