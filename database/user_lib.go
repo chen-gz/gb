@@ -96,14 +96,17 @@ type PostUserData struct {
 	Group string `json:"group"`
 }
 
-func getPostUser(id int) (PostUserData, error) {
+func getPostUser(email string,
+	password string,
+	verified bool,
+) (PostUserData, error) {
+	if !verified && verifyUser(email, password) == -1 {
+		return PostUserData{}, nil
+	}
 	// get user data from database
 	db, err := sql.Open(userDbType, userDbName)
-	if err != nil {
-		return PostUserData{}, err
-	}
 	defer db.Close()
-	row := db.QueryRow(`SELECT * FROM post_users WHERE id=?`, id)
+	row := db.QueryRow(`SELECT * FROM post_users WHERE email=?`, email)
 	var userdata PostUserData
 	err = row.Scan(&userdata.Email, &userdata.Role, &userdata.Level, &userdata.Name, &userdata.Group)
 	if err != nil {
