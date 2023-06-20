@@ -13,7 +13,7 @@ func ginServer() {
 		AllowHeaders: []string{"Authorization", "Content-Length", "Content-Type", "Origin", "Access-Control-Allow-Headers",
 			"Access-Control-Allow-Origin", "Access-Control-Allow-Methods", "Access-Control-Allow-Credentials"},
 		AllowCredentials: true,
-		AllowOrigins:     []string{"http://localhost:3000", "http://blog.ggeta.com", "https://blog.ggeta.com"},
+		AllowOrigins:     []string{"http://localhost:3000", "https://blog.ggeta.com"},
 	}))
 	//r.POST("/api/v2/delete_post", func(c *gin.Context) {
 	//	hd.V2DeletePost(c)
