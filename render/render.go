@@ -32,7 +32,7 @@ func PreRenderMd(mddata []byte) []byte {
 
 // render markdown file to html file
 func RenderMd(mddata []byte) []byte {
-	//mddata = PreRenderMd(mddata)
+	mddata = PreRenderMd(mddata)
 	//log.Println("mddata: %s", string(mddata))
 
 	extensions := parser.CommonExtensions | parser.MathJax
