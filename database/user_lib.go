@@ -36,14 +36,14 @@ type UserLoginData struct {
 var userDbType = "sqlite3"
 var userDbName = "user.db"
 
-func user_table_init() {
-	// create user table in a seperate database
+func userTableInit() error {
+	// create user table in a seperate database for user login
 	db, err := sql.Open(userDbType, userDbName)
-	db.Exec(`CREATE TABLE IF NOT EXISTS users (
-    		id INTEGER PRIMARY KEY AUTOINCREMENT,
-    		email TEXT UNIQUE NOT NULL,
-    		password TEXT UNIQUE  NOT NULL,
-    		user_name TEXT UNIQUE NOT NULL);`)
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS users (
+	    		id INTEGER PRIMARY KEY AUTOINCREMENT,
+	    		email TEXT UNIQUE NOT NULL,
+	    		password TEXT UNIQUE  NOT NULL,
+	    		user_name TEXT UNIQUE NOT NULL);`)
 	if err != nil {
 		panic(err)
 	}
@@ -51,9 +51,44 @@ func user_table_init() {
 	_, err = db.Exec(`INSERT INTO users (email, password, user_name) VALUES (?, ?, ?)`,
 		"admin", "admin", "admin")
 	if err != nil {
-		return
+		return err
 	}
+	// create table store the user info related to post
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS post_user_data (
+	    id INTEGER PRIMARY KEY AUTOINCREMENT,
+		email TEXT UNIQUE NOT NULL,
+  	 	role TEXT NOT NULL,
+		level INTEGER NOT NULL,
+		name TEXT NOT NULL,
+		group_name TEXT NOT NULL);`)
+	if err != nil {
+		return err
+	}
+	// add admin user to both tables
+	_, err = db.Exec(`INSERT INTO post_user_data (email, role, level, name, group_name) VALUES (?, ?, ?, ?, ?)`,
+		"admin", "admin", 100, "admin", "admin")
+	return err
 }
+func updateUserLogin(login UserLoginData) error {
+	db, err := sql.Open(userDbType, userDbName)
+	if err != nil {
+		return err
+	}
+	// update login data
+	_, err = db.Exec(`UPDATE users SET email=?, password=?, user_name=? WHERE id=?`,
+		login.Email, login.Password, login.UserName, login.Id)
+	return err
+
+}
+func updatePUserPost(post PostUserData) error {
+	db, _ := sql.Open(userDbType, userDbName)
+	// update post data
+	_, err := db.Exec(`UPDATE post_user_data SET email=?, role=?, level=?, name=?, group_name=? WHERE id=?`,
+		post.Email, post.Role, post.Level, post.Name, post.Group, post.Id)
+	return err
+
+}
+
 func addUesr(email string, password string, userName string) {
 	db, err := sql.Open(userDbType, userDbName)
 	if err != nil {
@@ -88,25 +123,18 @@ func verifyUser(email string, password string) int {
 	return -1
 }
 
-type PostUserData struct {
-	Email string `json:"email"`
-	Role  string `json:"role"` // author, editor, admin, guest
-	Level int    `json:"level"`
-	Name  string `json:"name"`
-	Group string `json:"group"`
-}
-
-func getPostUser(email string,
-	password string,
-	verified bool,
-) (PostUserData, error) {
-	if !verified && verifyUser(email, password) == -1 {
-		return PostUserData{}, nil
-	}
+// getPostUser takes an integer ID as an input and returns the corresponding PostUserData and an error, if any.
+// This function queries the post_users table in the given database to retrieve the required PostUserData entry,
+// fetching the user's email, role, level, name, and group.
+// In case of an error or if the user is not found, it returns an empty PostUserData struct and the error.
+func getPostUser(id int) (PostUserData, error) {
 	// get user data from database
 	db, err := sql.Open(userDbType, userDbName)
+	if err != nil {
+		return PostUserData{}, err
+	}
 	defer db.Close()
-	row := db.QueryRow(`SELECT * FROM post_users WHERE email=?`, email)
+	row := db.QueryRow(`SELECT * FROM post_users WHERE id=?`, id)
 	var userdata PostUserData
 	err = row.Scan(&userdata.Email, &userdata.Role, &userdata.Level, &userdata.Name, &userdata.Group)
 	if err != nil {
