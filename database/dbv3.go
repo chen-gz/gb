@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"strings"
 	"time"
@@ -11,8 +12,9 @@ import (
 // add tags and categories, cover_img to meta table
 
 // initialize v3 database
-const dbPathV3 = "v3.db"
+// const dbPathV3 = "v3.db"
 const dbTypeV3 = "sqlite3"
+const dbPathV3 = "/home/zong/Code/gb/v3.db"
 
 func InitV3() {
 	db, _ := sql.Open(dbTypeV3, dbPathV3)
@@ -307,12 +309,16 @@ func V3SearchPosts(params V3SearchParams) ([]PostDataV3Meta, int) {
 		prepareParams = append(prepareParams, params.Limit["start"], params.Limit["size"])
 	}
 	// make a query
-	db, _ := sql.Open(dbTypeV3, dbPathV3)
+	db, err := sql.Open(dbTypeV3, dbPathV3)
+	if err != nil {
+		log.Println(err)
+	}
 	defer db.Close()
 	log.Println(sqlPrepare)
 	stmt, err := db.Prepare(sqlPrepare)
 	if err != nil {
 		log.Println(err)
+
 	}
 	rows, err := stmt.Query(prepareParams...)
 	if err != nil {
