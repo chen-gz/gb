@@ -162,7 +162,7 @@ func V3GetPostByUrl(url string) PostDataV3 {
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(post)
+	//log.Println(post)
 	// get post content
 	row = db.QueryRow(`SELECT * FROM post_content WHERE id=?`, post.Id)
 	content := PostDataV3Content{}

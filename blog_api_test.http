@@ -1,0 +1,16 @@
+POST http://localhost:2009/api/v4/login
+Content-Type: application/json
+
+{
+      "email": "chen-gz@outlook.com",
+      "password": "Connie"
+}
+
+###
+POST localhost:2009/api/v4/get_post
+Content-Type: application/json
+
+{
+    "url": "100",
+    "rendered": false
+}
