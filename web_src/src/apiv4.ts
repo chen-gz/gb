@@ -11,6 +11,7 @@ export interface V4PostData {
     is_draft: boolean
     is_deleted: boolean
     content: string
+    content_rendered: string
     summary: string
     tags: string
     category: string
@@ -157,7 +158,7 @@ export async function loginV4(email: string, password: string): Promise<LoginRes
 // }
 
 export async function verifyToken(): Promise<LoginResponse> {
-    return await fetch(`${blogBackendUrl}/api/v4/login`, {
+    return await fetch(`${blogBackendUrl}/api/v4/verify_token`, {
         method: "POST",
         headers: {
             "Authorization": `Bearer ${localStorage.getItem("token") || ""}`

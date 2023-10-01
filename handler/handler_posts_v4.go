@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go_blog/database"
 	renders "go_blog/render"
-	"log"
 	"net/http"
 )
 
@@ -41,7 +40,21 @@ func V4Login(c *gin.Context, db_user *sql.DB) {
 		})
 	}
 }
+func V4VerifyToken(c *gin.Context, db_user *sql.DB) {
+	// get auth header
+	auth := c.Request.Header.Get("Authorization")
+	user := database.V3GetUserByAuthHeader(db_user, auth)
+	if user.Email == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"msg": "invalid token",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "valid token",
+		})
+	}
 
+}
 func V4GetPost(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 	type GetPostRequest struct {
 		Url      string `json:"url"`
@@ -187,7 +200,6 @@ func V4GetDistinct(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 	}
 	print(request.Field)
 	values, err := database.V4GetDistinctUser(db_post, request.Field, user)
-	log.Println(err)
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{
 			"msg": "permission denied",

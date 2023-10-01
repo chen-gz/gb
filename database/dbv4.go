@@ -19,22 +19,82 @@ type V4BlogUserData struct {
 	Roles set.StringSet `json:"roles"`
 }
 type V4PostData struct {
-	Id          int           `json:"id"`
-	Title       string        `json:"title"`
-	Author      string        `json:"author"`
-	AuthorEmail string        `json:"author_email"`
-	Url         string        `json:"url"`
-	IsDraft     bool          `json:"is_draft"`
-	IsDeleted   bool          `json:"is_deleted"`
-	Content     string        `json:"content"`
-	Summary     string        `json:"summary"`
-	Tags        string        `json:"tags"`
-	Category    string        `json:"category"`
-	CoverImage  string        `json:"cover_image"`
-	CreatedAt   time.Time     `json:"created_at"`
-	UpdatedAt   time.Time     `json:"updated_at"`
-	ViewGroups  set.StringSet `json:"view_groups"`
-	EditGroups  set.StringSet `json:"edit_groups"`
+	Id              int           `json:"id"`
+	Title           string        `json:"title"`
+	Author          string        `json:"author"`
+	AuthorEmail     string        `json:"author_email"`
+	Url             string        `json:"url"`
+	IsDraft         bool          `json:"is_draft"`
+	IsDeleted       bool          `json:"is_deleted"`
+	Content         string        `json:"content"`
+	ContentRendered string        `json:"content_rendered"`
+	Summary         string        `json:"summary"`
+	Tags            string        `json:"tags"`
+	Category        string        `json:"category"`
+	CoverImage      string        `json:"cover_image"`
+	CreatedAt       time.Time     `json:"created_at"`
+	UpdatedAt       time.Time     `json:"updated_at"`
+	ViewGroups      set.StringSet `json:"view_groups"`
+	EditGroups      set.StringSet `json:"edit_groups"`
+}
+
+func initializeV4Table(db_blog *sql.DB) {
+	// test post table exist in database or not
+
+	var value int
+	err := db_blog.QueryRow(`SELECT 1 from information_schema.TABLES where TABLE_NAME='post' and TABLE_SCHEMA='eta_blog'`).Scan(&value)
+	if err == nil && value == 1 {
+		// table exist. Do nothing
+		return
+	}
+	// create table post
+	_, err = db_blog.Exec(`CREATE TABLE IF NOT EXISTS post (
+					id INT UNSIGNED AUTO_INCREMENT,
+					title VARCHAR(255) NOT NULL,
+					author VARCHAR(255) default '',
+					author_email VARCHAR(255) default '',
+					url VARCHAR(255) UNIQUE  NOT NULL,
+					is_draft BOOLEAN DEFAULT FALSE,
+					is_deleted BOOLEAN DEFAULT FALSE,
+					content TEXT default '',
+					content_rendered TEXT default '',  -- this field should be markdown, html, json, latex, etc.
+					summary TEXT default '',
+					tags VARCHAR(255) default '',
+					category VARCHAR(255) default '',
+					cover_image VARCHAR(255) default '',
+					created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+					updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+					view_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') DEFAULT 'admin,editor,author,premium,subscriber,guest',
+					edit_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') DEFAULT 'admin,editor,author',
+					PRIMARY KEY (id))`)
+	if err != nil {
+		panic(err)
+	}
+	// if the index not exist, create it
+	_, err = db_blog.Exec(`ALTER TABLE post ADD FULLTEXT INDEX idx_content (content)`)
+	if err != nil {
+		panic(err)
+	}
+	_, err = db_blog.Exec(`ALTER TABLE post ADD FULLTEXT INDEX idx_tags (tags)`)
+	if err != nil {
+		panic(err)
+	}
+	_, err = db_blog.Exec(`ALTER TABLE post ADD FULLTEXT INDEX idx_category (category)`)
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = db_blog.Exec(`CREATE TABLE IF NOT EXISTS blog_users (
+    					id INT UNSIGNED AUTO_INCREMENT,
+    					email VARCHAR(255) UNIQUE NOT NULL,
+    					name VARCHAR(255),
+    					roles SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') DEFAULT 'guest',
+    					created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+						PRIMARY KEY (id))`)
+	if err != nil {
+		panic(err)
+	}
+	return
 }
 
 // InitV4 init database for v4
@@ -57,37 +117,8 @@ func InitV4() (db_blog *sql.DB) {
 	db.Close()
 	// connect to database eta_blog
 	db_blog, err = sql.Open("mysql", "zong:Connie@tcp(192.168.0.174:3306)/eta_blog")
-	if err != nil {
-		panic(err)
-	}
-	_, err = db_blog.Exec(`CREATE TABLE IF NOT EXISTS post (
-					id INT UNSIGNED AUTO_INCREMENT,
-					title VARCHAR(255) NOT NULL,
-					author VARCHAR(255) default '',
-					author_email VARCHAR(255) default '',
-					url VARCHAR(255) UNIQUE  NOT NULL,
-					is_draft BOOLEAN DEFAULT FALSE,
-					is_deleted BOOLEAN DEFAULT FALSE,
-					content TEXT default '',
-					summary TEXT default '',
-					tags VARCHAR(255) default '',
-					category VARCHAR(255) default '',
-					cover_image VARCHAR(255) default '',
-					created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-					updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-					view_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') DEFAULT 'admin,editor,author,premium,subscriber,guest',
-					edit_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') DEFAULT 'admin,editor,author',
-					PRIMARY KEY (id))`)
-	if err != nil {
-		panic(err)
-	}
-	_, err = db_blog.Exec(`CREATE TABLE IF NOT EXISTS blog_users (
-    					id INT UNSIGNED AUTO_INCREMENT,
-    					email VARCHAR(255) UNIQUE NOT NULL,
-    					name VARCHAR(255),
-    					roles SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') DEFAULT 'guest',
-    					created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-						PRIMARY KEY (id))`)
+	initializeV4Table(db_blog)
+
 	if err != nil {
 		panic(err)
 	}
@@ -129,10 +160,10 @@ func getPostByUrl(db *sql.DB, url string) (V4PostData, error) {
 	var post V4PostData
 	var created_at_str, updated_at_str, view_groups_str, edit_groups_str string
 
-	err := db.QueryRow(`SELECT id, title, author, author_email, url, is_draft, is_deleted, content,
+	err := db.QueryRow(`SELECT id, title, author, author_email, url, is_draft, is_deleted, content, content_rendered,
 	  		   summary, tags, category, cover_image, created_at, updated_at, view_groups, edit_groups
 				FROM post WHERE url=?`, url).Scan(&post.Id, &post.Title, &post.Author, &post.AuthorEmail, &post.Url,
-		&post.IsDraft, &post.IsDeleted, &post.Content, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
+		&post.IsDraft, &post.IsDeleted, &post.Content, &post.ContentRendered, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
 		&created_at_str, &updated_at_str, &view_groups_str, &edit_groups_str)
 	post.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", created_at_str)
 	post.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updated_at_str)
@@ -150,7 +181,7 @@ func getPostByUrl(db *sql.DB, url string) (V4PostData, error) {
 func getPostById(db *sql.DB, id int) (V4PostData, error) {
 	var post V4PostData
 	err := db.QueryRow(`SELECT * FROM post WHERE id=?`, id).Scan(&post.Id, &post.Title, &post.Author, &post.AuthorEmail, &post.Url,
-		&post.IsDraft, &post.IsDeleted, &post.Content, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
+		&post.IsDraft, &post.IsDeleted, &post.Content, &post.ContentRendered, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
 		&post.CreatedAt, &post.UpdatedAt, &post.ViewGroups, &post.EditGroups)
 	if err != nil {
 		log.Fatal("getPostById error: ", err)
@@ -253,16 +284,15 @@ func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, erro
 		params.Limit["start"] = 0
 	}
 	if params.Limit["size"] == 0 {
-		params.Limit["size"] = 10
+		params.Limit["size"] = 100
 	}
 
 	fmt.Println(params.Limit["start"], params.Limit["size"])
 	stmt += `LIMIT ` + fmt.Sprintf("%d", params.Limit["start"]) + `,` + fmt.Sprintf("%d", params.Limit["size"])
 	// execute sql
-	log.Println(stmt)
 	rows, err := db.Query(stmt)
 	if err != nil {
-		log.Fatal("searchPosts error: ", err)
+		log.Println("searchPosts error: ", err)
 		return []V4PostData{}, err
 	}
 	defer rows.Close()
@@ -272,15 +302,14 @@ func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, erro
 		var created_at_str, updated_at_str string
 		var view_groups_str, edit_groups_str string
 		err := rows.Scan(&post.Id, &post.Title, &post.Author, &post.AuthorEmail, &post.Url,
-			&post.IsDraft, &post.IsDeleted, &post.Content, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
+			&post.IsDraft, &post.IsDeleted, &post.Content, &post.ContentRendered, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
 			&created_at_str, &updated_at_str, &view_groups_str, &edit_groups_str)
 		post.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", created_at_str)
 		post.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updated_at_str)
 		post.ViewGroups = set.CreateStringSet(strings.Split(view_groups_str, ",")...)
 		post.EditGroups = set.CreateStringSet(strings.Split(edit_groups_str, ",")...)
 		if err != nil {
-			log.Fatal("searchPosts error: ", err)
-			log.Println("searchPosts error")
+			log.Println("searchPosts error: ", err)
 			return []V4PostData{}, err
 		}
 		posts = append(posts, post)

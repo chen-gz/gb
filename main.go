@@ -27,8 +27,10 @@ func ginServer() {
 	db_blog := database.InitV4()
 	db_user, _ := database.UserDbInit()
 	r.POST("/api/v4/login", func(c *gin.Context) {
-		//hd.V3Login(c)
 		hd.V4Login(c, db_user)
+	})
+	r.POST("/api/v4/verify_token", func(c *gin.Context) {
+		hd.V4VerifyToken(c, db_user)
 	})
 	r.POST("/api/v4/get_post", func(c *gin.Context) {
 		hd.V4GetPost(c, db_user, db_blog)

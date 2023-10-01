@@ -29,7 +29,6 @@ watch(blog_list, (old, newe) => {
 
 function init() {
     let pa = {} as SearchPostsRequestV4
-    // pa.sort = "update_time DESC"
     pa.rendered = true
     pa.counts_only = true
     pa.limit = {start: 0, size: 10}

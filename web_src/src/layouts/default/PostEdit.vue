@@ -3,28 +3,24 @@
         <v-navigation-drawer v-model="drawer" permanent floating location="right" width="300">
             <v-list h-75>
                 <v-list-item title="Post Url">
-                    <v-text-field h-75 density="compact" variant="outlined" v-model="meta.url"/>
-                </v-list-item>
+                    <v-text-field h-75 density="compact" variant="outlined" v-model="post.url"/> </v-list-item>
                 <v-list-item title="Tags">
-                    <v-text-field h-75 density="compact" variant="outlined" v-model="meta.tags"/>
+                    <v-text-field h-75 density="compact" variant="outlined" v-model="post.tags"/>
                 </v-list-item>
                 <v-list-item title="Categories">
-                    <v-text-field h-75 density="compact" variant="outlined" v-model="meta.category"/>
-                </v-list-item>
-                <v-list-item title="Post access">
-                    <v-select :items="[0, 1]" v-model="meta.private_level" density="compact" flat h-75 class="mt-2"/>
+                    <v-text-field h-75 density="compact" variant="outlined" v-model="post.category"/>
                 </v-list-item>
                 <v-list-item title="Author">
-                    <v-text-field h-75 density="compact" variant="outlined" v-model="meta.author"/>
+                    <v-text-field h-75 density="compact" variant="outlined" v-model="post.author"/>
                 </v-list-item>
                 <v-list-item title="summary">
-                    <v-text-field h-75 density="compact" variant="outlined" v-model="meta.summary"/>
+                    <v-text-field h-75 density="compact" variant="outlined" v-model="post.summary"/>
                 </v-list-item>
                 <v-list-item title="draft">
-                    <v-checkbox v-model="meta.is_draft" dense/>
+                    <v-checkbox v-model="post.is_draft" dense/>
                 </v-list-item>
                 <v-list-item title="Cover Image">
-                    <v-text-field h-75 density="compact" variant="outlined" v-model="meta.cover_img"/>
+                    <v-text-field h-75 density="compact" variant="outlined" v-model="post.cover_image"/>
                 </v-list-item>
             </v-list>
         </v-navigation-drawer>
@@ -34,7 +30,7 @@
             <v-toolbar-title>
                 <v-text-field
                     prepend-icon="mdi-pencil"
-                    v-model="meta.title"
+                    v-model="post.title"
                     flat
                     hide-details
                     variant="solo"
@@ -76,7 +72,7 @@
                 <v-row justify="center" class="fill-height">
                     <v-col cols="{{editor_cols}}" class="fill-height">
                         <v-card class="mt-5 fill-height" ref="textarea">
-                            <textarea class="fill-height" style="width: 100%" v-model="content.content">
+                            <textarea class="fill-height" style="width: 100%" v-model="post.content">
 
                             </textarea>
                         </v-card>
@@ -94,7 +90,6 @@
 <script lang="ts" setup>
 import {nextTick, onMounted, onUnmounted, ref, watch} from "vue";
 import {useRouter} from "vue-router";
-import {showError, showSuccess} from "@/apiv2";
 
 
 const drawer = ref(false)
@@ -122,18 +117,19 @@ onMounted(() => {
 const route = useRouter();
 let url = route.currentRoute.value.params.url as string || "";
 
-let meta = ref({} as PostDataV3Meta);
-let content = ref({} as PostDataV3Content);
-let comment = ref({} as PostDataV3Comment);
+let post = ref({} as V4PostData)
+// let meta = ref({} as PostDataV3Meta);
+// let content = ref({} as PostDataV3Content);
+// let comment = ref({} as PostDataV3Comment);
 
-// getPostV3(url, false).then(
-//     (response) => {
-//         // post.value = response.post
-//         meta.value = response.post.meta
-//         content.value = response.post.content
-//         comment.value = response.post.comment
-//     }
-// )
+getPostV4(url, false).then(
+    (response) => {
+        post.value = response.post
+        // meta.value = response.post.meta
+        // content.value = response.post.content
+        // comment.value = response.post.comment
+    }
+)
 
 
 // ctrl + s to save post
@@ -153,17 +149,15 @@ onUnmounted(() => {
 
 async function savePost(redirect: boolean) {
     // ps.updated_at = new Date()
-    let params = {} as UpdatePostParams;
-    params.id = meta.value.id
-    params.meta = meta.value
+    let params = {} as V4PostData;
+    params.id = post.value.id
     console.log(params)
     console.log(params)
-    params.meta_update = true
-    params.content = content.value
-    params.content_update = true
-    params.comment = comment.value
-    params.comment_update = true
-    updatePostV3(params).then(
+    // params.content = content.value
+    // params.content_update = true
+    // params.comment = comment.value
+    // params.comment_update = true
+    updatePostV4(params).then(
         (response) => {
             if (response.status == "success") {
                 showSuccess("Post saved")
@@ -182,16 +176,18 @@ async function savePost(redirect: boolean) {
 // })
 
 
-import {
-    PostDataV3Comment,
-    PostDataV3Content,
-    PostDataV3Meta,
-    UpdatePostParams,
-    updatePostV3
-} from "@/apiv2";
+// import {
+//     PostDataV3Comment,
+//     PostDataV3Content,
+//     PostDataV3Meta,
+//     UpdatePostParams,
+//     updatePostV3
+// } from "@/apiv2";
+import {getPostV4, showError, showSuccess, updatePostV4, V4PostData} from "@/apiv4";
 
 function deletePostBtn() {
-    meta.value.is_deleted = true
+    // meta.value.is_deleted = true
+    post.value.is_deleted = true
     savePost(false)
     route.go(-1)
 }

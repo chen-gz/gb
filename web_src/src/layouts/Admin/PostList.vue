@@ -57,7 +57,7 @@ function deleteItem(item: V4PostData) {
 
 async function init() {
     let pa = {} as SearchPostsRequestV4
-    pa.sort = "update_time desc, id desc"
+    pa.sort = "updated_at desc, id desc"
     if (type.value == "publish") {
         pa.is_deleted = false
         pa.is_draft = false

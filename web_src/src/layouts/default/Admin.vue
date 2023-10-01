@@ -56,9 +56,9 @@
 
 <script setup lang="ts">
 import {ref} from "vue";
-import {showSuccess, showError} from "@/apiv2";
+
 import router from "@/router";
-import{newPostV4} from "@/apiv4";
+import {newPostV4, showError, showSuccess} from "@/apiv4";
 
 let drawer = ref(true)
 const rail = ref(false)
