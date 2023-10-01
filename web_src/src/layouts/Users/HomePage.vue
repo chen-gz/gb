@@ -9,7 +9,7 @@ let len = ref(0)
 
 function getPostPage(page: number) {
     let pa2: SearchPostsRequestV4 = {} as SearchPostsRequestV4
-    pa2.sort = "update_time DESC"
+    pa2.sort = "updated_at DESC"
     pa2.rendered = false
     pa2.limit = {start: (page - 1) * itemPerPage, size: itemPerPage}
     searchPostsV4(pa2).then((response) => {
@@ -71,9 +71,9 @@ init()
             <v-card style="width: 100%; max-width: 1200px" class="align-center">
                 <router-link :to="'/posts/' + item['url']">
                     <v-img
-                        v-show="item.cover_img !== ''"
+                        v-show="item.cover_image!== ''"
                         height="200px"
-                        :src="item.cover_img"
+                        :src="item.cover_image"
                         cover
                         max-height="200px"
                     />

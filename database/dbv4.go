@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/minio/minio-go/v7/pkg/set"
 	"log"
@@ -240,6 +241,23 @@ func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, erro
 	if params.Categories != "" {
 		stmt += `AND MATCH (category) AGAINST ("` + params.Categories + `") `
 	}
+	// add limit and sort
+	if params.Sort != "" {
+		stmt += `ORDER BY ` + params.Sort + ` `
+	}
+	// limit should have two values: start, size. if not, use default value
+	if params.Limit == nil {
+		params.Limit = make(map[string]int)
+	}
+	if params.Limit["start"] == 0 {
+		params.Limit["start"] = 0
+	}
+	if params.Limit["size"] == 0 {
+		params.Limit["size"] = 10
+	}
+
+	fmt.Println(params.Limit["start"], params.Limit["size"])
+	stmt += `LIMIT ` + fmt.Sprintf("%d", params.Limit["start"]) + `,` + fmt.Sprintf("%d", params.Limit["size"])
 	// execute sql
 	log.Println(stmt)
 	rows, err := db.Query(stmt)
