@@ -58,14 +58,14 @@
 import {ref} from "vue";
 import {showSuccess, showError} from "@/apiv2";
 import router from "@/router";
-import {newPostV3} from "@/apiv2";
+import{newPostV4} from "@/apiv4";
 
 let drawer = ref(true)
 const rail = ref(false)
 let showSearchLine = ref(false)
 
 async function createNewPost() {
-    let response = await newPostV3();
+    let response = await newPostV4();
     console.log(response)
     if (response.status === "success") {
         showSuccess("create post success")

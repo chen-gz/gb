@@ -23,21 +23,21 @@
 <script lang="ts" setup>
 import DefaultBar from './AppBar.vue'
 import {onUnmounted, ref, watch} from "vue";
-import {PostDataV3Meta, searchPostsV3, SearchPostsRequestV3} from "@/apiv2";
 import searchResult from "@/layouts/Users/searchResult.vue";
 import router from "@/router";
+import {SearchPostsRequestV4, searchPostsV4, V4PostData} from "@/apiv4";
 
 let showSearch = ref(false)
-let blog_list = ref([] as PostDataV3Meta[])
+let blog_list = ref([] as V4PostData[])
 
 function searchCallBack(search_text: string) {
     showSearch.value = true
     console.log(showSearch.value)
     console.log(search_text)
-    let param = {} as SearchPostsRequestV3
+    let param = {} as SearchPostsRequestV4
     param.content = search_text
     param.limit = {start: 0, size: 20}
-    searchPostsV3(param).then(
+    searchPostsV4(param).then(
         (response) => {
             blog_list.value = response.posts || []
             console.log(blog_list.value)

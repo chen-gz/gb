@@ -1,54 +1,55 @@
 package handler
 
+// import (
 //
-//import (
 //	"github.com/gin-gonic/gin"
 //	"go_blog/database"
 //	renders "go_blog/render"
 //	"log"
 //	"net/http"
 //	"time"
-//)
 //
-//type GetPostRequestV3 struct {
-//	Url      string `json:"url"`
-//	Rendered bool   `json:"rendered"` // if true, return rendered content
-//}
-//type GetPostResponseV3 struct {
-//	Status  string              `json:"status"`
-//	Message string              `json:"message"`
-//	Post    database.PostDataV3 `json:"post"`
-//	Html    string              `json:"html"`
-//}
+// )
 //
-//func V3GetPost(c *gin.Context) {
-//	// get by url param
-//	result := GetPostResponseV3{
-//		Status: "failed",
+//	type GetPostRequestV3 struct {
+//		Url      string `json:"url"`
+//		Rendered bool   `json:"rendered"` // if true, return rendered content
 //	}
-//	var postRequest GetPostRequestV3
-//	if c.BindJSON(&postRequest) != nil {
-//		result.Message = "invalid request"
-//		c.JSON(http.StatusBadRequest, result)
-//		return
-//	}
-//	user := GetUserByAuthHeader(c.Request.Header.Get("Authorization"))
-//	//post, post_content, post_comment
-//	postData := database.V3GetPostByUrl(postRequest.Url)
 //
-//	if user.Level < postData.Meta.PrivateLevel {
-//		result.Message = "permission denied"
-//		c.JSON(http.StatusForbidden, result)
-//		return
+//	type GetPostResponseV3 struct {
+//		Status  string              `json:"status"`
+//		Message string              `json:"message"`
+//		Post    database.PostDataV3 `json:"post"`
+//		Html    string              `json:"html"`
 //	}
-//	result.Status = "success"
-//	result.Message = "ok"
-//	result.Post = postData
-//	//database.PostDataV2{post, post_content, post_comment}
-//	result.Html = string(renders.RenderMd([]byte(postData.Content.Content)))
-//	c.JSON(http.StatusOK, result)
-//}
 //
+//	func V3GetPost(c *gin.Context) {
+//		// get by url param
+//		result := GetPostResponseV3{
+//			Status: "failed",
+//		}
+//		var postRequest GetPostRequestV3
+//		if c.BindJSON(&postRequest) != nil {
+//			result.Message = "invalid request"
+//			c.JSON(http.StatusBadRequest, result)
+//			return
+//		}
+//		user := GetUserByAuthHeader(c.Request.Header.Get("Authorization"))
+//		//post, post_content, post_comment
+//		postData := database.V3GetPostByUrl(postRequest.Url)
+//
+//		if user.Level < postData.Meta.PrivateLevel {
+//			result.Message = "permission denied"
+//			c.JSON(http.StatusForbidden, result)
+//			return
+//		}
+//		result.Status = "success"
+//		result.Message = "ok"
+//		result.Post = postData
+//		//database.PostDataV2{post, post_content, post_comment}
+//		result.Html = string(renders.RenderMd([]byte(postData.Content.Content)))
+//		c.JSON(http.StatusOK, result)
+//	}
 //type SearchPostsRequestV3 database.V3SearchParams
 //type SearchPostsResponseV3 struct {
 //	Status        string                    `json:"status"`
@@ -56,7 +57,7 @@ package handler
 //	Posts         []database.PostDataV3Meta `json:"posts"`
 //	NumberOfPosts int                       `json:"number_of_posts"`
 //}
-//
+
 //func V3SearchPosts(c *gin.Context) {
 //	result := SearchPostsResponseV3{
 //		Status: "failed",
@@ -87,6 +88,7 @@ package handler
 //	result.NumberOfPosts = cnt
 //	c.JSON(http.StatusOK, result)
 //}
+
 //
 //type UpdatePostRequestV3 database.V3UpdateParams
 //type UpdatePostResponseV3 struct {
@@ -168,7 +170,7 @@ package handler
 //}
 //
 //type GetDistinctRequest struct {
-//	Column string `json:"column"`
+//	Field string `json:"column"`
 //}
 //type GetDistinctResponse struct {
 //	Status  string   `json:"status"`
@@ -187,7 +189,7 @@ package handler
 //		c.JSON(http.StatusBadRequest, response)
 //		return
 //	}
-//	values, err := database.V3GetDistinct(request.Column)
+//	values, err := database.V3GetDistinct(request.Field)
 //	if err != nil {
 //		log.Println(err)
 //		response.Message = "internal error"

@@ -126,14 +126,14 @@ let meta = ref({} as PostDataV3Meta);
 let content = ref({} as PostDataV3Content);
 let comment = ref({} as PostDataV3Comment);
 
-getPostV3(url, false).then(
-    (response) => {
-        // post.value = response.post
-        meta.value = response.post.meta
-        content.value = response.post.content
-        comment.value = response.post.comment
-    }
-)
+// getPostV3(url, false).then(
+//     (response) => {
+//         // post.value = response.post
+//         meta.value = response.post.meta
+//         content.value = response.post.content
+//         comment.value = response.post.comment
+//     }
+// )
 
 
 // ctrl + s to save post
@@ -183,7 +183,6 @@ async function savePost(redirect: boolean) {
 
 
 import {
-    getPostV3,
     PostDataV3Comment,
     PostDataV3Content,
     PostDataV3Meta,

@@ -23,24 +23,7 @@ func ginServer() {
 			"http://localhost:2009",
 			"https://blog.ggeta.com"},
 	}))
-	///////////////////// V3 api. the database does not compatible with v2
-	//r.POST("/api/v3/get_post", func(c *gin.Context) {
-	//	// get url param
-	//	//hd.V3GetPost(c)
-	//})
-	//r.POST("/api/v3/search_posts", func(c *gin.Context) {
-	//	//hd.V3SearchPosts(c)
-	//})
-	//r.POST("/api/v3/update_post", func(c *gin.Context) {
-	//	//hd.V3UpdatePost(c)
-	//})
-	//r.POST("/api/v3/new_post", func(c *gin.Context) {
-	//	//hd.V3NewPost(c)
-	//})
-	//r.POST("/api/v3/get_distinct", func(c *gin.Context) {
-	//	//hd.V3GetDistinct(c)
-	//})
-	////////////////////////// v4 api. The database is not compatible with v3
+
 	db_blog := database.InitV4()
 	db_user, _ := database.UserDbInit()
 	r.POST("/api/v4/login", func(c *gin.Context) {
@@ -49,6 +32,18 @@ func ginServer() {
 	})
 	r.POST("/api/v4/get_post", func(c *gin.Context) {
 		hd.V4GetPost(c, db_user, db_blog)
+	})
+	r.POST("/api/v4/search_posts", func(c *gin.Context) {
+		hd.V4SearchPosts(c, db_user, db_blog)
+	})
+	r.POST("/api/v4/update_post", func(c *gin.Context) {
+		hd.V4UpdatePost(c, db_user, db_blog)
+	})
+	r.POST("/api/v4/new_post", func(c *gin.Context) {
+		hd.V4NewPost(c, db_user, db_blog)
+	})
+	r.POST("/api/v4/get_distinct", func(c *gin.Context) {
+		hd.V4GetDistinct(c, db_user, db_blog)
 	})
 
 	// list all files in the frontend

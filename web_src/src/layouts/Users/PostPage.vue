@@ -2,7 +2,8 @@
 import {nextTick, ref, watch} from "vue";
 import axios from 'axios'
 import {useRouter} from "vue-router";
-import {BlogDataV3, formatDate, GetPostResponseV3, getPostV3, PostDataV3Meta} from "@/apiv2";
+// import {BlogDataV3, formatDate, GetPostResponseV3, PostDataV3Meta} from "@/apiv2";
+import {formatDate, getPostV4, V4PostData} from "@/apiv4";
 import {formatMessages} from "esbuild";
 //
 //
@@ -13,14 +14,16 @@ if (typeof route.currentRoute.value.params.url !== "undefined") {
   url = route.currentRoute.value.params.url as string
 }
 
-let post_meta = ref({} as PostDataV3Meta);
+let post = ref({} as V4PostData);
 let post_title = ref("");
 let post_content = ref("");
 let post_toc = ref("");
 
-getPostV3(url, true).then((response) => {
-  post_meta.value = response.post.meta;
-  post_title.value = response.post.meta.title
+
+getPostV4(url, true).then((response) => {
+  console.log(response)
+  post.value = response.post
+  post_title.value = post.value.title
   post_content.value = response.html
   // get toc from post content they are surrended by <nav> tag
   // find the first <nav> tag
@@ -59,13 +62,13 @@ watch(post_content, (old, newe) => {
             <h1 class="post_title" v-html="post_title"/>
             <div class="post_content">
               <v-toolbar class="post_toolbar mt-2 mb-3" density="compact">
-                <span>Author：{{ post_meta.author }}</span>
-                <span class="ml-5">Update: {{ formatDate(post_meta.update_time) }}</span>
+                <span>Author：{{ post.author }}</span>
+                <span class="ml-5">Update: {{ formatDate(post.updated_at) }}</span>
                 <v-spacer tag="span"/>
                 <v-btn icon="mdi mdi-share-variant" class="mx-2"/>
                 <v-btn icon="mdi mdi-heart-outline" class="mx-2"/>
                 <v-btn icon="mdi mdi-bookmark-outline" class="mx-2"/>
-                <v-btn icon="mdi mdi-pencil" class="mx-2" :to="'/posts/edit/' + post_meta.url"/>
+                <v-btn icon="mdi mdi-pencil" class="mx-2" :to="'/posts/edit/' + post.url"/>
               </v-toolbar>
               <div v-html="post_content"></div>
             </div>

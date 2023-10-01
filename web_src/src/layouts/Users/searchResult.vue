@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {PropType} from "vue";
-import {PostDataV3Meta} from "@/apiv2";
+// import {PostDataV3Meta} from "@/apiv2";
 
 defineProps(
     {

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import {ref} from "vue";
-import {getDistinct, GetDistinctResponse, PostDataV3Meta, SearchPostsRequestV3, searchPostsV3} from "@/apiv2";
+// import {GetDistinctResponse, PostDataV3Meta} from "@/apiv2";
+import {searchPostsV4, SearchPostsRequestV4, getDistinct, V4PostData, GetDistinctResponse} from "@/apiv4";
+
 
 export interface Category {
     name: string
     count: number
-    posts: PostDataV3Meta[]
+    posts: V4PostData[]
 }
 
 var cates = ref({} as GetDistinctResponse)
@@ -26,10 +28,10 @@ getDistinct("category").then((response) => {
     // get 5 posts for each category
     for (let i = 0; i < catesShow.value.length; i++) {
         let cate = catesShow.value[i]
-        let param = {} as SearchPostsRequestV3
+        let param = {} as SearchPostsRequestV4
         param.limit = {start: 0, size: 5}
         param.categories = cate.name
-        searchPostsV3(param).then(
+        searchPostsV4(param).then(
             (response) => {
                 cate.posts = response.posts || []
             }

@@ -11,7 +11,8 @@
 </template>
 
 <script lang="ts" setup>
-import {alert} from "@/apiv2";
+// import {alert} from "@/apiv2";
+import {alert} from "@/apiv4";
 
 
 // add MathJax script to the page

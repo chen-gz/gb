@@ -51,8 +51,9 @@
 
 <script lang="ts" setup>
 import {useTheme} from "vuetify";
-import {logined, logout} from "@/apiv2";
+// import {logined, logout} from "@/apiv2";
 import {ref} from "vue";
+import {logined, logout} from "@/apiv4";
 
 const theme = useTheme()
 let values = ref('')

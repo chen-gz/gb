@@ -2,8 +2,8 @@ POST http://localhost:2009/api/v4/login
 Content-Type: application/json
 
 {
-      "email": "chen-gz@outlook.com",
-      "password": "Connie"
+  "email": "chen-gz@outlook.com",
+  "password": "Connie"
 }
 
 ###
@@ -11,6 +11,28 @@ POST localhost:2009/api/v4/get_post
 Content-Type: application/json
 
 {
-    "url": "100",
-    "rendered": false
+  "url": "100",
+  "rendered": false
+}
+
+###
+POST localhost:2009/api/v4/search_posts
+Content-Type: application/json
+
+{
+  "author": "Guangzong",
+  "title": "",
+  "limit": {
+    "start": 0,
+    "size": 10
+  }
+
+}
+
+###
+POST localhost:2009/api/v4/get_distinct
+Content-Type: application/json
+
+{
+  "field": "url"
 }

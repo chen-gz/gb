@@ -27,8 +27,8 @@
 <script setup lang="ts">
 import {ref, watch} from "vue";
 import {useRouter} from "vue-router";
-import {PostDataV3Meta, SearchPostsRequestV3, searchPostsV3} from "@/apiv2";
 import router from "@/router";
+import {SearchPostsRequestV4, searchPostsV4, V4PostData} from "@/apiv4";
 
 let route = useRouter();
 let type = ref("");
@@ -43,20 +43,20 @@ const headers = ref([
     {title: 'Actions', align: 'end', key: 'actions', sortable: false}
 ] as any[])
 
-let posts = ref([] as PostDataV3Meta[])
+let posts = ref([] as V4PostData[])
 let search = ref("")
 
 
-function editItem(item: PostDataV3Meta) {
+function editItem(item: V4PostData) {
     router.push("/posts/edit/" + item.url)
 }
 
-function deleteItem(item: PostDataV3Meta) {
+function deleteItem(item: V4PostData) {
     console.log(item)
 }
 
 async function init() {
-    let pa = {} as SearchPostsRequestV3
+    let pa = {} as SearchPostsRequestV4
     pa.sort = "update_time desc, id desc"
     if (type.value == "publish") {
         pa.is_deleted = false
@@ -68,7 +68,7 @@ async function init() {
     if (type.value == "draft") {
         pa.is_draft = true
     }
-    searchPostsV3(pa).then((response) => {
+    searchPostsV4(pa).then((response) => {
         // pagination_len.value = Math.ceil(response.number_of_posts / itemsPerPage.value)
         posts.value = response.posts
         // console.log(response)

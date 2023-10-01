@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import {nextTick, ref, watch} from "vue";
-import {PostDataV3Meta, SearchPostsRequestV3, searchPostsV3} from "@/apiv2";
+import {searchPostsV4, SearchPostsRequestV4, V4PostData} from "@/apiv4";
 
-let blog_list = ref([] as PostDataV3Meta[])
+let blog_list = ref([] as V4PostData[])
 const itemPerPage = 12
 let currentPage = ref(1)
 let len = ref(0)
 
 function getPostPage(page: number) {
-    let pa2: SearchPostsRequestV3 = {} as SearchPostsRequestV3
+    let pa2: SearchPostsRequestV4 = {} as SearchPostsRequestV4
     pa2.sort = "update_time DESC"
     pa2.rendered = false
     pa2.limit = {start: (page - 1) * itemPerPage, size: itemPerPage}
-    searchPostsV3(pa2).then((response) => {
+    searchPostsV4(pa2).then((response) => {
         blog_list.value = response.posts
         console.log("get post page")
         console.log(blog_list.value)
@@ -28,12 +28,12 @@ watch(blog_list, (old, newe) => {
 });
 
 function init() {
-    let pa = {} as SearchPostsRequestV3
+    let pa = {} as SearchPostsRequestV4
     // pa.sort = "update_time DESC"
     pa.rendered = true
     pa.counts_only = true
     pa.limit = {start: 0, size: 10}
-    searchPostsV3(pa).then((response) => {
+    searchPostsV4(pa).then((response) => {
         len.value = Math.ceil(response.number_of_posts / itemPerPage)
     })
     getPostPage(1)

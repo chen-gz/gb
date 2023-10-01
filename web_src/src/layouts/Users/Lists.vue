@@ -2,33 +2,33 @@
 import axios from "axios";
 import {ref} from "vue";
 import {useRouter} from "vue-router";
-import {formatDate, SearchPostsRequestV3, SearchPostsResponseV3, searchPostsV3} from "@/apiv2";
+import {formatDate, SearchPostsRequestV4, SearchPostsResponseV4, searchPostsV4} from "@/apiv4";
 
 
 const props = defineProps<{
-    searchParam: SearchPostsRequestV3
+    searchParam: SearchPostsRequestV4
 }>();
 console.log(props.searchParam)
 
 const route = useRouter();
 console.log(route.currentRoute.value.params.id)
-let params = {} as SearchPostsRequestV3
+let params = {} as SearchPostsRequestV4
 console.log("props.searchParam: ", props.searchParam)
 if (props.searchParam != undefined) {
-    params = props.searchParam as SearchPostsRequestV3
+    params = props.searchParam as SearchPostsRequestV4
 }
 console.log(params)
 // let params = {} as SearchPostsRequestV3
-var res = ref({} as SearchPostsResponseV3)
+var res = ref({} as SearchPostsResponseV4)
 params.sort = "create_time DESC"
-searchPostsV3(params).then((response) => {
+searchPostsV4(params).then((response) => {
     res.value = response
     console.log(res.value)
     if (res.value.number_of_posts == 0) {
         res.value.posts = []
     }
     for (let i = 0; i < res.value.posts.length; i++) {
-        res.value.posts[i].create_time = new Date(res.value.posts[i].create_time);
+        res.value.posts[i].created_at = new Date(res.value.posts[i].created_at);
     }
     console.log(res.value)
 })
@@ -45,7 +45,7 @@ searchPostsV3(params).then((response) => {
                     <span> {{ item.title }} </span>
                 </router-link>
             </td>
-            <td>{{ formatDate(item.create_time) }}</td>
+            <td>{{ formatDate(item.created_at) }}</td>
             <td>
             </td>
         </tr>

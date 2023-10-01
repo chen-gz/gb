@@ -44,7 +44,7 @@ type User struct {
 }
 
 func UserAdd(db_user *sql.DB, user User, password string) error {
-	_, err := db_user.Exec("INSERT INTO users (email, name, password) VALUES (?, ?, ?, ?)", user.Email, user.Name, password)
+	_, err := db_user.Exec("INSERT INTO users (email, name, password) VALUES (?, ?, ?)", user.Email, user.Name, password)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -52,11 +52,15 @@ func UserAdd(db_user *sql.DB, user User, password string) error {
 	return nil
 
 }
+
+// GetUserByEmail get user by email
+// if cannot find user, return empty user
 func GetUserByEmail(dbUser *sql.DB, email string) User {
 	var user User
-	err := dbUser.QueryRow("SELECT * FROM users WHERE email=?", email).Scan(&user.Id, &user.Email, &user.Name)
+	err := dbUser.QueryRow("SELECT id, email, name FROM users WHERE email=?", email).Scan(&user.Id, &user.Email, &user.Name)
 	if err != nil {
-		log.Println(err)
+		log.Fatalln(err)
+		return User{}
 	}
 	return user
 }
@@ -79,6 +83,10 @@ func V1VerifyToken(token string) (bool, string) {
 	return valid, email
 }
 
+// V3GetUserByAuthHeader get user by auth header
+// if auth type is Bearer, get token and verify it
+// if auth type is Basic, return empty user
+// if auth header is invalid, return empty user
 func V3GetUserByAuthHeader(db_user *sql.DB, auth string) User {
 	// if auth type is Bearer get token
 	if len(auth) < 7 {

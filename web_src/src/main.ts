@@ -11,8 +11,9 @@ import {createApp, ref} from 'vue'
 import 'font-awesome/css/font-awesome.css'
 // Plugins
 import {registerPlugins} from '@/plugins'
+import {logined, logout, verifyToken} from "@/apiv4";
 
-import {verifyToken, logout, logined} from "@/apiv2";
+// import {verifyToken, logout, logined} from "@/apiv2";
 // import BootstrapVue, {IconsPlugin} from "bootstrap-vue";
 
 const app = createApp(App)

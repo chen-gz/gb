@@ -39,7 +39,9 @@ import {ref} from "vue";
 // import {logout, showError, showSuccess} from "@/config";
 // import {logined} from "@/main";
 import router from "@/router";
-import {loginV3, logined, showError, showSuccess, logout} from "@/apiv2";
+// import {logined, showError, showSuccess, logout} from "@/apiv2";
+
+import {logined, loginV4, logout, showError, showSuccess} from "@/apiv4";
 
 var email = ref('')
 var password = ref('')
@@ -47,7 +49,7 @@ var showPassword = ref(false)
 
 
 async function  login_submit() {
-    loginV3(email.value, password.value).then((response) => {
+    loginV4(email.value, password.value).then((response) => {
         localStorage.setItem('token', response.token)
         localStorage.setItem('userEmail', response.email)
         localStorage.setItem('userName', response.name)

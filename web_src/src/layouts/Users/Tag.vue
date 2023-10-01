@@ -3,7 +3,8 @@ import axios from "axios";
 import {blogBackendUrl} from "@/config";
 import {ref} from "vue";
 import {useRouter} from "vue-router";
-import {getDistinct, GetDistinctResponse, SearchPostsRequestV3} from "@/apiv2";
+// import {GetDistinctResponse} from "@/apiv2";
+import {getDistinct, searchPostsV4, SearchPostsRequestV4, GetDistinctResponse} from "@/apiv4";
 import Lists from "@/layouts/Users/Lists.vue";
 
 let props = defineProps<{
@@ -31,7 +32,7 @@ getDistinct("tags").then((response) => {
             </v-chip>
         </v-chip-group>
     </v-container>
-    <Lists v-else  :searchParam="{tags: props.id} as SearchPostsRequestV3"></Lists>
+    <Lists v-else  :searchParam="{tags: props.id} as SearchPostsRequestV4"></Lists>
 </template>
 
 <style scoped>

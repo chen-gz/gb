@@ -1,8 +1,8 @@
 // Composables
 import {createRouter, createWebHistory, useRouter} from 'vue-router'
-import {SearchPostsRequestV3, searchPostsV3} from "@/apiv2";
+// import {SearchPostsRequestV4, searchPostsV4} from "@/apiv2";
 
-let searchParams = {} as SearchPostsRequestV3
+// let searchParams = {} as SearchPostsRequestV4
 
 const routes = [
     {
