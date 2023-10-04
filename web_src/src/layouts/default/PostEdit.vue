@@ -176,13 +176,6 @@ async function savePost(redirect: boolean) {
 // })
 
 
-// import {
-//     PostDataV3Comment,
-//     PostDataV3Content,
-//     PostDataV3Meta,
-//     UpdatePostParams,
-//     updatePostV3
-// } from "@/apiv2";
 import {getPostV4, showError, showSuccess, updatePostV4, V4PostData} from "@/apiv4";
 
 function deletePostBtn() {

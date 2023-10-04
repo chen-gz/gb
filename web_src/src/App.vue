@@ -38,9 +38,6 @@ sheet.rel = "stylesheet"
 sheet.href = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css"
 document.head.appendChild(sheet)
 
-
-
-
 </script>
 
 

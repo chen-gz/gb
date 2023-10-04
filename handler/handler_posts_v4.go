@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go_blog/database"
 	renders "go_blog/render"
+	"log"
 	"net/http"
 )
 
@@ -131,6 +132,7 @@ func V4UpdatePost(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 		Html    string              `json:"html"`
 	}
 	user := database.V3GetUserByAuthHeader(db_user, c.Request.Header.Get("Authorization"))
+	log.Println("V4UpdatePost: user: ", user)
 	var postUpdateRequest PostUpdateRequest
 	if c.BindJSON(&postUpdateRequest) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

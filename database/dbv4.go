@@ -171,8 +171,7 @@ func getPostByUrl(db *sql.DB, url string) (V4PostData, error) {
 	post.EditGroups = set.CreateStringSet(strings.Split(edit_groups_str, ",")...)
 
 	if err != nil {
-		log.Println("getPostByUrl error")
-		log.Fatal("getPostByUrl error: ", err)
+		log.Println("getPostByUrl error", err)
 		return post, err
 	}
 	log.Println(post.Url)
@@ -184,18 +183,20 @@ func getPostById(db *sql.DB, id int) (V4PostData, error) {
 		&post.IsDraft, &post.IsDeleted, &post.Content, &post.ContentRendered, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
 		&post.CreatedAt, &post.UpdatedAt, &post.ViewGroups, &post.EditGroups)
 	if err != nil {
-		log.Fatal("getPostById error: ", err)
-		return post, err
+		log.Println("getPostById error: ", err)
+		return V4PostData{}, err
 	}
 	return post, nil
 }
 func updatePost(db *sql.DB, post V4PostData) error {
 	stmt, _ := db.Prepare(`UPDATE post SET title=?, author=?,author_email=?, url=?, is_draft=?, is_deleted=?, content=?, 
 				  summary=?, tags=?, category=?, cover_image=?, view_groups=?, edit_groups=? WHERE id=?`)
+	viewGroups := strings.Join(post.ViewGroups.ToSlice(), ",")
+	editGroups := strings.Join(post.EditGroups.ToSlice(), ",")
 	_, err := stmt.Exec(post.Title, post.Author, post.AuthorEmail, post.Url, post.IsDraft, post.IsDeleted, post.Content,
-		post.Summary, post.Tags, post.Category, post.CoverImage, post.ViewGroups, post.EditGroups, post.Id)
+		post.Summary, post.Tags, post.Category, post.CoverImage, viewGroups, editGroups, post.Id)
 	if err != nil {
-		log.Fatal("updatePost error: ", err)
+		log.Println("updatePost error: ", err, "post: ", post)
 		return err
 	}
 	return nil
