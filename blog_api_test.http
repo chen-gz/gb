@@ -26,7 +26,6 @@ Content-Type: application/json
     "start": 0,
     "size": 10
   }
-
 }
 
 ###
@@ -35,4 +34,18 @@ Content-Type: application/json
 
 {
   "field": "url"
+}
+
+###
+POST localhost:2009/api/v4/update_post
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNoZW4tZ3pAb3V0bG9vay5jb20iLCJleHAiOjE2OTY5OTgzNjQsImlhdCI6MTY5NjM5MzU2NH0.QF0bD-WZBwRGNYTnUYxTf-evPAGa1c3L3zJwcL1iDIo
+
+{
+  "id": 1,
+  "url": "hello",
+  "title": "4 Continuity",
+  "content": "test",
+  "author": "Guangzong",
+  "rendered": false
 }

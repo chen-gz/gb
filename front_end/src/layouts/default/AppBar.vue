@@ -41,16 +41,19 @@
     </v-app-bar-nav-icon>
     <v-app-bar-nav-icon class="d-sm-none"><i class="fa fa-info fa-lg" aria-hidden="true"></i></v-app-bar-nav-icon>
     <v-app-bar-nav-icon @click="login()"><i class="fa fa-user" aria-hidden="true"></i></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon @click="newpost()" v-if="is_logined"> <i class="fa fa-plus" aria-hidden="true"></i></v-app-bar-nav-icon>
   </v-app-bar>
 </template>
 
 <script lang="ts" setup>
 import {ref} from "vue";
 import router from "@/router";
-import {logined} from "@/apiv4";
+import {logined, newPostV4} from "@/apiv4";
 
 var showSearch = ref(false)
 var values = ref('')
+var is_logined = ref(false)
+is_logined.value = logined()
 
 function login() {
   // verify token
@@ -61,4 +64,10 @@ function login() {
     router.push('/admin')
   }
 }
+function newpost() {
+  newPostV4().then(response => {
+    router.push('/posts/edit/' + response.url)
+  })
+}
+
 </script>

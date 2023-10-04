@@ -64,8 +64,8 @@ func initializeV4Table(db_blog *sql.DB) {
 					cover_image VARCHAR(255) default '',
 					created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 					updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-					view_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') DEFAULT 'admin,editor,author,premium,subscriber,guest',
-					edit_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') DEFAULT 'admin,editor,author',
+					view_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') NOT NULL DEFAULT 'admin,editor,author,premium,subscriber,guest',
+					edit_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') NOT NULL DEFAULT 'admin,editor,author',
 					PRIMARY KEY (id))`)
 	if err != nil {
 		panic(err)
@@ -179,9 +179,16 @@ func getPostByUrl(db *sql.DB, url string) (V4PostData, error) {
 }
 func getPostById(db *sql.DB, id int) (V4PostData, error) {
 	var post V4PostData
+	var created_at_str, updated_at_str, view_groups_str, edit_groups_str string
+
 	err := db.QueryRow(`SELECT * FROM post WHERE id=?`, id).Scan(&post.Id, &post.Title, &post.Author, &post.AuthorEmail, &post.Url,
 		&post.IsDraft, &post.IsDeleted, &post.Content, &post.ContentRendered, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
-		&post.CreatedAt, &post.UpdatedAt, &post.ViewGroups, &post.EditGroups)
+		&created_at_str, &updated_at_str, &view_groups_str, &edit_groups_str)
+	//&post.ViewGroups, &post.EditGroups
+	post.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", created_at_str)
+	post.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updated_at_str)
+	post.ViewGroups = set.CreateStringSet(strings.Split(view_groups_str, ",")...)
+	post.EditGroups = set.CreateStringSet(strings.Split(edit_groups_str, ",")...)
 	if err != nil {
 		log.Println("getPostById error: ", err)
 		return V4PostData{}, err
@@ -216,15 +223,18 @@ func getUserRole(db *sql.DB, user User) (set.StringSet, error) {
 	var roles_str string
 	err := db.QueryRow(`SELECT roles FROM blog_users WHERE email=?`, user.Email).Scan(&roles_str)
 	if err != nil {
+		log.Println("getUserRole error: ", err)
 		// default role is guest
 		roles = set.CreateStringSet("guest")
-
 		if len(user.Email) > 0 && len(user.Name) > 0 && user.Id != 0 {
 			v4InsertUser(db, V4BlogUserData{
 				Email: user.Email,
 				Name:  user.Name,
 				Roles: set.CreateStringSet("guest"),
 			})
+			return roles, nil
+		} else {
+			roles = set.CreateStringSet("guest")
 		}
 		return roles, err
 	}
@@ -290,6 +300,7 @@ func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, erro
 
 	fmt.Println(params.Limit["start"], params.Limit["size"])
 	stmt += `LIMIT ` + fmt.Sprintf("%d", params.Limit["start"]) + `,` + fmt.Sprintf("%d", params.Limit["size"])
+	log.Println("searchPosts: ", stmt)
 	// execute sql
 	rows, err := db.Query(stmt)
 	if err != nil {
@@ -334,9 +345,13 @@ func V4InsertPosByUser(db *sql.DB, post V4PostData, user User) error {
 func V4UpdatePosByUser(db *sql.DB, post V4PostData, user User) error {
 	roles, _ := getUserRole(db, user)
 	// get old_post
-	old_post, _ := getPostById(db, post.Id)
-
+	old_post, err := getPostById(db, post.Id)
+	if err != nil {
+		log.Println("V4UpdatePosByUser: ", err)
+		return err
+	}
 	if roles.Contains("admin") || roles.Contains("editor") || old_post.AuthorEmail == user.Email {
+		log.Println("V4UpdatePosByUser: ", roles)
 		updatePost(db, post)
 	} else {
 		return errors.New("permission denied")
@@ -364,9 +379,14 @@ func V4NewPostUser(db *sql.DB, user User) (string, error) {
 	roles, _ := getUserRole(db, user)
 	if roles.Contains("admin") || roles.Contains("editor") || roles.Contains("author") {
 		post := V4PostData{
-			Title:     "New Post",
-			Url:       time.Now().Format("2006-01-02") + "-new-post",
-			CreatedAt: time.Now(),
+			Title:       "New Post",
+			Url:         time.Now().Format("2006-01-02 15:04:05") + "-new-post",
+			ViewGroups:  set.CreateStringSet("admin,editor,author,premium,subscriber,guest"),
+			EditGroups:  set.CreateStringSet("admin,editor,author"),
+			Author:      user.Name,
+			AuthorEmail: user.Email,
+			IsDraft:     false,
+			CreatedAt:   time.Now(),
 		}
 		v4InsertPost(db, post)
 		return post.Url, nil

@@ -50,7 +50,8 @@ export async function getPostV4(url: string, rendered: boolean): Promise<GetPost
 export interface UpdatePostResponseV4 {
   status: string
   message: string
-  url: string
+  post: V4PostData
+  html: string
 }
 
 export async function updatePostV4(request: V4PostData): Promise<UpdatePostResponseV4> {

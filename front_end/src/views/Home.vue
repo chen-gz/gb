@@ -22,32 +22,32 @@
           </v-card-actions>
         </v-card>
       </v-row>
-      <v-row v-for="(item, index) in blog_list" :key="index"
-             class="mb-10 justify-center">
-        <v-card style="width: 100%; max-width: 1200px" class="align-center">
-          <!--            <router-link :to="'/posts/' + item['url']">-->
-          <!--              <v-img-->
-          <!--                v-show="item.cover_image!== ''"-->
-          <!--                height="200px"-->
-          <!--                :src="item.cover_image"-->
-          <!--                cover-->
-          <!--                max-height="200px"-->
-          <!--              />-->
-          <!--            </router-link>-->
-          <v-card-title v-text="item.title || 'No title'"></v-card-title>
-          <v-card-text>{{ item.summary }}</v-card-text>
-          <v-card-actions>
-            <v-btn :to="'/posts/' + item['url']" variant="text" text="Read more"/>
-            <v-spacer/>
-            <div v-show="item.tags!==''" class="mr-3">
-              <v-icon class="mr-3">mdi-tag-multiple</v-icon>
-              <!--                <router-link :to="'/tag/' + item.tags">-->
-              <!--                  {{ item.tags }}-->
-              <!--                </router-link>-->
-            </div>
-          </v-card-actions>
-        </v-card>
-      </v-row>
+<!--      <v-row v-for="(item, index) in blog_list" :key="index"-->
+<!--             class="mb-10 justify-center">-->
+<!--        <v-card style="width: 100%; max-width: 1200px" class="align-center">-->
+<!--          &lt;!&ndash;            <router-link :to="'/posts/' + item['url']">&ndash;&gt;-->
+<!--          &lt;!&ndash;              <v-img&ndash;&gt;-->
+<!--          &lt;!&ndash;                v-show="item.cover_image!== ''"&ndash;&gt;-->
+<!--          &lt;!&ndash;                height="200px"&ndash;&gt;-->
+<!--          &lt;!&ndash;                :src="item.cover_image"&ndash;&gt;-->
+<!--          &lt;!&ndash;                cover&ndash;&gt;-->
+<!--          &lt;!&ndash;                max-height="200px"&ndash;&gt;-->
+<!--          &lt;!&ndash;              />&ndash;&gt;-->
+<!--          &lt;!&ndash;            </router-link>&ndash;&gt;-->
+<!--          <v-card-title v-text="item.title || 'No title'"></v-card-title>-->
+<!--          <v-card-text>{{ item.summary }}</v-card-text>-->
+<!--          <v-card-actions>-->
+<!--            <v-btn :to="'/posts/' + item['url']" variant="text" text="Read more"/>-->
+<!--            <v-spacer/>-->
+<!--            <div v-show="item.tags!==''" class="mr-3">-->
+<!--              <v-icon class="mr-3">mdi-tag-multiple</v-icon>-->
+<!--              &lt;!&ndash;                <router-link :to="'/tag/' + item.tags">&ndash;&gt;-->
+<!--              &lt;!&ndash;                  {{ item.tags }}&ndash;&gt;-->
+<!--              &lt;!&ndash;                </router-link>&ndash;&gt;-->
+<!--            </div>-->
+<!--          </v-card-actions>-->
+<!--        </v-card>-->
+<!--      </v-row>-->
     </v-container>
 
 

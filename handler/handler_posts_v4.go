@@ -41,6 +41,7 @@ func V4Login(c *gin.Context, db_user *sql.DB) {
 		})
 	}
 }
+
 func V4VerifyToken(c *gin.Context, db_user *sql.DB) {
 	// get auth header
 	auth := c.Request.Header.Get("Authorization")
@@ -56,6 +57,7 @@ func V4VerifyToken(c *gin.Context, db_user *sql.DB) {
 	}
 
 }
+
 func V4GetPost(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 	type GetPostRequest struct {
 		Url      string `json:"url"`
@@ -140,6 +142,7 @@ func V4UpdatePost(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 		})
 		return
 	}
+	log.Println("V4UpdatePost: postUpdateRequest: ", postUpdateRequest)
 	err := database.V4UpdatePosByUser(db_post, database.V4PostData(postUpdateRequest), user)
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{
@@ -161,6 +164,7 @@ func V4UpdatePost(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 		Html:    string(renders.RenderMd([]byte(postData.Content))),
 	})
 }
+
 func V4NewPost(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 	type NewPostResponse struct {
 		Status  string `json:"status"`
