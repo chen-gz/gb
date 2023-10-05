@@ -112,9 +112,13 @@ func V4SearchPosts(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 	}
 	posts, err := database.V4SearchPostUser(db_post, database.SearchParams(searchParams), user)
 	if err != nil {
-		c.JSON(http.StatusForbidden, gin.H{
-			"msg": "permission denied",
-		})
+		c.JSON(http.StatusForbidden,
+			V4SearchPostsResponse{
+				Status:        "failed",
+				Message:       "permission denied",
+				Posts:         []database.V4PostData{},
+				NumberOfPosts: 0,
+			})
 		return
 	}
 	c.JSON(http.StatusOK, V4SearchPostsResponse{

@@ -1,6 +1,7 @@
 import {ref} from "vue";
 
 const blogBackendUrl = "http://localhost:2009"
+// const blogBackendUrl = "https://blog.ggeta.com"
 
 
 export interface V4PostData {

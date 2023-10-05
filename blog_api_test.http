@@ -49,3 +49,19 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNoZW4tZ
   "author": "Guangzong",
   "rendered": false
 }
+
+###
+POST localhost:2009/api/blog_file/v1/upload_file
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNoZW4tZ3pAb3V0bG9vay5jb20iLCJleHAiOjE2OTY5OTgzNjQsImlhdCI6MTY5NjM5MzU2NH0.QF0bD-WZBwRGNYTnUYxTf-evPAGa1c3L3zJwcL1iDIo
+
+{
+  "file_name": "test.txt",
+  "hash_crc32": "12345678"
+}
+
+###
+PUT https://minio.ggeta.com/blog-public-data/test.txt_12345678?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=HI4mSQabJ6GWesqES4V4%2F20231005%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20231005T010939Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d3357b36d8877db3c27e4bb3c0a46e33d2c608ed3271b772df94af31443dd64b"
+Content-Type: application/octet-stream
+
+

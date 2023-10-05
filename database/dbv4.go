@@ -11,7 +11,6 @@ import (
 	"time"
 )
 
-// the data structure still use from v3
 type V4BlogUserData struct {
 	Id    int           `json:"id"`
 	Email string        `json:"email"`
@@ -267,6 +266,9 @@ func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, erro
 		} else if index == len(roles.ToSlice())-1 {
 			stmt += `OR FIND_IN_SET("` + item + `", view_groups)) `
 		}
+		if len(roles.ToSlice()) == 1 {
+			stmt += `)`
+		}
 	}
 	if params.Author != "" {
 		stmt += `AND author="` + params.Author + `"`
@@ -350,7 +352,7 @@ func V4UpdatePosByUser(db *sql.DB, post V4PostData, user User) error {
 		log.Println("V4UpdatePosByUser: ", err)
 		return err
 	}
-	if roles.Contains("admin") || roles.Contains("editor") || old_post.AuthorEmail == user.Email {
+	if roles.Contains("admin") || roles.Contains("editor") || (old_post.AuthorEmail == user.Email && user.Email != "") {
 		log.Println("V4UpdatePosByUser: ", roles)
 		updatePost(db, post)
 	} else {
