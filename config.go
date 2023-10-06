@@ -6,11 +6,6 @@ import (
 	"os"
 )
 
-type Database struct {
-	MariadbAddress  string `json:"mariadb_address"`
-	MariadbUser     string `json:"mariadb_user"`
-	MariadbPassword string `json:"mariadb_password"`
-}
 type Minio struct {
 	Endpoint         string `json:"endpoint"`
 	AccessKeyID      string `json:"access_key_id"`
@@ -27,6 +22,7 @@ func ReadConfig() Config {
 	var config Config
 	configFile, err := os.Open("config.json")
 	if err != nil {
+		fmt.Println(configFile)
 		fmt.Println(err)
 	}
 	defer configFile.Close()

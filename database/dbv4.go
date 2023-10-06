@@ -11,6 +11,13 @@ import (
 	"time"
 )
 
+type DatabaseConfig struct {
+	MariadbAddress      string `json:"mariadb_address"`
+	MariadbUser         string `json:"mariadb_user"`
+	MariadbPassword     string `json:"mariadb_password"`
+	MariadbBlogDatabase string `json:"mariadb_blog_database"`
+}
+
 type V4BlogUserData struct {
 	Id    int           `json:"id"`
 	Email string        `json:"email"`
@@ -101,9 +108,10 @@ func initializeV4Table(db_blog *sql.DB) {
 // The content of post refer to the structure of V4PostData
 // The content of blog_users refer to the structure of V4BlogUserData
 // return db_blog
-func InitV4() (db_blog *sql.DB) {
+func InitV4(config DatabaseConfig) (db_blog *sql.DB) {
 	// connect to database
-	db, err := sql.Open("mysql", "zong:Connie@tcp(192.168.0.174:3306)/")
+	sql_endpoint := config.MariadbUser + ":" + config.MariadbPassword + config.MariadbAddress
+	db, err := sql.Open("mysql", sql_endpoint)
 	if err != nil {
 		panic(err)
 	}
@@ -115,7 +123,8 @@ func InitV4() (db_blog *sql.DB) {
 	}
 	db.Close()
 	// connect to database eta_blog
-	db_blog, err = sql.Open("mysql", "zong:Connie@tcp(192.168.0.174:3306)/eta_blog")
+	sql_endpoint = config.MariadbUser + ":" + config.MariadbPassword + config.MariadbAddress + "/" + config.MariadbBlogDatabase
+	db_blog, err = sql.Open("mysql", sql_endpoint)
 	initializeV4Table(db_blog)
 
 	if err != nil {
@@ -126,7 +135,7 @@ func InitV4() (db_blog *sql.DB) {
 
 // v4InsertPost insert post to database
 func v4InsertPost(db_blog *sql.DB, post V4PostData) error {
-	stmt, _ := db_blog.Prepare(`INSERT INTO post (title, author, author_email,url, is_draft, is_deleted, content, 
+	stmt, _ := db_blog.Prepare(`INSERT INTO post (title, author, author_email,url, is_draft, is_deleted, content,
                   summary, tags, category, cover_image, created_at, updated_at,
                   view_groups, edit_groups) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
 	var created_at, updated_at interface{}
@@ -195,7 +204,7 @@ func getPostById(db *sql.DB, id int) (V4PostData, error) {
 	return post, nil
 }
 func updatePost(db *sql.DB, post V4PostData) error {
-	stmt, _ := db.Prepare(`UPDATE post SET title=?, author=?,author_email=?, url=?, is_draft=?, is_deleted=?, content=?, 
+	stmt, _ := db.Prepare(`UPDATE post SET title=?, author=?,author_email=?, url=?, is_draft=?, is_deleted=?, content=?,
 				  summary=?, tags=?, category=?, cover_image=?, view_groups=?, edit_groups=? WHERE id=?`)
 	viewGroups := strings.Join(post.ViewGroups.ToSlice(), ",")
 	editGroups := strings.Join(post.EditGroups.ToSlice(), ",")
