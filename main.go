@@ -27,8 +27,14 @@ func ginServer() {
 
 	db_blog := database.InitV4()
 	db_user, _ := database.UserDbInit()
-	r.POST("/api/blog_file/v1/upload_file", func(c *gin.Context) {
-		hd.Upload_file(c, db_user)
+	r.POST("/api/blog_file/v1/get_presigned_url", func(c *gin.Context) {
+		hd.GetPresignedUrl(c, db_user)
+	})
+
+	r.POST("/api/blog_file/v1/upload_finish", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "upload finish",
+		})
 	})
 	r.POST("/api/v4/login", func(c *gin.Context) {
 		hd.V4Login(c, db_user)

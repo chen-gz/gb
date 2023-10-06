@@ -1,29 +1,4 @@
 <template>
-  <!--        <v-navigation-drawer v-model="drawer" permanent floating location="right" width="300">-->
-  <!--            <v-list h-75>-->
-  <!--                <v-list-item title="Post Url">-->
-  <!--                    <v-text-field h-75 density="compact" variant="outlined" v-model="post.url"/> </v-list-item>-->
-  <!--                <v-list-item title="Tags">-->
-  <!--                    <v-text-field h-75 density="compact" variant="outlined" v-model="post.tags"/>-->
-  <!--                </v-list-item>-->
-  <!--                <v-list-item title="Categories">-->
-  <!--                    <v-text-field h-75 density="compact" variant="outlined" v-model="post.category"/>-->
-  <!--                </v-list-item>-->
-  <!--                <v-list-item title="Author">-->
-  <!--                    <v-text-field h-75 density="compact" variant="outlined" v-model="post.author"/>-->
-  <!--                </v-list-item>-->
-  <!--                <v-list-item title="summary">-->
-  <!--                    <v-text-field h-75 density="compact" variant="outlined" v-model="post.summary"/>-->
-  <!--                </v-list-item>-->
-  <!--                <v-list-item title="draft">-->
-  <!--                    <v-checkbox v-model="post.is_draft" dense/>-->
-  <!--                </v-list-item>-->
-  <!--                <v-list-item title="Cover Image">-->
-  <!--                    <v-text-field h-75 density="compact" variant="outlined" v-model="post.cover_image"/>-->
-  <!--                </v-list-item>-->
-  <!--            </v-list>-->
-  <!--        </v-navigation-drawer>-->
-
   <v-container class="d-flex fill-height">
     <v-app-bar class="d-flex">
       <v-btn icon="mdi-arrow-left" @click="route.back()"/>
@@ -125,6 +100,11 @@
 
     </v-container>
 
+    <div id="file-list">
+      <p>Uploaded files:</p>
+      <ul></ul>
+    </div>
+
 
     <v-container style="width: 100%" class="flex-grow fill-height">
       <!--      <v-row justify="center" class="fill-height" style="width: 100%; height: 100%;">-->
@@ -133,8 +113,8 @@
       <!--                            <textarea class="fill-height" style="width: 100%" v-model="post.content">-->
       <!--                            </textarea>-->
       <!--                          {{post.content}}-->
-<!--      font-family: "JetBrains Mono", monospace;-->
-<!--      font-size: 16px;"-->
+      <!--      font-family: "JetBrains Mono", monospace;-->
+      <!--      font-size: 16px;"-->
       <v-textarea v-model="post.content"
                   ref="textarea"
                   class="fill-height"
@@ -155,7 +135,8 @@ import {nextTick, onMounted, onUnmounted, ref, watch} from "vue";
 import {useRouter} from "vue-router";
 
 
-import {getPostV4, showError, showSuccess, updatePostV4, V4PostData} from "@/apiv4";
+import {getPostV4, showError, showSuccess, updatePostV4, UploadFile, V4PostData} from "@/apiv4";
+
 const drawer = ref(true)
 const showRendered = ref(false)
 const editor_cols = ref(6) // this will be change when rendered preview is toggled
@@ -239,6 +220,33 @@ function deletePostBtn() {
   route.go(-1)
 }
 
+
+const fileUploadArea = document.documentElement;
+
+// console.log("fileList: " + fileList)
+fileUploadArea.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  fileUploadArea.classList.add("dragover");
+});
+fileUploadArea.addEventListener("dragleave", () => {
+  fileUploadArea.classList.remove("dragover");
+});
+fileUploadArea.addEventListener("drop", (event) => {
+  const fileList = document.querySelector("#file-list ul");
+
+  event.preventDefault();
+  fileUploadArea.classList.remove("dragover");
+
+  const files = event.dataTransfer.files;
+  for (const file of files) {
+    const li = document.createElement("li");
+    li.textContent = file.webkitRelativePath || file.name;
+    fileList.appendChild(li);
+    // uploadFileToServer(file);
+    UploadFile(file);
+
+  }
+});
 
 </script>
 
