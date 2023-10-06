@@ -8,5 +8,5 @@ import (
 func TestReadConfig(t *testing.T) {
 	// read json config file
 	config := ReadConfig()
-	log.Println(config.Database)
+	log.Println(config.BlogDatabase)
 }

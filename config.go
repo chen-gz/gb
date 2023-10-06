@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"go_blog/database"
 	"os"
 )
 
@@ -13,8 +14,9 @@ type Minio struct {
 	BucketName       string `json:"bucket_name"`
 }
 type Config struct {
-	Database Database `json:"database"`
-	Minio    Minio    `json:"minio"`
+	BlogDatabase database.BlogDbConfig `json:"blog_database"`
+	UserDatabase database.UserDbConfig `json:"user_database"`
+	Minio        Minio                 `json:"minio"`
 }
 
 // read config.json and return Config struct

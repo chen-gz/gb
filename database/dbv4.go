@@ -11,18 +11,18 @@ import (
 	"time"
 )
 
-type DatabaseConfig struct {
-	MariadbAddress       string `json:"mariadb_address"`
-	MariadbUser          string `json:"mariadb_user"`
-	MariadbPassword      string `json:"mariadb_password"`
-	MariadbBlogDatabase  string `json:"mariadb_blog_database"`
-	MariadbBlogTable     string `json:"mariadb_blog_table"`
-	MariadbBlogUserTable string `json:"mariadb_blog_user_table"`
+type BlogDbConfig struct {
+	Address       string `json:"address"`
+	User          string `json:"user"`
+	Password      string `json:"password"`
+	BlogDatabase  string `json:"blog_database"`
+	BlogTable     string `json:"blog_table"`
+	BlogUserTable string `json:"blog_user_table"`
 }
 
 // blogDbConfig is a global settings for this database
 // It will be initialized in when call the function InitV4
-var blogDbConfig DatabaseConfig
+var blogDbConfig BlogDbConfig
 
 type V4BlogUserData struct {
 	Id    int           `json:"id"`
@@ -54,7 +54,7 @@ func initializeV4Table(db_blog *sql.DB) {
 	// test post table exist in database or not
 	var value int
 	query := fmt.Sprintf(`SELECT 1 from information_schema.TABLES where TABLE_NAME='%s' and TABLE_SCHEMA='%s'`,
-		blogDbConfig.MariadbBlogTable, blogDbConfig.MariadbBlogDatabase)
+		blogDbConfig.BlogTable, blogDbConfig.BlogDatabase)
 	err := db_blog.QueryRow(query).Scan(&value)
 	if err == nil && value == 1 {
 		// table exist. Do nothing
@@ -81,25 +81,25 @@ func initializeV4Table(db_blog *sql.DB) {
 						updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 						view_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') NOT NULL DEFAULT 'admin,editor,author,premium,subscriber,guest',
 						edit_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') NOT NULL DEFAULT 'admin,editor,author',
-						PRIMARY KEY (id))`, blogDbConfig.MariadbBlogTable)
+						PRIMARY KEY (id))`, blogDbConfig.BlogTable)
 
 	_, err = db_blog.Exec(query)
 	if err != nil {
 		log.Fatal(err)
 	}
 	// if the index not exist, create it
-	query = fmt.Sprintf(`ALTER TABLE %s ADD FULLTEXT INDEX idx_content (content)`, blogDbConfig.MariadbBlogTable)
+	query = fmt.Sprintf(`ALTER TABLE %s ADD FULLTEXT INDEX idx_content (content)`, blogDbConfig.BlogTable)
 	// _, err = db_blog.Exec(`ALTER TABLE post ADD FULLTEXT INDEX idx_content (content)`)
 	_, err = db_blog.Exec(query)
 	if err != nil {
 		log.Fatal(err)
 	}
-	query = fmt.Sprintf(`ALTER TABLE %s ADD FULLTEXT INDEX idx_tags (tags)`, blogDbConfig.MariadbBlogTable)
+	query = fmt.Sprintf(`ALTER TABLE %s ADD FULLTEXT INDEX idx_tags (tags)`, blogDbConfig.BlogTable)
 	_, err = db_blog.Exec(query)
 	if err != nil {
 		log.Fatal(err)
 	}
-	query = fmt.Sprintf(`ALTER TABLE %s ADD FULLTEXT INDEX idx_category (category)`, blogDbConfig.MariadbBlogTable)
+	query = fmt.Sprintf(`ALTER TABLE %s ADD FULLTEXT INDEX idx_category (category)`, blogDbConfig.BlogTable)
 	_, err = db_blog.Exec(query)
 	if err != nil {
 		log.Fatal(err)
@@ -111,7 +111,7 @@ func initializeV4Table(db_blog *sql.DB) {
     					name VARCHAR(255),
     					roles SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') DEFAULT 'guest',
     					created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-							PRIMARY KEY (id))`, blogDbConfig.MariadbBlogUserTable)
+							PRIMARY KEY (id))`, blogDbConfig.BlogUserTable)
 	_, err = db_blog.Exec(query)
 	if err != nil {
 		log.Fatal(err)
@@ -124,21 +124,22 @@ func initializeV4Table(db_blog *sql.DB) {
 // The content of post refer to the structure of V4PostData
 // The content of blog_users refer to the structure of V4BlogUserData
 // return db_blog
-func InitV4(config DatabaseConfig) (db_blog *sql.DB) {
+func InitV4(config BlogDbConfig) (db_blog *sql.DB) {
 	blogDbConfig = config
 	// connect to database
-	sql_endpoint := config.MariadbUser + ":" + config.MariadbPassword + config.MariadbAddress
+	sql_endpoint := fmt.Sprintf("%s:%s@%s/", config.User, config.Password, config.Address)
 	db, err := sql.Open("mysql", sql_endpoint)
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + config.MariadbBlogDatabase)
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + config.BlogDatabase)
 	if err != nil {
 		log.Fatal(err)
 	}
 	db.Close()
 	// connect to database eta_blog
-	sql_endpoint = config.MariadbUser + ":" + config.MariadbPassword + config.MariadbAddress + "/" + config.MariadbBlogDatabase
+	//sql_endpoint = config.User + ":" + config.Password + config.Address + "/" + config.BlogDatabase
+	sql_endpoint = fmt.Sprintf("%s:%s@%s/%s", config.User, config.Password, config.Address, config.BlogDatabase)
 	db_blog, err = sql.Open("mysql", sql_endpoint)
 	initializeV4Table(db_blog)
 
@@ -154,7 +155,7 @@ func InitV4(config DatabaseConfig) (db_blog *sql.DB) {
 func v4InsertPostMigrate(db_blog *sql.DB, post V4PostData) error {
 	query := fmt.Sprintf(`INSERT INTO %s (title, author, author_email,url, is_draft, is_deleted, content,
                   summary, tags, category, cover_image, created_at, updated_at,
-                  view_groups, edit_groups) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, blogDbConfig.MariadbBlogTable)
+                  view_groups, edit_groups) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, blogDbConfig.BlogTable)
 	stmt, _ := db_blog.Prepare(query)
 	var created_at, updated_at interface{}
 	if post.CreatedAt.IsZero() {
@@ -184,7 +185,7 @@ func v4InsertPostMigrate(db_blog *sql.DB, post V4PostData) error {
 func v4InsertPost(db_blog *sql.DB, post V4PostData) error {
 	query := fmt.Sprintf(`INSERT INTO %s (title, author, author_email, url, is_draft, is_deleted, content,
                   summary, tags, category, cover_image, view_groups, edit_groups)
-                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`, blogDbConfig.MariadbBlogTable)
+                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`, blogDbConfig.BlogTable)
 	stmt, _ := db_blog.Prepare(query)
 	var created_at, updated_at interface{}
 	viewGroups := strings.Join(post.ViewGroups.ToSlice(), ",")
@@ -206,7 +207,7 @@ func getPostByUrl(db *sql.DB, url string) (V4PostData, error) {
 
 	query := fmt.Sprintf(`SELECT id, title, author, author_email, url, is_draft, is_deleted, content, content_rendered,
 	  		   summary, tags, category, cover_image, created_at, updated_at, view_groups, edit_groups
-				FROM %s WHERE url=?`, blogDbConfig.MariadbBlogTable)
+				FROM %s WHERE url=?`, blogDbConfig.BlogTable)
 	err := db.QueryRow(query, url).Scan(&post.Id, &post.Title, &post.Author, &post.AuthorEmail, &post.Url, &post.IsDraft,
 		&post.IsDeleted, &post.Content, &post.ContentRendered, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
 		&created_at_str, &updated_at_str, &view_groups_str, &edit_groups_str)
@@ -224,7 +225,7 @@ func getPostByUrl(db *sql.DB, url string) (V4PostData, error) {
 func getPostById(db *sql.DB, id int) (V4PostData, error) {
 	var post V4PostData
 	var created_at_str, updated_at_str, view_groups_str, edit_groups_str string
-	query := fmt.Sprintf(`SELECT * FROM %s WHERE id=?`, blogDbConfig.MariadbBlogTable)
+	query := fmt.Sprintf(`SELECT * FROM %s WHERE id=?`, blogDbConfig.BlogTable)
 	err := db.QueryRow(query, id).Scan(&post.Id, &post.Title, &post.Author, &post.AuthorEmail, &post.Url,
 		&post.IsDraft, &post.IsDeleted, &post.Content, &post.ContentRendered, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
 		&created_at_str, &updated_at_str, &view_groups_str, &edit_groups_str)
@@ -239,23 +240,25 @@ func getPostById(db *sql.DB, id int) (V4PostData, error) {
 	return post, nil
 }
 
-func updatePost(db *sql.DB, post V4PostData) error {
+// updatePostById update post in database
+// The key of post id the "id"
+func updatePostById(db *sql.DB, post V4PostData) error {
 	query := fmt.Sprintf(`UPDATE %s SET title=?, author=?, author_email=?, url=?, is_draft=?, is_deleted=?, content=?,
-				  summary=?, tags=?, category=?, cover_image=?, view_groups=?, edit_groups=? WHERE id=?`, blogDbConfig.MariadbBlogTable)
+				  summary=?, tags=?, category=?, cover_image=?, view_groups=?, edit_groups=? WHERE id=?`, blogDbConfig.BlogTable)
 	stmt, _ := db.Prepare(query)
 	viewGroups := strings.Join(post.ViewGroups.ToSlice(), ",")
 	editGroups := strings.Join(post.EditGroups.ToSlice(), ",")
 	_, err := stmt.Exec(post.Title, post.Author, post.AuthorEmail, post.Url, post.IsDraft, post.IsDeleted, post.Content,
 		post.Summary, post.Tags, post.Category, post.CoverImage, viewGroups, editGroups, post.Id)
 	if err != nil {
-		log.Println("updatePost error: ", err, "post: ", post)
+		log.Println("updatePostById error: ", err, "post: ", post)
 		return err
 	}
 	return nil
 }
 
 func v4InsertUser(db *sql.DB, user V4BlogUserData) error {
-	query := fmt.Sprintf(`INSERT INTO %s (email, name, roles) VALUES (?,?,?)`, blogDbConfig.MariadbBlogUserTable)
+	query := fmt.Sprintf(`INSERT INTO %s (email, name, roles) VALUES (?,?,?)`, blogDbConfig.BlogUserTable)
 	stmt, _ := db.Prepare(query)
 	roles := strings.Join(user.Roles.ToSlice(), ",")
 	_, err := stmt.Exec(user.Email, user.Name, roles)
@@ -266,15 +269,19 @@ func v4InsertUser(db *sql.DB, user V4BlogUserData) error {
 	return nil
 }
 
+// getUserRole get user role from database
+// the parameter user is the user from the user database
 func getUserRole(db *sql.DB, user User) (set.StringSet, error) {
 	var roles set.StringSet
 	var roles_str string
-	err := db.QueryRow(`SELECT roles FROM blog_users WHERE email=?`, user.Email).Scan(&roles_str)
+	query := fmt.Sprintf(`SELECT roles FROM %s WHERE email=?`, blogDbConfig.BlogUserTable)
+	err := db.QueryRow(query, user.Email).Scan(&roles_str)
+	//err := db.QueryRow(`SELECT roles FROM blog_users WHERE email=?`, user.Email).Scan(&roles_str)
 	if err != nil {
 		log.Println("getUserRole error: ", err)
-		// default role is guest
-		roles = set.CreateStringSet("guest")
+		roles = set.CreateStringSet("guest") // set to default role
 		if len(user.Email) > 0 && len(user.Name) > 0 && user.Id != 0 {
+			// user is valid and not exist in database, insert user (this user is usually from the user database)
 			v4InsertUser(db, V4BlogUserData{
 				Email: user.Email,
 				Name:  user.Name,
@@ -284,7 +291,7 @@ func getUserRole(db *sql.DB, user User) (set.StringSet, error) {
 		} else {
 			roles = set.CreateStringSet("guest")
 		}
-		return roles, err
+		return roles, err // the user is not valid, return guest role
 	}
 	roles = set.CreateStringSet(strings.Split(roles_str, ",")...)
 	return roles, nil
@@ -306,16 +313,16 @@ type SearchParams struct {
 
 func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, error) {
 	roles, _ := getUserRole(db, user)
-	stmt := `SELECT * from post WHERE `
+	stmt := fmt.Sprintf(`SELECT * from %s WHERE `, blogDbConfig.BlogTable)
 	for index, item := range roles.ToSlice() {
 		if index == 0 {
 			stmt += `(FIND_IN_SET("` + item + `", view_groups) `
-		} else if index < len(roles.ToSlice())-1 {
+		} else if index < len(roles)-1 {
 			stmt += `OR FIND_IN_SET("` + item + `", view_groups) `
-		} else if index == len(roles.ToSlice())-1 {
-			stmt += `OR FIND_IN_SET("` + item + `", view_groups)) `
+		} else if index == len(roles)-1 {
+			stmt += `OR FIND_IN_SET("` + item + `", view_groups) `
 		}
-		if len(roles.ToSlice()) == 1 {
+		if index == len(roles)-1 {
 			stmt += `)`
 		}
 	}
@@ -348,10 +355,7 @@ func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, erro
 	if params.Limit["size"] == 0 {
 		params.Limit["size"] = 100
 	}
-
-	fmt.Println(params.Limit["start"], params.Limit["size"])
 	stmt += `LIMIT ` + fmt.Sprintf("%d", params.Limit["start"]) + `,` + fmt.Sprintf("%d", params.Limit["size"])
-	log.Println("searchPosts: ", stmt)
 	// execute sql
 	rows, err := db.Query(stmt)
 	if err != nil {
@@ -381,54 +385,55 @@ func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, erro
 
 }
 
-// following is public function
+//////////////// following is public function ///////////////////////////////////////////////////
+
 func V4InsertPosByUser(db *sql.DB, post V4PostData, user User) error {
 	// get user role
 	roles, _ := getUserRole(db, user)
 	if roles.Contains("admin") || roles.Contains("editor") || roles.Contains("author") {
-		// if user is admin, editor or author, insert post
-		v4InsertPost(db, post)
-	} else {
-		return errors.New("permission denied")
+		return v4InsertPost(db, post)
 	}
-	return nil
+	return errors.New("permission denied")
 }
+
 func V4UpdatePosByUser(db *sql.DB, post V4PostData, user User) error {
 	roles, _ := getUserRole(db, user)
-	// get old_post
-	old_post, err := getPostById(db, post.Id)
+	old_post, err := getPostById(db, post.Id) // get old_post
 	if err != nil {
 		log.Println("V4UpdatePosByUser: ", err)
 		return err
-	}
-	if roles.Contains("admin") || roles.Contains("editor") || (old_post.AuthorEmail == user.Email && user.Email != "") {
-		log.Println("V4UpdatePosByUser: ", roles)
-		updatePost(db, post)
-	} else {
+	} // get post failed
+	valid_roles := roles.Intersection(old_post.EditGroups)
+	if valid_roles.IsEmpty() {
 		return errors.New("permission denied")
 	}
-	return nil
+	if len(valid_roles) == 1 && valid_roles.Contains("author") {
+		if old_post.AuthorEmail != user.Email {
+			return errors.New("permission denied")
+		}
+	} // if the size of valid_roles only contains "author", check if the author is the same as the old post
+
+	return updatePostById(db, post)
 }
+
 func V4GetPostByUrlUser(db *sql.DB, url string, user User) (V4PostData, error) {
-	roles, _ := getUserRole(db, user)
-	// get post
-	post, _ := getPostByUrl(db, url)
-	if post.ViewGroups.Contains("guest") {
-		return post, nil
+	roles, _ := getUserRole(db, user) // if user is not valid, get post as guest
+	post, _ := getPostByUrl(db, url)  // get post
+
+	if roles.Intersection(post.ViewGroups).IsEmpty() {
+		return V4PostData{}, errors.New("permission denied")
 	}
-	if roles.Contains("admin") || roles.Contains("editor") ||
-		(len(post.AuthorEmail) > 0 && post.AuthorEmail == user.Email) {
-		return post, nil
-	}
-	return V4PostData{}, errors.New("permission denied")
+	return post, nil
 }
+
 func V4SearchPostUser(db *sql.DB, params SearchParams, user User) ([]V4PostData, error) {
-	return searchPosts(db, params, user)
+	return searchPosts(db, params, user) // the permission is checked in searchPosts
 }
 
 func V4NewPostUser(db *sql.DB, user User) (string, error) {
 	roles, _ := getUserRole(db, user)
-	if roles.Contains("admin") || roles.Contains("editor") || roles.Contains("author") {
+	roles.Intersection(set.CreateStringSet("admin", "editor", "author"))
+	if !roles.IsEmpty() {
 		post := V4PostData{
 			Title:       "New Post",
 			Url:         time.Now().Format("2006-01-02 15:04:05") + "-new-post",
@@ -437,22 +442,23 @@ func V4NewPostUser(db *sql.DB, user User) (string, error) {
 			Author:      user.Name,
 			AuthorEmail: user.Email,
 			IsDraft:     false,
-			CreatedAt:   time.Now(),
-		}
-		v4InsertPost(db, post)
-		return post.Url, nil
+		} // other value are default value
+		return post.Url, v4InsertPost(db, post)
 	} else {
 		return "", errors.New("permission denied")
 	}
 }
+
 func V4GetDistinctUser(db *sql.DB, field string, user User) ([]string, error) {
 	//roles, _ := getUserRole(db, user)
 	var result []string
 	// field can only be author, tags, category, title, url
-	if field != "author" && field != "tags" && field != "category" && field != "title" && field != "url" {
+	valid_fields := set.CreateStringSet("author", "tags", "category", "title", "url")
+	if !valid_fields.Contains(field) {
 		return result, errors.New("invalid field")
 	}
-	rows, err := db.Query(`SELECT DISTINCT ` + field + ` FROM post`)
+	query := fmt.Sprintf(`SELECT DISTINCT %s FROM %s`, field, blogDbConfig.BlogTable)
+	rows, err := db.Query(query)
 	if err != nil {
 		log.Fatal("V4GetDistinctUser error: ", err)
 		return result, err
@@ -462,7 +468,7 @@ func V4GetDistinctUser(db *sql.DB, field string, user User) ([]string, error) {
 		var field string
 		err := rows.Scan(&field)
 		if err != nil {
-			log.Fatal("V4GetDistinctUser error: ", err)
+			log.Println("V4GetDistinctUser error: ", err)
 			return result, err
 		}
 		result = append(result, field)

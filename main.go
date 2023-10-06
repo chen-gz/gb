@@ -25,8 +25,9 @@ func ginServer() {
 			"https://blog.ggeta.com"},
 	}))
 
-	db_blog := database.InitV4()
-	db_user, _ := database.UserDbInit()
+	config := ReadConfig()
+	db_blog := database.InitV4(config.BlogDatabase)
+	db_user, _ := database.UserDbInit(config.UserDatabase)
 	r.POST("/api/blog_file/v1/get_presigned_url", func(c *gin.Context) {
 		hd.GetPresignedUrl(c, db_user)
 	})
