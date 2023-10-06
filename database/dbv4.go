@@ -12,11 +12,17 @@ import (
 )
 
 type DatabaseConfig struct {
-	MariadbAddress      string `json:"mariadb_address"`
-	MariadbUser         string `json:"mariadb_user"`
-	MariadbPassword     string `json:"mariadb_password"`
-	MariadbBlogDatabase string `json:"mariadb_blog_database"`
+	MariadbAddress       string `json:"mariadb_address"`
+	MariadbUser          string `json:"mariadb_user"`
+	MariadbPassword      string `json:"mariadb_password"`
+	MariadbBlogDatabase  string `json:"mariadb_blog_database"`
+	MariadbBlogTable     string `json:"mariadb_blog_table"`
+	MariadbBlogUserTable string `json:"mariadb_blog_user_table"`
 }
+
+// blogDbConfig is a global settings for this database
+// It will be initialized in when call the function InitV4
+var blogDbConfig DatabaseConfig
 
 type V4BlogUserData struct {
 	Id    int           `json:"id"`
@@ -46,59 +52,69 @@ type V4PostData struct {
 
 func initializeV4Table(db_blog *sql.DB) {
 	// test post table exist in database or not
-
 	var value int
-	err := db_blog.QueryRow(`SELECT 1 from information_schema.TABLES where TABLE_NAME='post' and TABLE_SCHEMA='eta_blog'`).Scan(&value)
+	query := fmt.Sprintf(`SELECT 1 from information_schema.TABLES where TABLE_NAME='%s' and TABLE_SCHEMA='%s'`,
+		blogDbConfig.MariadbBlogTable, blogDbConfig.MariadbBlogDatabase)
+	err := db_blog.QueryRow(query).Scan(&value)
 	if err == nil && value == 1 {
 		// table exist. Do nothing
 		return
 	}
 	// create table post
-	_, err = db_blog.Exec(`CREATE TABLE IF NOT EXISTS post (
-					id INT UNSIGNED AUTO_INCREMENT,
-					title VARCHAR(255) NOT NULL,
-					author VARCHAR(255) default '',
-					author_email VARCHAR(255) default '',
-					url VARCHAR(255) UNIQUE  NOT NULL,
-					is_draft BOOLEAN DEFAULT FALSE,
-					is_deleted BOOLEAN DEFAULT FALSE,
-					content TEXT default '',
-					content_rendered TEXT default '',  -- this field should be markdown, html, json, latex, etc.
-					summary TEXT default '',
-					tags VARCHAR(255) default '',
-					category VARCHAR(255) default '',
-					cover_image VARCHAR(255) default '',
-					created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-					updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-					view_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') NOT NULL DEFAULT 'admin,editor,author,premium,subscriber,guest',
-					edit_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') NOT NULL DEFAULT 'admin,editor,author',
-					PRIMARY KEY (id))`)
+	// query = fmt.Sprintf(
+
+	query = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
+						id INT UNSIGNED AUTO_INCREMENT,
+						title VARCHAR(255) NOT NULL,
+						author VARCHAR(255) default '',
+						author_email VARCHAR(255) default '',
+						url VARCHAR(255) UNIQUE  NOT NULL,
+						is_draft BOOLEAN DEFAULT FALSE,
+						is_deleted BOOLEAN DEFAULT FALSE,
+						content TEXT default '',
+						content_rendered TEXT default '',  -- this field should be markdown, html, json, latex, etc.
+						summary TEXT default '',
+						tags VARCHAR(255) default '',
+						category VARCHAR(255) default '',
+						cover_image VARCHAR(255) default '',
+						created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+						updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+						view_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') NOT NULL DEFAULT 'admin,editor,author,premium,subscriber,guest',
+						edit_groups SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') NOT NULL DEFAULT 'admin,editor,author',
+						PRIMARY KEY (id))`, blogDbConfig.MariadbBlogTable)
+
+	_, err = db_blog.Exec(query)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	// if the index not exist, create it
-	_, err = db_blog.Exec(`ALTER TABLE post ADD FULLTEXT INDEX idx_content (content)`)
+	query = fmt.Sprintf(`ALTER TABLE %s ADD FULLTEXT INDEX idx_content (content)`, blogDbConfig.MariadbBlogTable)
+	// _, err = db_blog.Exec(`ALTER TABLE post ADD FULLTEXT INDEX idx_content (content)`)
+	_, err = db_blog.Exec(query)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	_, err = db_blog.Exec(`ALTER TABLE post ADD FULLTEXT INDEX idx_tags (tags)`)
+	query = fmt.Sprintf(`ALTER TABLE %s ADD FULLTEXT INDEX idx_tags (tags)`, blogDbConfig.MariadbBlogTable)
+	_, err = db_blog.Exec(query)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	_, err = db_blog.Exec(`ALTER TABLE post ADD FULLTEXT INDEX idx_category (category)`)
+	query = fmt.Sprintf(`ALTER TABLE %s ADD FULLTEXT INDEX idx_category (category)`, blogDbConfig.MariadbBlogTable)
+	_, err = db_blog.Exec(query)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
-	_, err = db_blog.Exec(`CREATE TABLE IF NOT EXISTS blog_users (
+	query = fmt.Sprintf(`CREATE TABLE IF NOT EXISTS %s (
     					id INT UNSIGNED AUTO_INCREMENT,
     					email VARCHAR(255) UNIQUE NOT NULL,
     					name VARCHAR(255),
     					roles SET('admin', 'editor', 'author', 'premium', 'subscriber', 'guest') DEFAULT 'guest',
     					created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-						PRIMARY KEY (id))`)
+							PRIMARY KEY (id))`, blogDbConfig.MariadbBlogUserTable)
+	_, err = db_blog.Exec(query)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	return
 }
@@ -109,17 +125,16 @@ func initializeV4Table(db_blog *sql.DB) {
 // The content of blog_users refer to the structure of V4BlogUserData
 // return db_blog
 func InitV4(config DatabaseConfig) (db_blog *sql.DB) {
+	blogDbConfig = config
 	// connect to database
 	sql_endpoint := config.MariadbUser + ":" + config.MariadbPassword + config.MariadbAddress
 	db, err := sql.Open("mysql", sql_endpoint)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
-	// check the database eta_blog is exist or not
-	// if not exist, create a new database
-	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS eta_blog")
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + config.MariadbBlogDatabase)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	db.Close()
 	// connect to database eta_blog
@@ -128,16 +143,19 @@ func InitV4(config DatabaseConfig) (db_blog *sql.DB) {
 	initializeV4Table(db_blog)
 
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	return db_blog
 }
 
-// v4InsertPost insert post to database
-func v4InsertPost(db_blog *sql.DB, post V4PostData) error {
-	stmt, _ := db_blog.Prepare(`INSERT INTO post (title, author, author_email,url, is_draft, is_deleted, content,
+// v4InsertPostMigrate insert post data into database
+// This function only used for migration from v3 to v4
+// The create and update time will be set to the time from v3
+func v4InsertPostMigrate(db_blog *sql.DB, post V4PostData) error {
+	query := fmt.Sprintf(`INSERT INTO %s (title, author, author_email,url, is_draft, is_deleted, content,
                   summary, tags, category, cover_image, created_at, updated_at,
-                  view_groups, edit_groups) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+                  view_groups, edit_groups) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, blogDbConfig.MariadbBlogTable)
+	stmt, _ := db_blog.Prepare(query)
 	var created_at, updated_at interface{}
 	if post.CreatedAt.IsZero() {
 		created_at = nil
@@ -149,52 +167,69 @@ func v4InsertPost(db_blog *sql.DB, post V4PostData) error {
 	} else {
 		updated_at = post.UpdatedAt
 	}
-
-	// convert viewGroup as a string. e.g. {"admin", "editor"} -> "admin,editor"
 	viewGroups := strings.Join(post.ViewGroups.ToSlice(), ",")
 	editGroups := strings.Join(post.EditGroups.ToSlice(), ",")
 	_, err := stmt.Exec(post.Title, post.Author, post.AuthorEmail,
 		post.Url, post.IsDraft, post.IsDeleted, post.Content,
 		post.Summary, post.Tags, post.Category, post.CoverImage,
-		created_at, updated_at,
-		viewGroups, editGroups)
+		created_at, updated_at, viewGroups, editGroups)
 	if err != nil {
-		log.Fatal("v4InsertPost error: ", err)
+		log.Println("v4InsertPost error: ", err)
 		return err
 	}
 	return nil
 }
+
+// v4InsertPost insert post to database
+func v4InsertPost(db_blog *sql.DB, post V4PostData) error {
+	query := fmt.Sprintf(`INSERT INTO %s (title, author, author_email, url, is_draft, is_deleted, content,
+                  summary, tags, category, cover_image, view_groups, edit_groups)
+                  VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`, blogDbConfig.MariadbBlogTable)
+	stmt, _ := db_blog.Prepare(query)
+	var created_at, updated_at interface{}
+	viewGroups := strings.Join(post.ViewGroups.ToSlice(), ",")
+	editGroups := strings.Join(post.EditGroups.ToSlice(), ",")
+	_, err := stmt.Exec(post.Title, post.Author, post.AuthorEmail,
+		post.Url, post.IsDraft, post.IsDeleted, post.Content,
+		post.Summary, post.Tags, post.Category, post.CoverImage,
+		created_at, updated_at, viewGroups, editGroups)
+	if err != nil {
+		log.Println("v4InsertPost error: ", err)
+		return err
+	}
+	return nil
+}
+
 func getPostByUrl(db *sql.DB, url string) (V4PostData, error) {
 	var post V4PostData
 	var created_at_str, updated_at_str, view_groups_str, edit_groups_str string
 
-	err := db.QueryRow(`SELECT id, title, author, author_email, url, is_draft, is_deleted, content, content_rendered,
+	query := fmt.Sprintf(`SELECT id, title, author, author_email, url, is_draft, is_deleted, content, content_rendered,
 	  		   summary, tags, category, cover_image, created_at, updated_at, view_groups, edit_groups
-				FROM post WHERE url=?`, url).Scan(&post.Id, &post.Title, &post.Author, &post.AuthorEmail, &post.Url,
-		&post.IsDraft, &post.IsDeleted, &post.Content, &post.ContentRendered, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
+				FROM %s WHERE url=?`, blogDbConfig.MariadbBlogTable)
+	err := db.QueryRow(query, url).Scan(&post.Id, &post.Title, &post.Author, &post.AuthorEmail, &post.Url, &post.IsDraft,
+		&post.IsDeleted, &post.Content, &post.ContentRendered, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
 		&created_at_str, &updated_at_str, &view_groups_str, &edit_groups_str)
-	post.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", created_at_str)
-	post.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updated_at_str)
+	post.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", created_at_str) // todo: error may need to be handled
+	post.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updated_at_str) // todo: error may need to be handled
 	post.ViewGroups = set.CreateStringSet(strings.Split(view_groups_str, ",")...)
 	post.EditGroups = set.CreateStringSet(strings.Split(edit_groups_str, ",")...)
-
 	if err != nil {
-		log.Println("getPostByUrl error", err)
+		log.Println("getPostByUrl err: ", err)
 		return post, err
 	}
-	log.Println(post.Url)
 	return post, nil
 }
+
 func getPostById(db *sql.DB, id int) (V4PostData, error) {
 	var post V4PostData
 	var created_at_str, updated_at_str, view_groups_str, edit_groups_str string
-
-	err := db.QueryRow(`SELECT * FROM post WHERE id=?`, id).Scan(&post.Id, &post.Title, &post.Author, &post.AuthorEmail, &post.Url,
+	query := fmt.Sprintf(`SELECT * FROM %s WHERE id=?`, blogDbConfig.MariadbBlogTable)
+	err := db.QueryRow(query, id).Scan(&post.Id, &post.Title, &post.Author, &post.AuthorEmail, &post.Url,
 		&post.IsDraft, &post.IsDeleted, &post.Content, &post.ContentRendered, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
 		&created_at_str, &updated_at_str, &view_groups_str, &edit_groups_str)
-	//&post.ViewGroups, &post.EditGroups
-	post.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", created_at_str)
-	post.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updated_at_str)
+	post.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", created_at_str) // todo: error may need to be handled
+	post.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updated_at_str) // todo: error may need to be handled
 	post.ViewGroups = set.CreateStringSet(strings.Split(view_groups_str, ",")...)
 	post.EditGroups = set.CreateStringSet(strings.Split(edit_groups_str, ",")...)
 	if err != nil {
@@ -203,9 +238,11 @@ func getPostById(db *sql.DB, id int) (V4PostData, error) {
 	}
 	return post, nil
 }
+
 func updatePost(db *sql.DB, post V4PostData) error {
-	stmt, _ := db.Prepare(`UPDATE post SET title=?, author=?,author_email=?, url=?, is_draft=?, is_deleted=?, content=?,
-				  summary=?, tags=?, category=?, cover_image=?, view_groups=?, edit_groups=? WHERE id=?`)
+	query := fmt.Sprintf(`UPDATE %s SET title=?, author=?, author_email=?, url=?, is_draft=?, is_deleted=?, content=?,
+				  summary=?, tags=?, category=?, cover_image=?, view_groups=?, edit_groups=? WHERE id=?`, blogDbConfig.MariadbBlogTable)
+	stmt, _ := db.Prepare(query)
 	viewGroups := strings.Join(post.ViewGroups.ToSlice(), ",")
 	editGroups := strings.Join(post.EditGroups.ToSlice(), ",")
 	_, err := stmt.Exec(post.Title, post.Author, post.AuthorEmail, post.Url, post.IsDraft, post.IsDeleted, post.Content,
@@ -216,16 +253,19 @@ func updatePost(db *sql.DB, post V4PostData) error {
 	}
 	return nil
 }
+
 func v4InsertUser(db *sql.DB, user V4BlogUserData) error {
-	stmt, _ := db.Prepare(`INSERT INTO blog_users (email, name, roles) VALUES (?,?,?)`)
+	query := fmt.Sprintf(`INSERT INTO %s (email, name, roles) VALUES (?,?,?)`, blogDbConfig.MariadbBlogUserTable)
+	stmt, _ := db.Prepare(query)
 	roles := strings.Join(user.Roles.ToSlice(), ",")
 	_, err := stmt.Exec(user.Email, user.Name, roles)
 	if err != nil {
-		log.Fatal("v4InsertUser error: ", err)
+		log.Println("v4InsertUser error: ", err)
 		return err
 	}
 	return nil
 }
+
 func getUserRole(db *sql.DB, user User) (set.StringSet, error) {
 	var roles set.StringSet
 	var roles_str string

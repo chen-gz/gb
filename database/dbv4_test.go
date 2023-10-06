@@ -58,7 +58,7 @@ func TestV3toV4(t *testing.T) {
 		// if content has lead empty line, remove it
 		v4_post.Content = strings.TrimLeft(v4_post.Content, "\n")
 		v4_post.Summary = strings.TrimLeft(v4_post.Summary, "\n")
-		v4InsertPost(db_blog, v4_post)
+		v4InsertPostMigrate(db_blog, v4_post)
 	}
 }
 

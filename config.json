@@ -3,7 +3,16 @@
         "mariadb_address": "tcp(192.168.0.174:3306)/",
         "mariadb_user": "zong",
         "mariadb_password": "Connie",
-        "mariadb_blog_database": "eta_blog"
+        "mariadb_blog_database": "eta_blog",
+        "mariadb_blog_table": "post",
+        "mariadb_blog_user_table": "blog_users"
+    },
+    "user_database": {
+        "mariadb_address": "tcp(192.168.0.174:3306)/",
+        "mariadb_user": "zong",
+        "mariadb_password": "Connie",
+        "mariadb_user_database": "eta_user",
+        "mariadb_user_table": "user"
     },
     "minio": {
         "endpoint": "https://minio.ggeta.com/",
