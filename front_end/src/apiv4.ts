@@ -67,6 +67,30 @@ export async function updatePostV4(request: V4PostData): Promise<UpdatePostRespo
     }).then(response => response.json())
 }
 
+export async function deletePost(post: V4PostData) {
+    post.is_deleted = true
+    updatePostV4(post).then(response => {
+        if (response.status == "success") {
+            showSuccess("Delete success")
+            router.go(-1)
+        } else {
+            showError("Delete failed")
+        }
+    })
+}
+
+export async function savePost(post: V4PostData) {
+    updatePostV4(post).then(
+    (response) => {
+        if (response.status == "success") {
+            showSuccess("Post saved")
+                router.push({path: '/posts/edit/' + response.post.url})
+        } else {
+            showError("Failed to save post")
+        }
+    })
+}
+
 export interface NewPostResponseV4 {
     status: string
     message: string
@@ -181,11 +205,6 @@ export async function loginV4(email: string, password: string) {
     );
 }
 
-
-// export async function loginV3(){
-//     window.location.href= "https://gitea.ggeta.com/login/oauth/authorize?client_id=4093feeb-ff9b-4103-a091-db2381588ce9&redirect_uri=https://blog.ggeta.com&response_type=code&state=STATE"
-// }
-
 export async function verifyToken(): Promise<LoginResponse> {
     return await fetch(`${blogBackendUrl}/api/v4/verify_token`, {
         method: "POST",
@@ -274,6 +293,7 @@ export interface GetPresignedUrlResponse {
 // const crc32 = require("crc32");
 // import "crc32/lib/crc32.js"
 import CRC32 from "crc-32/crc32.js"
+import router from "@/router";
 
 export async function UploadFile(file: File) {
     console.log(file)
