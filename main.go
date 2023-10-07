@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go_blog/database"
 	hd "go_blog/handler"
+	"log"
 	"net/http"
 )
 
@@ -28,15 +29,17 @@ func ginServer() {
 	config := ReadConfig()
 	db_blog := database.InitV4(config.BlogDatabase)
 	db_user, _ := database.UserDbInit(config.UserDatabase)
+	log.Println(config.Minio)
+	minio_client := hd.InitMinioClient(config.Minio)
 	r.POST("/api/blog_file/v1/get_presigned_url", func(c *gin.Context) {
-		hd.GetPresignedUrl(c, db_user)
+		hd.GetPresignedUrl(c, db_user, db_blog, minio_client)
 	})
 
-	r.POST("/api/blog_file/v1/upload_finish", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"msg": "upload finish",
-		})
-	})
+	//r.POST("/api/blog_file/v1/upload_finish", func(c *gin.Context) {
+	//	c.JSON(http.StatusOK, gin.H{
+	//		"msg": "upload finish",
+	//	})
+	//})
 	r.POST("/api/v4/login", func(c *gin.Context) {
 		hd.V4Login(c, db_user)
 	})

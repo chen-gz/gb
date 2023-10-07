@@ -4,19 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"go_blog/database"
+	"go_blog/handler"
 	"os"
 )
 
-type Minio struct {
-	Endpoint         string `json:"endpoint"`
-	AccessKeyID      string `json:"access_key_id"`
-	SecreteAccessKey string `json:"secrete_access_key"`
-	BucketName       string `json:"bucket_name"`
-}
 type Config struct {
 	BlogDatabase database.BlogDbConfig `json:"blog_database"`
 	UserDatabase database.UserDbConfig `json:"user_database"`
-	Minio        Minio                 `json:"minio"`
+	Minio        handler.MinioConfig   `json:"minio"`
 }
 
 // read config.json and return Config struct

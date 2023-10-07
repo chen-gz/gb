@@ -1,10 +1,10 @@
-import {ref} from "vue";
+import {createCommentVNode, ref} from "vue";
 
-const blogBackendUrl = "http://localhost:2009"
+// const blogBackendUrl = "http://localhost:2009"
 
-// const blogBackendUrl = "https://blog.ggeta.com"
+const blogBackendUrl = "https://blog.ggeta.com"
 
-
+export let is_logined = ref(false)
 export interface V4PostData {
     id: number
     title: string
@@ -25,14 +25,12 @@ export interface V4PostData {
     edit_groups: string[]
 }
 
-
 export interface GetPostResponseV3 {
     status: string
     message: string
     post: V4PostData
     html: string
 }
-
 
 export async function getPostV4(url: string, rendered: boolean): Promise<GetPostResponseV3> {
     const request = {
@@ -163,7 +161,9 @@ export async function searchPostsV4(request: SearchPostsRequestV4): Promise<Sear
 }
 
 export function logined() {
-    return localStorage.getItem("token") != null
+    is_logined.value = localStorage.getItem("token") != null
+    return is_logined.value
+    // return localStorage.getItem("token") != null
 }
 
 // export async function searchPostsV4(request: SearchPostsRequestV4){
@@ -254,38 +254,21 @@ export function formatDate(date: Date) {
 }
 
 
-function upload() {
-    // Get selected files from the input element.
-    var files = document.querySelector("#selector").files;
-    for (var i = 0; i < files.length; i++) {
-        var file = files[i];
-        // Retrieve a URL from our server.
-        retrieveNewURL(file, (file, url) => {
-            // Upload the file to the server.
-            uploadFileToPresignURL(file, url);
-        });
-    }
-}
-
-// return await fetch(`${blogBackendUrl}/api/v4/get_post`, {
-//   method: "POST",
-//   headers: {
-//     "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
-//   },
-//   body: JSON.stringify(request),
-// }).then(response => response.json())
 
 // `retrieveNewURL` accepts the name of the current file and invokes the `/presignedUrl` endpoint to
 // generate a pre-signed URL for use in uploading that file:
 export interface GetPresignedUrlRequest {
     file_name: string
+    post_id: number
     hash_crc32: string
+
 }
 
 export interface GetPresignedUrlResponse {
     presigned_url: string
     message: string
     filename: string
+    file_url: string
 }
 
 // import "crc32/lib/crc32.js"
@@ -295,7 +278,7 @@ export interface GetPresignedUrlResponse {
 import CRC32 from "crc-32/crc32.js"
 import router from "@/router";
 
-export async function UploadFile(file: File) {
+export async function UploadFile(file: File, post_id: number) {
     console.log(file)
     const hash = await file.arrayBuffer().then((buffer) => {
         console.log(buffer)
@@ -304,6 +287,7 @@ export async function UploadFile(file: File) {
     });
     const request: GetPresignedUrlRequest = {
         file_name: file.name,
+        post_id: post_id,
         hash_crc32: hash.toString()
     }
     fetch(`${blogBackendUrl}/api/blog_file/v1/get_presigned_url`, {
@@ -321,8 +305,7 @@ export async function UploadFile(file: File) {
         response.json().then((response) => {
             response as GetPresignedUrlResponse
             console.log(response)
-            const publicUrl = `minio.ggeta.com/blog-public-data/${response.filename}`;
-            navigator.clipboard.writeText(publicUrl).then(() => {
+            navigator.clipboard.writeText(response.file_url).then(() => {
                 showSuccess("Copied to clipboard")
             });
             uploadFileToPresignURL(file, response.presigned_url).then(response => {
@@ -330,14 +313,6 @@ export async function UploadFile(file: File) {
                     console.error(response);
                     return;
                 }
-                fetch(`${blogBackendUrl}/api/blog_file/v1/upload_finish`, {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
-                    },
-                    body:
-                        JSON.stringify(request),
-                });
             })
         })
     }).catch((e) => {

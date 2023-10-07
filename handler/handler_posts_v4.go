@@ -178,8 +178,8 @@ func V4NewPost(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 	user := database.V3GetUserByAuthHeader(db_user, c.Request.Header.Get("Authorization"))
 	url, err := database.V4NewPostUser(db_post, user)
 	if err != nil {
-		c.JSON(http.StatusForbidden, gin.H{
-			"msg": "permission denied",
+		c.JSON(http.StatusForbidden, NewPostResponse{
+			Message: "permission denied",
 		})
 		return
 	}

@@ -5,7 +5,8 @@
         "password": "Connie",
         "blog_database": "eta_blog",
         "blog_table": "post",
-        "blog_user_table": "blog_users"
+        "blog_user_table": "blog_users",
+        "blog_file_table": "blog_files"
     },
     "user_database": {
         "address": "tcp(192.168.0.174:3306)",
@@ -16,7 +17,7 @@
         "secrete_key": "bcb967bec859b86e96564992792636bb442548af35a2e3374cee7a0f92542c18"
     },
     "minio": {
-        "endpoint": "https://minio.ggeta.com/",
+        "endpoint": "minio.ggeta.com",
         "access_key_id": "HI4mSQabJ6GWesqES4V4",
         "secrete_access_key": "WIK6SwKqceiPCalmhDj4meOdqLdErSfw4QNpEZxx",
         "bucket_name": "blog-public-data"

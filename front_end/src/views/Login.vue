@@ -53,6 +53,7 @@ async function login_submit() {
     // localStorage.setItem('userName', response.name)
     showSuccess("login success")
     router.push('/')
+    logined()
   }).catch(() => {
     logout()
     showError("login failed. please check your email and password.")

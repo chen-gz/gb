@@ -30,6 +30,7 @@ var userDbConfig UserDbConfig
 
 func UserDbInit(config UserDbConfig) (db_user *sql.DB, err error) {
 	userDbConfig = config
+	log.Println("Initializing user database ...", userDbConfig)
 	sql_endpoint := fmt.Sprintf("%s:%s@%s/", userDbConfig.User, userDbConfig.Password, userDbConfig.Address)
 	db, err := sql.Open("mysql", sql_endpoint)
 	if err != nil {

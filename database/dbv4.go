@@ -18,6 +18,7 @@ type BlogDbConfig struct {
 	BlogDatabase  string `json:"blog_database"`
 	BlogTable     string `json:"blog_table"`
 	BlogUserTable string `json:"blog_user_table"`
+	BlogFileTable string `json:"blog_file_table"`
 }
 
 // blogDbConfig is a global settings for this database
@@ -142,9 +143,10 @@ func InitV4(config BlogDbConfig) (db_blog *sql.DB) {
 	sql_endpoint = fmt.Sprintf("%s:%s@%s/%s", config.User, config.Password, config.Address, config.BlogDatabase)
 	db_blog, err = sql.Open("mysql", sql_endpoint)
 	initializeV4Table(db_blog)
+	err = initializeFileTable(db_blog)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("initV4 error: ", err)
 	}
 	return db_blog
 }
@@ -187,13 +189,13 @@ func v4InsertPost(db_blog *sql.DB, post V4PostData) error {
                   summary, tags, category, cover_image, view_groups, edit_groups)
                   VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`, blogDbConfig.BlogTable)
 	stmt, _ := db_blog.Prepare(query)
-	var created_at, updated_at interface{}
+	//var created_at, updated_at interface{}
 	viewGroups := strings.Join(post.ViewGroups.ToSlice(), ",")
 	editGroups := strings.Join(post.EditGroups.ToSlice(), ",")
 	_, err := stmt.Exec(post.Title, post.Author, post.AuthorEmail,
 		post.Url, post.IsDraft, post.IsDeleted, post.Content,
 		post.Summary, post.Tags, post.Category, post.CoverImage,
-		created_at, updated_at, viewGroups, editGroups)
+		viewGroups, editGroups)
 	if err != nil {
 		log.Println("v4InsertPost error: ", err)
 		return err
@@ -329,6 +331,8 @@ func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, erro
 	if params.Author != "" {
 		stmt += `AND author="` + params.Author + `"`
 	}
+	stmt += fmt.Sprintf(`AND is_draft=%t AND is_deleted=%t `, params.IsDraft, params.IsDeleted)
+
 	if params.Title != "" {
 		stmt += `AND title LIKE "%` + params.Title + `%" `
 	}
@@ -396,23 +400,29 @@ func V4InsertPosByUser(db *sql.DB, post V4PostData, user User) error {
 	return errors.New("permission denied")
 }
 
-func V4UpdatePosByUser(db *sql.DB, post V4PostData, user User) error {
-	roles, _ := getUserRole(db, user)
-	old_post, err := getPostById(db, post.Id) // get old_post
+func UpdatePostPermissionCheck(db_blog *sql.DB, user User, post_id int) bool {
+	roles, _ := getUserRole(db_blog, user)
+	post, err := getPostById(db_blog, post_id)
 	if err != nil {
-		log.Println("V4UpdatePosByUser: ", err)
-		return err
-	} // get post failed
-	valid_roles := roles.Intersection(old_post.EditGroups)
+		log.Println("UpdatePostPermissionCheck error: ", err)
+		return false
+	}
+	valid_roles := roles.Intersection(post.EditGroups)
 	if valid_roles.IsEmpty() {
-		return errors.New("permission denied")
+		return false
 	}
 	if len(valid_roles) == 1 && valid_roles.Contains("author") {
-		if old_post.AuthorEmail != user.Email {
-			return errors.New("permission denied")
+		if post.AuthorEmail != user.Email {
+			return false
 		}
 	} // if the size of valid_roles only contains "author", check if the author is the same as the old post
+	return true
 
+}
+func V4UpdatePosByUser(db *sql.DB, post V4PostData, user User) error {
+	if !UpdatePostPermissionCheck(db, user, post.Id) {
+		return errors.New("permission denied")
+	}
 	return updatePostById(db, post)
 }
 

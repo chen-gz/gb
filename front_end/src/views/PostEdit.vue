@@ -137,7 +137,7 @@ import {useRouter} from "vue-router";
 
 import {getPostV4, showError, showSuccess, updatePostV4, UploadFile, V4PostData} from "@/apiv4";
 
-const drawer = ref(true)
+const drawer = ref(false)
 const showRendered = ref(false)
 const editor_cols = ref(6) // this will be change when rendered preview is toggled
 const editor_rows = ref(25)
@@ -217,7 +217,7 @@ function deletePostBtn() {
   // meta.value.is_deleted = true
   post.value.is_deleted = true
   savePost(false)
-  route.go(-1)
+  route.go(-2)
 }
 
 
@@ -243,7 +243,7 @@ fileUploadArea.addEventListener("drop", (event) => {
     li.textContent = file.webkitRelativePath || file.name;
     fileList.appendChild(li);
     // uploadFileToServer(file);
-    UploadFile(file);
+    UploadFile(file, post.value.id);
 
   }
 });
