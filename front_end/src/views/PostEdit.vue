@@ -25,14 +25,16 @@
 
       <v-tooltip text="Save" location="bottom">
         <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" icon="mdi-content-save"/>
+          <v-btn @click="savePost(post)" v-bind="props" icon="mdi-content-save"/>
         </template>
       </v-tooltip>
+
       <v-tooltip text="delete" location="bottom">
         <template v-slot:activator="{ props }">
-          <v-btn v-bind="props" color="red" icon="mdi-delete" @click="deletePostBtn"/>
+          <v-btn v-bind="props" color="red" icon="mdi-delete" @click="deletePost(post)"/>
         </template>
       </v-tooltip>
+
       <v-tooltip text="Post Settings" location="bottom">
         <template v-slot:activator="{ props }">
           <v-btn v-bind="props" icon @click="drawer = !drawer">
@@ -133,6 +135,7 @@
 <script lang="ts" setup>
 import {nextTick, onMounted, onUnmounted, ref, watch} from "vue";
 import {useRouter} from "vue-router";
+import {deletePost, savePost} from "@/apiv4";
 
 
 import {getPostV4, showError, showSuccess, updatePostV4, UploadFile, V4PostData} from "@/apiv4";
@@ -191,34 +194,34 @@ onUnmounted(() => {
 })
 
 
-async function savePost(redirect: boolean) {
-  // ps.updated_at = new Date()
-  // get token
-  var token = localStorage.getItem('token')
-  console.log("token: " + token)
-  let params = {} as V4PostData;
-  params = post.value
+//async function savePost(redirect: boolean) {
+//  // ps.updated_at = new Date()
+//  // get token
+//  var token = localStorage.getItem('token')
+//  console.log("token: " + token)
+//  let params = {} as V4PostData;
+//  params = post.value
+//
+//  updatePostV4(params).then(
+//    (response) => {
+//      if (response.status == "success") {
+//        post.value = response.post
+//        showSuccess("Post saved")
+//        if (redirect)
+//          route.push({path: '/posts/edit/' + post.value.url})
+//      } else {
+//        showError("Failed to save post")
+//      }
+//    }
+//  )
+//}
 
-  updatePostV4(params).then(
-    (response) => {
-      if (response.status == "success") {
-        post.value = response.post
-        showSuccess("Post saved")
-        if (redirect)
-          route.push({path: '/posts/edit/' + post.value.url})
-      } else {
-        showError("Failed to save post")
-      }
-    }
-  )
-}
-
-function deletePostBtn() {
-  // meta.value.is_deleted = true
-  post.value.is_deleted = true
-  savePost(false)
-  route.go(-2)
-}
+// function deletePostBtn() {
+//   // meta.value.is_deleted = true
+//   post.value.is_deleted = true
+//   savePost(false)
+//   route.go(-2)
+// }
 
 
 const fileUploadArea = document.documentElement;

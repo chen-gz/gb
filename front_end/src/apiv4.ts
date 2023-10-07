@@ -70,7 +70,7 @@ export async function deletePost(post: V4PostData) {
     updatePostV4(post).then(response => {
         if (response.status == "success") {
             showSuccess("Delete success")
-            router.go(-1)
+            router.push({path: '/posts'})
         } else {
             showError("Delete failed")
         }
