@@ -21,20 +21,18 @@ steps:
       - cd ..
 #      - go build .
   # create gitea release
-  - name: create realse
+  - name: create release
     environment:
-      GITEA_NAME:
-        from_secret: gitea_name
       GITEA_TOKEN:
         from_secret: gitea_token
     commands:
-      - export GITEA_URL=http://
+      - export GITEA_NAME=gitea.ggeta.com
       - export BUILD_TIME=$(date +%Y-%m-%d-%H-%M-%S)
       # login use tea
       - echo $GITEA_NAME
       - echo $GITEA_URL$GITEA_NAME
       - echo $GITEA_TOKEN
-      - tea login add --token $GITEA_TOKEN --url=$GITEA_URL$GITEA_NAME
+      - tea login add --token $GITEA_TOKEN --url=https://$GITEA_NAME
       # set as default
       - tea login default $GITEA_NAME
       # create release
