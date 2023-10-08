@@ -7,6 +7,13 @@ platform:
   os: linux
   arch: amd64
 
+trigger:
+  branch:
+    - main
+  event:
+    exclude:
+      - tag
+
 steps:
   - name: greeting
     commands:
