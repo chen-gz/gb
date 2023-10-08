@@ -21,17 +21,18 @@ steps:
       - cd ..
       - go build .
   # create gitea release
-  - name: auto-release
-    image: xena/gitea-release:latest
-    pull: always
-    settings:
-      auth_username: guangzong
-      changelog_path: ./CHANGELOG.md
-      gitea_server: https://gitea.ggeta.com
-      gitea_token:
+  - name: create realse
+    environment:
+      GITEA_NAME:
+        from_secret: GITEA_NAME
+      GITEA_TOKEN:
         from_secret: GITEA_TOKEN
-    when:
-      event:
-        - push
-      branch:
-        - main
+    commands:
+      - export GITEA_URL=http://
+      - export BUILD_TIME=$(date +%Y%m%d%H%M%S)
+      # login use tea
+      - tea login --token ${GITEA_TOKEN} --url ${GITEA_URL}${GITEA_NAME}
+      # set as default
+      - tea login default ${GITEA_NAME}
+      # create release
+      - tea r create --title=auto release --tag ${BUILD_TIME} --assets gb_blog
