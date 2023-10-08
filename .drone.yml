@@ -24,9 +24,9 @@ steps:
   - name: create realse
     environment:
       GITEA_NAME:
-        from_secret: GITEA_NAME
+        from_secret: gitea_name
       GITEA_TOKEN:
-        from_secret: GITEA_TOKEN
+        from_secret: gitea_token
     commands:
       - export GITEA_URL=http://
       - export BUILD_TIME=$(date +%Y-%m-%d-%H-%M-%S)
