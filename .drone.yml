@@ -36,4 +36,4 @@ steps:
       # set as default
       - tea login default $GITEA_NAME
       # create release
-      - tea r create --title=ci-build release --tag $BUILD_TIME --asset go_blog
+      - tea r create --title=ci-build --tag $BUILD_TIME --asset go_blog
