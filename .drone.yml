@@ -20,8 +20,18 @@ steps:
       - yarn build
       - cd ..
       - go build .
-
-      # upload new binary to server
-      - systemctl stop blog
-      - cp blog $BINARY_FOLDER_PATH
-      - systemctl start blog
+  # create gitea release
+  - name: auto-release
+    image: xena/gitea-release:latest
+    pull: always
+    settings:
+      auth_username: guangzong
+      changelog_path: ./CHANGELOG.md
+      gitea_server: https://gitea.ggeta.com
+      gitea_token:
+        from_secret: GITEA_TOKEN
+    when:
+      event:
+        - push
+      branch:
+        - main
