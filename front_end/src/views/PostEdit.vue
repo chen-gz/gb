@@ -139,6 +139,8 @@ import {deletePost, savePost} from "@/apiv4";
 
 
 import {getPostV4, showError, showSuccess, updatePostV4, UploadFile, V4PostData} from "@/apiv4";
+import {types} from "sass";
+import List = types.List;
 
 const drawer = ref(false)
 const showRendered = ref(false)
@@ -185,7 +187,7 @@ window.addEventListener('keydown', handleKeyDown)
 function handleKeyDown(event: KeyboardEvent) {
   if (event.ctrlKey && event.key === 's') {
     event.preventDefault()
-    savePost(true)
+    savePost(post.value)
   }
 }
 
@@ -240,10 +242,12 @@ fileUploadArea.addEventListener("drop", (event) => {
   event.preventDefault();
   fileUploadArea.classList.remove("dragover");
 
+  // @ts-ignore
   const files = event.dataTransfer.files;
-  for (const file of files) {
+  for (const file of Array.from(files)) {
     const li = document.createElement("li");
     li.textContent = file.webkitRelativePath || file.name;
+    // @ts-ignore
     fileList.appendChild(li);
     // uploadFileToServer(file);
     UploadFile(file, post.value.id);

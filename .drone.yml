@@ -1,0 +1,27 @@
+---
+kind: pipeline
+type: exec
+name: default
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+  - name: greeting
+    commands:
+      - export PROJECT_NAME=$(git config --local remote.origin.url | tr '/' '\n' | tail -1)
+      - export BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
+      - export BINARY_FOLDER_PATH=/home/zong/blog
+
+      # build front-end
+      - cd front-end
+      - yarn install
+      - yarn build
+      - cd ..
+      - go build .
+
+      # upload new binary to server
+      - systemctl stop blog
+      - cp blog $BINARY_FOLDER_PATH
+      - systemctl start blog
