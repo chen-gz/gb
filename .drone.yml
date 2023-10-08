@@ -14,12 +14,12 @@ steps:
       - export BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
       - export BINARY_FOLDER_PATH=/home/zong/blog
 
-      # build front-end
+       build front-end
       - cd front_end
-#      - yarn install
-#      - yarn build
+      - yarn install
+      - yarn build
       - cd ..
-#      - go build .
+      - go build .
   # create gitea release
   - name: create release
     environment:
@@ -36,4 +36,4 @@ steps:
       # set as default
       - tea login default $GITEA_NAME
       # create release
-#      - tea r create --title=auto release --tag {$BUILD_TIME} --assets gb_blog
+      - tea r create --title=auto release --tag {$BUILD_TIME} --assets gb_blog
