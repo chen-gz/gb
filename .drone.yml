@@ -14,7 +14,7 @@ steps:
       - export BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
       - export BINARY_FOLDER_PATH=/home/zong/blog
 
-       build front-end
+#       build front-end
       - cd front_end
       - yarn install
       - yarn build
