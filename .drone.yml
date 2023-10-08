@@ -29,10 +29,10 @@ steps:
         from_secret: GITEA_TOKEN
     commands:
       - export GITEA_URL=http://
-      - export BUILD_TIME=$(date +%Y%m%d%H%M%S)
+      - export BUILD_TIME=$(date +%Y-%m-%d-%H-%M-%S)
       # login use tea
-      - tea login --token $GITEA_TOKEN --url ${GITEA_URL}$GITEA_NAME
+      - tea login add --token $GITEA_TOKEN --url {$GITEA_URL}$GITEA_NAME
       # set as default
       - tea login default $GITEA_NAME
       # create release
-      - tea r create --title=auto release --tag ${BUILD_TIME} --assets gb_blog
+      - tea r create --title=auto release --tag {$BUILD_TIME} --assets gb_blog
