@@ -15,7 +15,7 @@ steps:
       - export BINARY_FOLDER_PATH=/home/zong/blog
 
       # build front-end
-      - cd front-end
+      - cd front_end
       - yarn install
       - yarn build
       - cd ..
