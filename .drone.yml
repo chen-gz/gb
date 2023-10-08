@@ -16,10 +16,10 @@ steps:
 
       # build front-end
       - cd front_end
-      - yarn install
-      - yarn build
+#      - yarn install
+#      - yarn build
       - cd ..
-      - go build .
+#      - go build .
   # create gitea release
   - name: create realse
     environment:
@@ -31,8 +31,8 @@ steps:
       - export GITEA_URL=http://
       - export BUILD_TIME=$(date +%Y-%m-%d-%H-%M-%S)
       # login use tea
-      - tea login add --token $GITEA_TOKEN --url {$GITEA_URL}$GITEA_NAME
+      - tea login add --token $GITEA_TOKEN --url $GITEA_URL$GITEA_NAME
       # set as default
       - tea login default $GITEA_NAME
       # create release
-      - tea r create --title=auto release --tag {$BUILD_TIME} --assets gb_blog
+#      - tea r create --title=auto release --tag {$BUILD_TIME} --assets gb_blog
