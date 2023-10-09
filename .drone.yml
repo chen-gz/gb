@@ -23,12 +23,12 @@ steps:
   - name: bulid front-end
     commands:
       - pwd
+      - cd front_end
       - yarn build
 
   - name: build back-end
     commands:
       - pwd
-      - cd .. 
       - go build .
   # create gitea release
   - name: create release
