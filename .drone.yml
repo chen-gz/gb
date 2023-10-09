@@ -21,10 +21,12 @@ steps:
       - cd front_end
       - yarn install
   - name: bulid front-end
+    commands:
       - pwd
       - yarn build
 
   - name: build back-end
+    commands:
       - pwd
       - cd .. 
       - go build .
