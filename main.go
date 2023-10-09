@@ -14,6 +14,8 @@ import (
 var frontend embed.FS
 
 func ginServer() {
+
+	//gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -29,10 +31,18 @@ func ginServer() {
 	config := ReadConfig()
 	db_blog := database.InitV4(config.BlogDatabase)
 	db_user, _ := database.UserDbInit(config.UserDatabase)
+	db_photo, _ := database.InitPhotoDb(config.PhotoDatabase)
 	log.Println(config.Minio)
 	minio_client := hd.InitMinioClient(config.Minio)
+	photo_minio_client := hd.InitPhotoMinioClient(config.PhotoMinio)
 	r.POST("/api/blog_file/v1/get_presigned_url", func(c *gin.Context) {
 		hd.GetPresignedUrl(c, db_user, db_blog, minio_client)
+	})
+	r.POST("/api/photo/v1/insert_photo", func(c *gin.Context) {
+		hd.InsertPhoto(c, db_user, db_photo, photo_minio_client)
+	})
+	r.POST("/api/photo/v1/get_photo", func(c *gin.Context) {
+		hd.GetPhoto(c, db_user, db_photo, photo_minio_client)
 	})
 
 	//r.POST("/api/blog_file/v1/upload_finish", func(c *gin.Context) {

@@ -9,9 +9,11 @@ import (
 )
 
 type Config struct {
-	BlogDatabase database.BlogDbConfig `json:"blog_database"`
-	UserDatabase database.UserDbConfig `json:"user_database"`
-	Minio        handler.MinioConfig   `json:"minio"`
+	BlogDatabase  database.BlogDbConfig  `json:"blog_database"`
+	UserDatabase  database.UserDbConfig  `json:"user_database"`
+	PhotoDatabase database.PhotoDbConfig `json:"photo_database"`
+	Minio         handler.MinioConfig    `json:"minio"`
+	PhotoMinio    handler.MinioConfig    `json:"photo_minio"`
 }
 
 // read config.json and return Config struct

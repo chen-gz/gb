@@ -51,7 +51,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNoZW4tZ
 }
 
 ###
-POST localhost:2009/api/blog_file/v1/upload_file
+POST localhost:2009/api/blog_file/v1/get_presigned_url
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNoZW4tZ3pAb3V0bG9vay5jb20iLCJleHAiOjE2OTY5OTgzNjQsImlhdCI6MTY5NjM5MzU2NH0.QF0bD-WZBwRGNYTnUYxTf-evPAGa1c3L3zJwcL1iDIo
 
@@ -65,3 +65,13 @@ PUT https://minio.ggeta.com/blog-public-data/test.txt_12345678?X-Amz-Algorithm=A
 Content-Type: application/octet-stream
 
 
+###
+POST localhost:2009/api/photo/v1/insert_photo
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNoZW4tZ3pAb3V0bG9vay5jb20iLCJleHAiOjE2OTc0MjU2ODgsImlhdCI6MTY5NjgyMDg4OH0.fDW-p3nkPXuHjozwxK728Dxff5Yk-RSzwvSVIhfuTvg
+
+{
+  "hash": "hello_world",
+  "has_original": true,
+  "original_ext": "hello"
+}
