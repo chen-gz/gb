@@ -71,7 +71,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNoZW4tZ3pAb3V0bG9vay5jb20iLCJleHAiOjE2OTc0MjU2ODgsImlhdCI6MTY5NjgyMDg4OH0.fDW-p3nkPXuHjozwxK728Dxff5Yk-RSzwvSVIhfuTvg
 
 {
-  "hash": "hello_world",
+  "hash": "hello_world2",
   "has_original": true,
   "original_ext": "hello"
 }

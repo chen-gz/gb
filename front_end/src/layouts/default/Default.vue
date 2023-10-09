@@ -33,16 +33,16 @@ async function getPostPage(page: number) {
   })
 }
 
-function init() {
-  let pa = {} as SearchPostsRequestV4
-  pa.rendered = true
-  pa.counts_only = true
-  pa.limit = {start: 0, size: 10}
-  searchPostsV4(pa).then((response) => {
-    len.value = Math.ceil(response.number_of_posts / itemPerPage)
-  })
-  getPostPage(1)
-}
-
-init()
+// function init() {
+//   let pa = {} as SearchPostsRequestV4
+//   pa.rendered = true
+//   pa.counts_only = true
+//   pa.limit = {start: 0, size: 10}
+//   searchPostsV4(pa).then((response) => {
+//     len.value = Math.ceil(response.number_of_posts / itemPerPage)
+//   })
+//   getPostPage(1)
+// }
+//
+// init()
 </script>

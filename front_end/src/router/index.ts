@@ -25,7 +25,15 @@ const routes = [
             {path: ':url', name: 'Post', component: () => import('@/views/PostPage.vue'),},
             {path: 'edit/:url', name: 'PostEdit', component: () => import('@/views/PostEdit.vue'),},
         ]
+    },
+    {
+        path: '/photos',
+        component: () => import('@/layouts/default/Default.vue'),
+        children: [
+            {path: '', name: 'Photos', component: () => import('@/views/photoList.vue'),},
+        ]
     }
+
 ]
 
 const router = createRouter({

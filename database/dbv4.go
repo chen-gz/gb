@@ -442,7 +442,8 @@ func V4SearchPostUser(db *sql.DB, params SearchParams, user User) ([]V4PostData,
 
 func V4NewPostUser(db *sql.DB, user User) (string, error) {
 	roles, _ := getUserRole(db, user)
-	roles.Intersection(set.CreateStringSet("admin", "editor", "author"))
+	roles = roles.Intersection(set.CreateStringSet("admin", "editor", "author"))
+	log.Println("V4NewPostUser: roles: ", roles)
 	if !roles.IsEmpty() {
 		post := V4PostData{
 			Title:       "New Post",
