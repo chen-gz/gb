@@ -21,9 +21,11 @@ steps:
       - cd front_end
       - yarn install
   - name: bulid front-end
+      - pwd
       - yarn build
 
   - name: build back-end
+      - pwd
       - cd .. 
       - go build .
   # create gitea release
@@ -32,6 +34,7 @@ steps:
       GITEA_TOKEN:
         from_secret: gitea_token
     commands:
+      - pwd
       - export GITEA_NAME=gitea.ggeta.com
       - export BUILD_TIME=$(date +%Y-%m-%d-%H-%M-%S)
       # login use tea
