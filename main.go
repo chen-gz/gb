@@ -44,6 +44,9 @@ func ginServer() {
 	r.POST("/api/photo/v1/get_photo", func(c *gin.Context) {
 		hd.GetPhoto(c, db_user, db_photo, photo_minio_client)
 	})
+	r.GET("/api/photo/v1/get_photo_list", func(c *gin.Context) {
+		hd.GetPhotoIds(c, db_user, db_photo)
+	})
 
 	//r.POST("/api/blog_file/v1/upload_finish", func(c *gin.Context) {
 	//	c.JSON(http.StatusOK, gin.H{

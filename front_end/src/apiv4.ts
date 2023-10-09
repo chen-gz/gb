@@ -1,8 +1,8 @@
 import {createCommentVNode, ref} from "vue";
 
-const blogBackendUrl = "http://localhost:2009"
+// const blogBackendUrl = "http://localhost:2009"
 
-// const blogBackendUrl = "https://blog.ggeta.com"
+const blogBackendUrl = "https://blog.ggeta.com"
 
 export let is_logined = ref(false)
 export interface V4PostData {

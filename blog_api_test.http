@@ -75,3 +75,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNoZW4tZ
   "has_original": true,
   "original_ext": "hello"
 }
+
+###
+POST localhost:2009/api/photo/v1/get_photo
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNoZW4tZ3pAb3V0bG9vay5jb20iLCJleHAiOjE2OTc0MjU2ODgsImlhdCI6MTY5NjgyMDg4OH0.fDW-p3nkPXuHjozwxK728Dxff5Yk-RSzwvSVIhfuTvg
+
+{
+  "id" : 6
+}
+
+###
+GET localhost:2009/api/photo/v1/get_photo_list
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImNoZW4tZ3pAb3V0bG9vay5jb20iLCJleHAiOjE2OTc0MjU2ODgsImlhdCI6MTY5NjgyMDg4OH0.fDW-p3nkPXuHjozwxK728Dxff5Yk-RSzwvSVIhfuTvg
+

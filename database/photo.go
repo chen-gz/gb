@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"log"
 )
 
 // each user has its own photo table
@@ -58,8 +59,8 @@ func initPhotoTable(photo_db *sql.DB, user User) error {
     		has_original BOOLEAN NOT NULL DEFAULT FALSE,
 			original_ext VARCHAR(255) NOT NULL DEFAULT "",
     		deleted      BOOLEAN NOT NULL DEFAULT FALSE,
-    		tags         VARCHAR(2048),
-    		category     VARCHAR(2048),
+    		tags         VARCHAR(2048) NOT NULL DEFAULT "",
+    		category     VARCHAR(2048) NOT NULL DEFAULT "",
     		created_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     		updated_at   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     		PRIMARY KEY (id))`, table_name)
@@ -76,7 +77,8 @@ func addPhoto(photo_db *sql.DB, user User, photo PhotoItem) error {
 
 func getPhoto(photo_db *sql.DB, user User, id int) (PhotoItem, error) {
 	table_name := fmt.Sprintf("photo_%d", user.Id)
-	query := fmt.Sprintf(`SELECT * FROM %s WHERE id = ?`, table_name)
+	query := fmt.Sprintf(`SELECT id, hash, has_original, original_ext, deleted, tags, category FROM %s WHERE id = ?`, table_name)
+	log.Println("getPhoto: ", query, "id: ", id)
 	row := photo_db.QueryRow(query, id)
 	var photo PhotoItem
 	err := row.Scan(&photo.Id, &photo.Hash, &photo.HasOriginal, &photo.OriginalExt, &photo.Deleted, &photo.Tags, &photo.Category)
@@ -100,15 +102,36 @@ func InsertPhotoUser(photo_db *sql.DB, user User, photo PhotoItem) error {
 	return addPhoto(photo_db, user, photo)
 }
 
-func GetPhotoUser(photo_db *sql.DB, user User, id int) (PhotoItem, error) {
+func GetPhotoUser(photoDb *sql.DB, user User, id int) (PhotoItem, error) {
 	if user.Id == 0 || user.Name == "" {
 		return PhotoItem{}, errors.New("invalid user")
 	}
-	return getPhoto(photo_db, user, id)
+	return getPhoto(photoDb, user, id)
 }
-func DeletePhotoUser(photo_db *sql.DB, user User, id string) error {
+func DeletePhotoUser(photoDb *sql.DB, user User, id string) error {
 	if user.Id == 0 || user.Name == "" {
 		return errors.New("invalid user")
 	}
-	return deletePhoto(photo_db, user, id)
+	return deletePhoto(photoDb, user, id)
+}
+
+func GetAllPhotoList(photoDb *sql.DB, user User) (ids []int, err error) {
+	tableName := fmt.Sprintf("photo_%d", user.Id)
+	query := fmt.Sprintf(`SELECT id FROM %s`, tableName)
+	rows, err := photoDb.Query(query)
+	if err != nil {
+		return []int{}, err
+	}
+	defer rows.Close()
+	var id int
+	//var ids []int
+	for rows.Next() {
+		err = rows.Scan(&id)
+		if err != nil {
+			return []int{}, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
+
 }

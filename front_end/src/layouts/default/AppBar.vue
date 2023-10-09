@@ -32,6 +32,7 @@
     ></v-text-field>
     <v-app-bar-nav-icon class="" icon="mdi-magnify" @click="showSearch=!showSearch;"/>
 
+    <v-btn text="Photos" to="/photos" class="d-none d-sm-flex"/>
     <v-btn text="Posts" to="/posts" class="d-none d-sm-flex"/>
     <v-btn text="Tags" to="/tags" class="d-none d-sm-flex"/>
     <v-btn text="About" to="/about" class="d-none d-sm-flex"/>

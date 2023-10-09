@@ -1,19 +1,36 @@
-
 <template>
-  <div id="file-list">
-    <p>Uploaded files:</p>
-    <ul></ul>
-  </div>
+<!--  <div id="file-list">-->
+<!--    <p>Uploaded files:</p>-->
+<!--    <ul></ul>-->
+<!--  </div>-->
+<!--  <v-container>-->
+<!--    <v-card v-for="(element, index) in elements" :key="index" style="width: 150px; height: 200px">-->
+<!--      <v-img :src="element" />-->
+<!--    </v-card>-->
+<!--  </v-container>-->
+  <v-container fluid>
+    <v-row>
+      <v-col
+        v-for="(element, index) in elements"
+          :key="index"
+          cols="auto"
+          :sm="4"
+      :md="3"
+      :lg="2"
+      :xl="1"
+      >
+      <v-card class="pa-2" style="height: 300px;">
+        <v-img :src="element" />
+      </v-card>
+      </v-col>
+    </v-row>
+  </v-container>
+
 
 </template>
-
-<style scoped>
-
-</style>
-
 <script setup lang="ts">
-import {addPhoto} from "@/photo_api";
-
+import {addPhoto, getPhoto, getPhotoIds, uploadPhotos} from "@/photo_api";
+import {ref} from "vue";
 
 const fileUploadArea = document.documentElement;
 
@@ -26,48 +43,35 @@ fileUploadArea.addEventListener("dragleave", () => {
   fileUploadArea.classList.remove("dragover");
 });
 fileUploadArea.addEventListener("drop", async (event) => {
-    const fileList = document.querySelector("#file-list ul");
-
-    event.preventDefault();
-    fileUploadArea.classList.remove("dragover");
-
-    // @ts-ignore
-    const files = event.dataTransfer.files;
-    // sort file base one name
-    // set string -> file
-    var ori_files = new Map()
-    var jpeg_files = new Map()
-
-    // for Nikon format
-    for (var i = 0; i < files.length; i++) {
-        var file = files[i];
-        var filename_without_ext = file.name.split(".")[0]
-        console.log("filename_without_ext: " + filename_without_ext)
-        if (file.name.endsWith(".NEF")) {
-            ori_files.set(filename_without_ext, file)
-        } else if (file.name.endsWith(".JPG")) {
-            jpeg_files.set(filename_without_ext, file)
-        }
-    }
-    // only original file is not accept
-    for (var [key, value] of ori_files) {
-        if (jpeg_files.has(key) == false) {
-            alert("Please upload the original file and the corresponding jpeg file together. The server does not process the original file alone.")
-            return
-        }
-    }
-
-    // upload file to server
-    for (var [key, value] of jpeg_files) {
-        var ori_file = ori_files.get(key)
-        // addPhoto(ori_file, value)
-        await addPhoto(value, ori_file)
-    }
-
-
-    // seperate file by fileExtension
-
-
+  // const fileList = document.querySelector("#file-list ul");
+  event.preventDefault();
+  event.stopPropagation(); // Stop event propagation
+  fileUploadArea.classList.remove("dragover");
+  // @ts-ignore
+  const files = event.dataTransfer.files;
+  uploadPhotos(files);
+  console.log("drop function called");
 });
+// get photo 6
+var elements = ref([] as string[]);
+
+
+getPhotoIds().then(
+    (response) => {
+      console.log(response);
+      var ids = response.ids;
+      // sort ids in descending order
+      ids.sort((a, b) => b - a);
+      for (var i = 0; i < ids.length; i++) {
+        getPhoto({id: ids[i]}).then((response) => {
+          console.log(response);
+          elements.value.push(response.thum_url);
+        });
+      }
+
+    }
+)
+
+
 
 </script>

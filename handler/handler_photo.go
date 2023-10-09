@@ -91,10 +91,10 @@ func GetPhoto(c *gin.Context, db_user *sql.DB, db_photo *sql.DB, client *minio.C
 		Id int `json:"id"`
 	}
 	type GetPhotoResponse struct {
-		photo   database.PhotoItem `json:"photo"`
-		thumUrl string             `json:"thum_url"`
-		oriUrl  string             `json:"ori_url"`
-		jpegUrl string             `json:"jpeg_url"`
+		Photo   database.PhotoItem `json:"Photo"`
+		ThumUrl string             `json:"thum_url"`
+		OriUrl  string             `json:"ori_url"`
+		JpegUrl string             `json:"jpeg_url"`
 		Message string             `json:"message"`
 	}
 	user := database.V3GetUserByAuthHeader(db_user, c.Request.Header.Get("Authorization"))
@@ -115,7 +115,7 @@ func GetPhoto(c *gin.Context, db_user *sql.DB, db_photo *sql.DB, client *minio.C
 		c.JSON(http.StatusNotFound, GetPhotoResponse{Message: "not found"})
 		return
 	}
-	getPhotoResponse.photo = photo
+	getPhotoResponse.Photo = photo
 	getPhotoResponse.Message = "ok"
 	if photo.HasOriginal {
 		url, err := client.PresignedGetObject(c, PhotoMinioConfig.BucketName, photo.Hash+"_ori."+photo.OriginalExt, time.Minute*10, nil)
@@ -124,7 +124,7 @@ func GetPhoto(c *gin.Context, db_user *sql.DB, db_photo *sql.DB, client *minio.C
 			c.JSON(http.StatusBadRequest, GetPhotoResponse{Message: "invalid request"})
 			return
 		}
-		getPhotoResponse.oriUrl = url.String()
+		getPhotoResponse.OriUrl = url.String()
 	}
 	url, err := client.PresignedGetObject(c, PhotoMinioConfig.BucketName, photo.Hash+"_thumbnail.jpg", time.Minute*10, nil)
 	if err != nil {
@@ -132,15 +132,37 @@ func GetPhoto(c *gin.Context, db_user *sql.DB, db_photo *sql.DB, client *minio.C
 		c.JSON(http.StatusBadRequest, GetPhotoResponse{Message: "invalid request"})
 		return
 	}
-	getPhotoResponse.thumUrl = url.String()
+	getPhotoResponse.ThumUrl = url.String()
 	url, err = client.PresignedGetObject(c, PhotoMinioConfig.BucketName, photo.Hash+".jpg", time.Minute*10, nil)
 	if err != nil {
 		log.Println("GetPhoto: ", err)
 		c.JSON(http.StatusBadRequest, GetPhotoResponse{Message: "invalid request"})
 		return
 	}
-	getPhotoResponse.jpegUrl = url.String()
+	getPhotoResponse.JpegUrl = url.String()
+	log.Println("GetPhoto: ", getPhotoResponse)
 	c.JSON(http.StatusOK, getPhotoResponse)
+}
+func GetPhotoIds(c *gin.Context, db_user *sql.DB, db_photo *sql.DB) {
+	type GetPhotoIdsResponse struct {
+		Ids     []int  `json:"ids"`
+		Message string `json:"message"`
+	}
+	user := database.V3GetUserByAuthHeader(db_user, c.Request.Header.Get("Authorization"))
+	if user.Id == 0 {
+		c.JSON(http.StatusForbidden, GetPhotoIdsResponse{Message: "permission denied"})
+		return
+	}
+	var getPhotoIdsResponse GetPhotoIdsResponse
+	ids, err := database.GetAllPhotoList(db_photo, user)
+	if err != nil {
+		log.Println("GetPhotoIds Error: ", err)
+		c.JSON(http.StatusNotFound, GetPhotoIdsResponse{Message: "not found"})
+		return
+	}
+	getPhotoIdsResponse.Ids = ids
+	getPhotoIdsResponse.Message = "ok"
+	c.JSON(http.StatusOK, getPhotoIdsResponse)
 }
 
 var PhotoMinioConfig MinioConfig
