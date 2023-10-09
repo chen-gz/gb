@@ -15,17 +15,15 @@ trigger:
       - tag
 
 steps:
-  - name: greeting
+  - name:  prepare front-end build
     commands:
-      - export PROJECT_NAME=$(git config --local remote.origin.url | tr '/' '\n' | tail -1)
-      - export BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-      - export BINARY_FOLDER_PATH=/home/zong/blog
-
 #       build front-end
       - cd front_end
       - yarn install
+  - name: bulid front-end
+      - cd front_end
       - yarn build
-      - cd ..
+  - name: build back-end
       - go build .
   # create gitea release
   - name: create release
