@@ -21,9 +21,10 @@ steps:
       - cd front_end
       - yarn install
   - name: bulid front-end
-      - cd front_end
       - yarn build
+
   - name: build back-end
+      - cd .. 
       - go build .
   # create gitea release
   - name: create release
