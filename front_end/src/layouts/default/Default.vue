@@ -3,7 +3,10 @@
   <v-app>
     <default-bar/>
     <v-main style="max-width: 1400px; width: 100vw;" class="align-self-center">
+      <Suspense>
+
       <router-view/>
+      </Suspense>
     </v-main>
 
 

@@ -27,6 +27,7 @@ export interface GetPhotoResponse {
     message: string,
 }
 
+var cnt = 0
 export async function getPhoto(request: GetPhotoRequest): Promise<GetPhotoResponse> {
     return await fetch(`${photoBackendUrl}/api/photo/v1/get_photo`, {
         method: "POST",
@@ -34,7 +35,11 @@ export async function getPhoto(request: GetPhotoRequest): Promise<GetPhotoRespon
             "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
         },
         body: JSON.stringify(request),
-    }).then(response => response.json())
+    }).then(response => {
+        console.log("getPhoto", cnt)
+        cnt += 1
+        return response.json()
+    })
 }
 
 export interface InsertPhotoRequest {
