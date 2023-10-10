@@ -91,7 +91,7 @@ func GetPhoto(c *gin.Context, db_user *sql.DB, db_photo *sql.DB, client *minio.C
 		Id int `json:"id"`
 	}
 	type GetPhotoResponse struct {
-		Photo   database.PhotoItem `json:"Photo"`
+		Photo   database.PhotoItem `json:"photo"`
 		ThumUrl string             `json:"thum_url"`
 		OriUrl  string             `json:"ori_url"`
 		JpegUrl string             `json:"jpeg_url"`
