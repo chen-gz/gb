@@ -164,6 +164,51 @@ func GetPhotoIds(c *gin.Context, db_user *sql.DB, db_photo *sql.DB) {
 	getPhotoIdsResponse.Message = "ok"
 	c.JSON(http.StatusOK, getPhotoIdsResponse)
 }
+func GetDeletedPhotoIds(c *gin.Context, db_user *sql.DB, db_photo *sql.DB) {
+	type GetDeletedPhotoIdsResponse struct {
+		Ids     []int  `json:"ids"`
+		Message string `json:"message"`
+	}
+	user := database.V3GetUserByAuthHeader(db_user, c.Request.Header.Get("Authorization"))
+	if user.Id == 0 {
+		c.JSON(http.StatusForbidden, GetDeletedPhotoIdsResponse{Message: "permission denied"})
+		return
+	}
+	var getDeletedPhotoIdsResponse GetDeletedPhotoIdsResponse
+	ids, err := database.GetDeletedPhotoList(db_photo, user)
+	if err != nil {
+		log.Println("GetDeletedPhotoIds Error: ", err)
+		c.JSON(http.StatusNotFound, GetDeletedPhotoIdsResponse{Message: "not found"})
+		return
+	}
+	getDeletedPhotoIdsResponse.Ids = ids
+	getDeletedPhotoIdsResponse.Message = "ok"
+	c.JSON(http.StatusOK, getDeletedPhotoIdsResponse)
+}
+
+func UpdatePhoto(c *gin.Context, db_user *sql.DB, db_photo *sql.DB) {
+	type UpdatePhotoRequest database.PhotoItem
+	type UpdatePhotoResponse struct {
+		Message string `json:"message"`
+	}
+	user := database.V3GetUserByAuthHeader(db_user, c.Request.Header.Get("Authorization"))
+	if user.Id == 0 {
+		c.JSON(http.StatusForbidden, UpdatePhotoResponse{Message: "permission denied"})
+		return
+	}
+	var updatePhotoRequest UpdatePhotoRequest
+	if c.BindJSON(&updatePhotoRequest) != nil {
+		c.JSON(http.StatusBadRequest, UpdatePhotoResponse{Message: "invalid request"})
+		return
+	}
+	err := database.UpdatePhotoUser(db_photo, user, database.PhotoItem(updatePhotoRequest))
+	if err != nil {
+		log.Println("UpdatePhoto Error: ", err)
+		c.JSON(http.StatusNotFound, UpdatePhotoResponse{Message: "not found"})
+		return
+	}
+	c.JSON(http.StatusOK, UpdatePhotoResponse{Message: "ok"})
+}
 
 var PhotoMinioConfig MinioConfig
 

@@ -74,6 +74,13 @@ func addPhoto(photo_db *sql.DB, user User, photo PhotoItem) error {
 	_, err := photo_db.Exec(query, photo.Hash, photo.HasOriginal, photo.OriginalExt)
 	return err
 }
+func updatePhoto(photo_db *sql.DB, user User, photo PhotoItem) error {
+	// only some field can be updated - tags, category, deleted
+	table_name := fmt.Sprintf("photo_%d", user.Id)
+	query := fmt.Sprintf(`UPDATE %s SET tags = ?, category = ?, deleted = ? WHERE id = ?`, table_name)
+	_, err := photo_db.Exec(query, photo.Tags, photo.Category, photo.Deleted, photo.Id)
+	return err
+}
 
 func getPhoto(photo_db *sql.DB, user User, id int) (PhotoItem, error) {
 	table_name := fmt.Sprintf("photo_%d", user.Id)
@@ -117,7 +124,7 @@ func DeletePhotoUser(photoDb *sql.DB, user User, id string) error {
 
 func GetAllPhotoList(photoDb *sql.DB, user User) (ids []int, err error) {
 	tableName := fmt.Sprintf("photo_%d", user.Id)
-	query := fmt.Sprintf(`SELECT id FROM %s`, tableName)
+	query := fmt.Sprintf(`SELECT id FROM %s WHERE deleted = FALSE`, tableName)
 	rows, err := photoDb.Query(query)
 	if err != nil {
 		return []int{}, err
@@ -133,5 +140,31 @@ func GetAllPhotoList(photoDb *sql.DB, user User) (ids []int, err error) {
 		ids = append(ids, id)
 	}
 	return ids, nil
+}
 
+func UpdatePhotoUser(photoDb *sql.DB, user User, photo PhotoItem) error {
+	if user.Id == 0 || user.Name == "" {
+		return errors.New("invalid user")
+	}
+	return updatePhoto(photoDb, user, photo)
+}
+
+func GetDeletedPhotoList(photoDb *sql.DB, user User) (ids []int, err error) {
+	tableName := fmt.Sprintf("photo_%d", user.Id)
+	query := fmt.Sprintf(`SELECT id FROM %s WHERE deleted = TRUE`, tableName)
+	rows, err := photoDb.Query(query)
+	if err != nil {
+		return []int{}, err
+	}
+	defer rows.Close()
+	var id int
+	//var ids []int
+	for rows.Next() {
+		err = rows.Scan(&id)
+		if err != nil {
+			return []int{}, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
 }

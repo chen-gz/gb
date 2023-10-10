@@ -5,7 +5,7 @@ import {compileString} from "sass";
 
 // const photoBackendUrl = "http://localhost:2009"
 
-export interface Photo {
+export interface PhotoItem {
     id: number,
     hash: string,
     has_original: boolean,
@@ -20,7 +20,7 @@ export interface GetPhotoRequest {
 }
 
 export interface GetPhotoResponse {
-    photo: Photo,
+    photo: PhotoItem,
     thum_url: string,
     ori_url: string,
     jpeg_url: string,
@@ -200,6 +200,25 @@ export interface PhotoListResponse {
 
 export async function getPhotoIds(): Promise<PhotoListResponse> {
     return await fetch(`${photoBackendUrl}/api/photo/v1/get_photo_list`, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
+        },
+    }).then(response => response.json())
+}
+
+export async function UpdatePhoto(photo: PhotoItem){
+    return await fetch(`${photoBackendUrl}/api/photo/v1/update_photo`, {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
+        },
+        body: JSON.stringify(photo),
+    }).then(response => response.json())
+}
+
+export async function getDeletedPhotoIds(): Promise<PhotoListResponse> {
+    return await fetch(`${photoBackendUrl}/api/photo/v1/get_deleted_photo_list`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${localStorage.getItem("token") || ""}`

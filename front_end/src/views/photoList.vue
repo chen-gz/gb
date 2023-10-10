@@ -3,16 +3,16 @@
     <v-row>
       <template v-for="(element, index) in elements" :key="index">
         <v-col cols="auto" :sm="4" :md="3" :lg="2">
-            <v-card class="clickable-card">
-              <v-img :src="element.thum_url" height="100%" :cover=true
-                     @click="openDialog(element)"
-              ></v-img>
-              <v-card-actions class="justify-center">
-                <v-spacer/>
-                <v-btn icon="mdi mdi-download" class="mx-2"></v-btn>
-                <v-btn icon="mdi mdi-delete" class="mx-2"></v-btn>
-              </v-card-actions>
-            </v-card>
+          <v-card class="clickable-card">
+            <v-img :src="element.thum_url" height="100%" :cover=true
+                   @click="openDialog(element)"
+            ></v-img>
+            <v-card-actions class="justify-center">
+              <v-spacer/>
+              <v-btn icon="mdi mdi-download" class="mx-2"></v-btn>
+              <v-btn icon="mdi mdi-delete" class="mx-2" @click="deletePhoto(element.photo)"></v-btn>
+            </v-card-actions>
+          </v-card>
         </v-col>
       </template>
     </v-row>
@@ -28,12 +28,12 @@
     </v-dialog>
   </v-container>
   <v-pagination v-model="page" :length="number_of_pages" @update:model-value="fetchPage(page)"></v-pagination>
-<!--                @input="pageChanged(page)"></v-pagination>-->
+  <!--                @input="pageChanged(page)"></v-pagination>-->
 </template>
 <script setup lang="ts">
 
-import {getPhoto, getPhotoIds, uploadPhotos} from "@/photo_api";
-import {ref, watch} from "vue";
+import {getPhoto, getPhotoIds, PhotoItem, UpdatePhoto, uploadPhotos} from "@/photo_api";
+import {ref} from "vue";
 
 const fileUploadArea = document.documentElement;
 const dialog = ref(false);
@@ -43,6 +43,7 @@ var page = ref(1);
 function closeDialog() {
   dialog.value = false;
 }
+
 function openDialog(photo: photo) {
   console.log(photo.jpg_url)
   dialogImageSrc.value = photo.jpg_url;
@@ -70,7 +71,7 @@ fileUploadArea.addEventListener("drop", async (event) => {
 var elements = ref([] as photo[]);
 
 interface photo {
-  id: number;
+  photo: PhotoItem;
   thum_url: string;
   jpg_url: string;
 }
@@ -78,6 +79,7 @@ interface photo {
 const number_of_pages = ref(0);
 const number_of_photos = ref(0);
 const page_size = 24;
+
 async function fetchPage(page: number) {
   console.log("fetch page: " + page)
   let photoIds = (await getPhotoIds()).ids;
@@ -93,7 +95,7 @@ async function fetchPage(page: number) {
   photos.sort((a, b) => b.photo.id - a.photo.id);
   elements.value = [] as photo[];
   for (const photo of photos) {
-    elements.value.push({id: photo.photo.id, thum_url: photo.thum_url, jpg_url: photo.jpeg_url});
+    elements.value.push({photo: photo.photo, thum_url: photo.thum_url, jpg_url: photo.jpeg_url});
   }
 }
 
@@ -104,6 +106,11 @@ async function fetchData() {
   console.log("number of pages: " + number_of_pages.value);
   console.log("number of photos: " + number_of_photos.value);
 }
+
 fetchData();
 fetchPage(1);
+function deletePhoto(photo: PhotoItem){
+  photo.deleted = true;
+  UpdatePhoto(photo);
+}
 </script>

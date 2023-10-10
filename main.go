@@ -47,6 +47,12 @@ func ginServer() {
 	r.GET("/api/photo/v1/get_photo_list", func(c *gin.Context) {
 		hd.GetPhotoIds(c, db_user, db_photo)
 	})
+	r.POST("/api/photo/v1/update_photo", func(c *gin.Context) {
+		hd.UpdatePhoto(c, db_user, db_photo)
+	})
+	r.POST("/api/photo/v1/get_deleted_photo_list", func(c *gin.Context) {
+		hd.GetDeletedPhotoIds(c, db_user, db_photo)
+	})
 
 	//r.POST("/api/blog_file/v1/upload_finish", func(c *gin.Context) {
 	//	c.JSON(http.StatusOK, gin.H{
