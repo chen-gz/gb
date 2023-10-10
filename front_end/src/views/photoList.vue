@@ -3,16 +3,16 @@
     <v-row>
       <template v-for="(element, index) in elements" :key="index">
         <v-col cols="auto" :sm="4" :md="3" :lg="2">
-          <v-click-outside @click="openDialog(element)">
             <v-card class="clickable-card">
-              <v-img :src="element.thum_url" height="100%" :cover=true></v-img>
+              <v-img :src="element.thum_url" height="100%" :cover=true
+                     @click="openDialog(element)"
+              ></v-img>
               <v-card-actions class="justify-center">
                 <v-spacer/>
                 <v-btn icon="mdi mdi-download" class="mx-2"></v-btn>
                 <v-btn icon="mdi mdi-delete" class="mx-2"></v-btn>
               </v-card-actions>
             </v-card>
-          </v-click-outside>
         </v-col>
       </template>
     </v-row>
@@ -27,7 +27,8 @@
       </v-card>
     </v-dialog>
   </v-container>
-  <v-pagination v-model="page" :length="number_of_pages" @input="fetchPage(page)"></v-pagination>
+  <v-pagination v-model="page" :length="number_of_pages" @update:model-value="fetchPage(page)"></v-pagination>
+<!--                @input="pageChanged(page)"></v-pagination>-->
 </template>
 <script setup lang="ts">
 
@@ -37,7 +38,7 @@ import {ref, watch} from "vue";
 const fileUploadArea = document.documentElement;
 const dialog = ref(false);
 const dialogImageSrc = ref("");
-const page = ref(1);
+var page = ref(1);
 
 function closeDialog() {
   dialog.value = false;
@@ -78,6 +79,7 @@ const number_of_pages = ref(0);
 const number_of_photos = ref(0);
 const page_size = 24;
 async function fetchPage(page: number) {
+  console.log("fetch page: " + page)
   let photoIds = (await getPhotoIds()).ids;
   // get id base on page and page size
   const start = (page - 1) * page_size;
