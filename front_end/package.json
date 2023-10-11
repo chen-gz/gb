@@ -13,6 +13,7 @@
     "core-js": "^3.29.0",
     "crc-32": "^1.2.2",
     "crc32": "^0.2.2",
+    "monaco-editor": "^0.44.0",
     "roboto-fontface": "*",
     "vue": "^3.2.0",
     "vue-router": "^4.0.0",

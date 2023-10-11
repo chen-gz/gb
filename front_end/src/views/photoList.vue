@@ -1,12 +1,21 @@
 <template>
   <v-container fluid>
     <v-row>
-      <template v-for="(element, index) in elements" :key="index">
+      <!--            <v-img :src="element.thum_url" height="100%" :cover=true-->
+      <!--                   @click="openDialog(element)"-->
+      <!--            ></v-img>-->
+      <template v-for="(element, index) in showElements" :key="index">
         <v-col cols="auto" :sm="4" :md="3" :lg="2">
-          <v-card class="clickable-card">
-            <v-img :src="element.thum_url" height="100%" :cover=true
-                   @click="openDialog(element)"
-            ></v-img>
+          <v-card class="clickable-card" :class="{ 'selected-card': isSelected(element) }">
+            <v-img :src="element.thum_url" height="100%" :cover=true @click="toggleSelect(element)">
+              <!-- Container to position the select button/icon -->
+              <div class="select-icon-container">
+                <v-btn icon class="select-button" @click.stop="toggleSelectMode">
+                  <v-icon v-if="!selectMode">mdi mdi-checkbox-blank-outline</v-icon>
+                  <v-icon v-else>mdi mdi-checkbox-marked</v-icon>
+                </v-btn>
+              </div>
+            </v-img>
             <v-card-actions class="justify-center">
               <v-spacer/>
               <v-btn icon="mdi mdi-download" class="mx-2" @click="downloadPhoto(element)"></v-btn>
@@ -15,6 +24,7 @@
           </v-card>
         </v-col>
       </template>
+
     </v-row>
     <v-dialog v-model="dialog">
       <v-card>
@@ -38,12 +48,32 @@ const fileUploadArea = document.documentElement;
 const dialog = ref(false);
 const dialogImageSrc = ref("");
 var page = ref(1);
+var selectedPhotos = ref([] as PhotoWithUrl[]);
+
+function isSelected(photo: PhotoWithUrl) {
+  return selectedPhotos.value.includes(photo);
+}
+
+function toggleSelect(photo: PhotoWithUrl) {
+  if (isSelected(photo)) {
+    selectedPhotos.value = selectedPhotos.value.filter((element) => element !== photo);
+  } else {
+    selectedPhotos.value.push(photo);
+  }
+}
+
+var selectMode = ref(false);
+
+function toggleSelectMode() {
+  selectedPhotos.value = [];
+  selectMode.value = !selectMode.value;
+}
 
 function closeDialog() {
   dialog.value = false;
 }
 
-function openDialog(photo: photo) {
+function openDialog(photo: PhotoWithUrl) {
   console.log(photo.jpg_url)
   dialogImageSrc.value = photo.jpg_url;
   dialog.value = true;
@@ -67,9 +97,9 @@ fileUploadArea.addEventListener("drop", async (event) => {
   console.log("drop function called");
 });
 // get photo 6
-var elements = ref([] as photo[]);
+var showElements = ref([] as PhotoWithUrl[]);
 
-interface photo {
+interface PhotoWithUrl {
   photo: PhotoItem;
   thum_url: string;
   jpg_url: string;
@@ -95,9 +125,9 @@ async function fetchPage(page: number) {
   const photos = await Promise.all(promises);
   photos.sort((a, b) => b.photo.id - a.photo.id);
   console.log("photos: " + photos[0].photo.id);
-  elements.value = [] as photo[];
+  showElements.value = [] as PhotoWithUrl[];
   for (const photo of photos) {
-    elements.value.push({photo: photo.photo, thum_url: photo.thum_url, jpg_url: photo.jpeg_url});
+    showElements.value.push({photo: photo.photo, thum_url: photo.thum_url, jpg_url: photo.jpeg_url});
   }
 }
 
@@ -111,15 +141,29 @@ async function fetchData() {
 
 fetchData();
 fetchPage(1);
-function deletePhoto(photo: PhotoItem){
+
+function deletePhoto(photo: PhotoItem) {
   photo.deleted = true;
   UpdatePhoto(photo);
   // remove correspond tags
-  elements.value = elements.value.filter((element) => element.photo.id !== photo.id);
+  showElements.value = showElements.value.filter((element) => element.photo.id !== photo.id);
 
 }
-function downloadPhoto(photo: photo) {
-    // in new tab
+
+function downloadPhoto(photo: PhotoWithUrl) {
+  // in new tab
   window.open(photo.jpg_url, "_blank");
 }
 </script>
+<style scoped>
+.select-icon-container {
+  position: absolute;
+  top: 10px; /* Adjust the top position as needed */
+  right: 10px; /* Adjust the right position as needed */
+  z-index: 1; /* Ensure the icon is above the image */
+  opacity: 0.1; /* Adjust the opacity value as needed (0.0 for fully transparent, 1.0 for fully opaque) */
+
+}
+
+
+</style>
