@@ -9,7 +9,7 @@
             ></v-img>
             <v-card-actions class="justify-center">
               <v-spacer/>
-              <v-btn icon="mdi mdi-download" class="mx-2"></v-btn>
+              <v-btn icon="mdi mdi-download" class="mx-2" @click="downloadPhoto(element)"></v-btn>
               <v-btn icon="mdi mdi-delete" class="mx-2" @click="deletePhoto(element.photo)"></v-btn>
             </v-card-actions>
           </v-card>
@@ -19,7 +19,7 @@
     <v-dialog v-model="dialog">
       <v-card>
         <v-card-title>Dialog Title</v-card-title>
-        <v-img :src="dialogImageSrc" height="100%" :cover=true></v-img>
+        <v-img :src="dialogImageSrc" width="95%" style="margin-right: auto; margin-left: auto;"></v-img>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn @click="closeDialog">Close</v-btn>
@@ -28,7 +28,6 @@
     </v-dialog>
   </v-container>
   <v-pagination v-model="page" :length="number_of_pages" @update:model-value="fetchPage(page)"></v-pagination>
-  <!--                @input="pageChanged(page)"></v-pagination>-->
 </template>
 <script setup lang="ts">
 
@@ -83,6 +82,8 @@ const page_size = 24;
 async function fetchPage(page: number) {
   console.log("fetch page: " + page)
   let photoIds = (await getPhotoIds()).ids;
+  // sort by id
+  photoIds.sort((a, b) => b - a);
   // get id base on page and page size
   const start = (page - 1) * page_size;
   const end = page * page_size;
@@ -93,6 +94,7 @@ async function fetchPage(page: number) {
   });
   const photos = await Promise.all(promises);
   photos.sort((a, b) => b.photo.id - a.photo.id);
+  console.log("photos: " + photos[0].photo.id);
   elements.value = [] as photo[];
   for (const photo of photos) {
     elements.value.push({photo: photo.photo, thum_url: photo.thum_url, jpg_url: photo.jpeg_url});
@@ -112,5 +114,12 @@ fetchPage(1);
 function deletePhoto(photo: PhotoItem){
   photo.deleted = true;
   UpdatePhoto(photo);
+  // remove correspond tags
+  elements.value = elements.value.filter((element) => element.photo.id !== photo.id);
+
+}
+function downloadPhoto(photo: photo) {
+    // in new tab
+  window.open(photo.jpg_url, "_blank");
 }
 </script>
