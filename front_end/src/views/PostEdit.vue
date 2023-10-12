@@ -71,7 +71,6 @@ window.addEventListener('keydown', handleKeyDown)
 var editor_show = ref("content")
 
 function handleKeyDown(event: KeyboardEvent) {
-  console.log("#                   #key down: ", event)
   if (event.ctrlKey && event.key === 's') {
     event.preventDefault()
     if (editor_show.value === "content") {
@@ -86,13 +85,15 @@ function handleKeyDown(event: KeyboardEvent) {
     if (editor_show.value === "content") {
       editor_show.value = "meta"
       editor.setValue(JSON.stringify(post.value, null, 4))
-      // change language to json
+      // @ts-ignore
       monaco.editor.setModelLanguage(editor.getModel(), "json")
+      editor.updateOptions({wordWrap: "off"})
     } else {
       editor_show.value = "content"
       editor.setValue(post.value.content)
-      // change language to markdown
+      // @ts-ignore
       monaco.editor.setModelLanguage(editor.getModel(), "markdown")
+      editor.updateOptions({wordWrap: "on"})
     }
   }
 }
@@ -211,16 +212,12 @@ onMounted(async () => {
 
   editor = monaco.editor.create(editorElement, {
     value: "function hello() {\n\talert('Hello world!');\n}",
-    language: 'javascript'
+    language: 'javascript',
+    wordWrap: "on",
   })
-  // if (editorElement) {
-  //   initializeEditor(editorElement);
-  //   editor.setValue(post.value.content);
-  // }
-  // monaco.editor.create(editorElement, {
-  //   value: "function hello() {\n\talert('Hello world!');\n}",
-  //   language: 'javascript'
-  // });
+  editor.setValue(post.value.content)
+  // @ts-ignore
+  monaco.editor.setModelLanguage(editor.getModel(), "markdown")
 });
 
 
