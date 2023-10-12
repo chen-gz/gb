@@ -78,7 +78,7 @@
 <script lang="ts" setup>
 import {onMounted, onUnmounted, ref} from "vue";
 import {useRouter} from "vue-router";
-import {deletePost, getPostV4, savePost, UploadFile, V4PostData} from "@/apiv4";
+import {deletePost, getPostV4, savePost, showSuccess, UploadFile, V4PostData} from "@/apiv4";
 import * as monaco from "monaco-editor";
 
 const drawer = ref(false)
@@ -93,7 +93,8 @@ window.addEventListener('keydown', handleKeyDown)
 function handleKeyDown(event: KeyboardEvent) {
   if (event.ctrlKey && event.key === 's') {
     event.preventDefault()
-    // savePost(post.value)
+    post.value.content = editor.getValue()
+    savePost(post.value)
     console.log("save post: ", editor.getValue())
   }
 }
@@ -103,27 +104,6 @@ onUnmounted(() => {
 })
 
 
-//async function savePost(redirect: boolean) {
-//  // ps.updated_at = new Date()
-//  // get token
-//  var token = localStorage.getItem('token')
-//  console.log("token: " + token)
-//  let params = {} as V4PostData;
-//  params = post.value
-//
-//  updatePostV4(params).then(
-//    (response) => {
-//      if (response.status == "success") {
-//        post.value = response.post
-//        showSuccess("Post saved")
-//        if (redirect)
-//          route.push({path: '/posts/edit/' + post.value.url})
-//      } else {
-//        showError("Failed to save post")
-//      }
-//    }
-//  )
-//}
 
 // function deletePostBtn() {
 //   // meta.value.is_deleted = true
