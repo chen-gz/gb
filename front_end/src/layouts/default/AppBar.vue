@@ -37,12 +37,12 @@
     <v-btn text="Tags" to="/tags" class="d-none d-sm-flex"/>
     <v-btn text="About" to="/about" class="d-none d-sm-flex"/>
 
-    <v-app-bar-nav-icon class="d-sm-none"><i class="fa fa-tags fa-lg" aria-hidden="true"></i></v-app-bar-nav-icon>
-    <v-app-bar-nav-icon class="d-sm-none"><i class="fa fa-sticky-note fa-lg" aria-hidden="true"></i>
-    </v-app-bar-nav-icon>
-    <v-app-bar-nav-icon class="d-sm-none"><i class="fa fa-info fa-lg" aria-hidden="true"></i></v-app-bar-nav-icon>
-    <v-app-bar-nav-icon @click="login()" v-if="!is_logined"><i class="fa fa-user" aria-hidden="true"></i></v-app-bar-nav-icon>
-    <v-app-bar-nav-icon @click="newpost()" v-if="is_logined"> <i class="fa fa-plus" aria-hidden="true"></i></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon class="d-sm-none"><i class="fa fa-camera fa-lg" /></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon class="d-sm-none"><i class="fa fa-tags fa-lg" /></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon class="d-sm-none"><i class="fa fa-sticky-note fa-lg"/> </v-app-bar-nav-icon>
+    <v-app-bar-nav-icon class="d-sm-none"><i class="fa fa-info fa-lg" /> </v-app-bar-nav-icon>
+    <v-app-bar-nav-icon @click="login()" v-if="!is_logined"><i class="fa fa-user" /></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon @click="newpost()" v-if="is_logined"> <i class="fa fa-plus" /> </v-app-bar-nav-icon>
   </v-app-bar>
 </template>
 
