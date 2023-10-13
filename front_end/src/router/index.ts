@@ -32,8 +32,14 @@ const routes = [
         children: [
             {path: '', name: 'Photos', component: () => import('@/views/photoList.vue'),},
         ]
+    },
+    {
+        path: '/tags',
+        component: () => import('@/layouts/default/Default.vue'),
+        children: [
+            {path: ':tag_name', name: 'TagList', component: () => import('@/views/Lists.vue'),},
+        ]
     }
-
 ]
 
 const router = createRouter({

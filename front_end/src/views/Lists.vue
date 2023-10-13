@@ -39,7 +39,7 @@ searchPostsV4(params).then((response) => {
 <template>
     <v-table>
         <tbody>
-        <tr v-for="(item, index) in res.posts" :key="index">
+        <tr v-for="(item, index) in res.posts" :key="index" style="font-family: 'JetBrains Mono', monospace">
             <td>
                 <router-link :to="'/posts/' + item.url">
                     <span> {{ item.title }} </span>
@@ -52,10 +52,3 @@ searchPostsV4(params).then((response) => {
         </tbody>
     </v-table>
 </template>
-
-<style scoped>
-tr {
-    font-family: "JetBrains Mono";
-}
-
-</style>
