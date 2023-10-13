@@ -8,7 +8,7 @@ const routes = [
         children: [
             {path: '', name: 'Home', component: () => import(/* webpackChunkName: "home" */ '@/views/Home.vue'),},
             {path: 'about', name: 'About', component: () => import('@/views/About.vue'),},
-            {path: 'tags', name: 'Tags', component: () => import('@/views/Tags.vue'),}
+            // {path: 'tags', name: 'Tags', component: () => import('@/views/Tags.vue'),}
         ]
     },
     {
@@ -37,7 +37,8 @@ const routes = [
         path: '/tags',
         component: () => import('@/layouts/default/Default.vue'),
         children: [
-            {path: ':tag_name', name: 'TagList', component: () => import('@/views/Lists.vue'),},
+            {path: '', name: 'TagsCloud ', component: () => import('@/views/Tags.vue'), props: {tag_name: ""}},
+            {path: ':tag_name', name: 'Tag', component: () => import('@/views/Tags.vue'), props: true},
         ]
     }
 ]

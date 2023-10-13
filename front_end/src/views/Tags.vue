@@ -1,43 +1,43 @@
 <script setup lang="ts">
-import {ref} from "vue";
-import {getDistinct, searchPostsV4, SearchPostsRequestV4, GetDistinctResponse} from "@/apiv4";
-// import Lists from "@/layouts/Users/Lists.vue";
-
+import {onMounted, ref, watch} from "vue";
+import {getDistinct, SearchPostsRequestV4, GetDistinctResponse} from "@/apiv4";
+import Lists from "@/views/Lists.vue";
 let props = defineProps<{
-  id?: String
+    tag_name: String
 }>();
-console.log("id: " + props.id)
-
-
-const tags = ref({} as GetDistinctResponse)
-getDistinct("tags").then((response) => {
-  tags.value = response
-  // remove empty tag
-  tags.value.values = tags.value.values.filter((item) => {
-    return item != ""
-  })
-  if (tags.value.values.length > 0) {
-    tags.value.values.sort()
-  }
-  console.log(tags.value.values)
-});
+let tags = ref({} as GetDistinctResponse)
+let searchParam = {} as SearchPostsRequestV4
+watch(() => props.tag_name, (old, newe) => {
+    console.log("props.tag_name changed")
+    searchParam.tags = props.tag_name as string
+})
+onMounted(() => {
+    getDistinct("tags").then((response) => {
+        tags.value = response
+        // remove empty tag
+        tags.value.values = tags.value.values.filter((item) => {
+            return item != ""
+        })
+        if (tags.value.values.length > 0) {
+            tags.value.values.sort()
+        }
+    });
+})
 
 </script>
 
+
 <template>
-  <v-container v-if="props.id == ('' || undefined)">
-    <v-chip-group>
-      <v-chip v-for="(item, index) in tags.values"
-              :key="index"
-              :to="'/tag/' + item"
-      >
-        {{ item }}
-      </v-chip>
-    </v-chip-group>
-  </v-container>
-  <!--    <Lists v-else  :searchParam="{tags: props.id} as SearchPostsRequestV4"></Lists>-->
+    <v-container v-if="tag_name.length == 0">
+        <v-chip-group>
+            <v-chip v-for="(item, index) in tags.values"
+                    :key="index"
+                    :to="'/tags/' + item"
+            >
+                {{ item }}
+            </v-chip>
+        </v-chip-group>
+    </v-container>
+    <Lists v-else :searchParam="searchParam"/>
 </template>
 
-<style scoped>
-
-</style>
