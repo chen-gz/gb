@@ -42,7 +42,7 @@
     <v-app-bar-nav-icon class="d-sm-none" to="/tags"><i class="fa fa-tags fa-lg"/></v-app-bar-nav-icon>
     <v-app-bar-nav-icon class="d-sm-none" to="/about"><i class="fa fa-info fa-lg"/></v-app-bar-nav-icon>
     <v-app-bar-nav-icon @click="login()" v-if="!is_logined"><i class="fa fa-user"/></v-app-bar-nav-icon>
-    <v-app-bar-nav-icon class="d-sm-none" @click="newpost()" v-if="is_logined"><i class="fa fa-plus"/>
+    <v-app-bar-nav-icon class="d-none d-sm-flex" @click="newpost()" v-if="is_logined"><i class="fa fa-plus"/>
     </v-app-bar-nav-icon>
   </v-app-bar>
 </template>
