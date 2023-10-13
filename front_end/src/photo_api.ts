@@ -75,7 +75,7 @@ function arrayBufferToHexString(buffer: ArrayBuffer) {
 
 async function calculateSHA1(input: Uint8Array): Promise<string> {
     // console.log(crypto)
-    console.log(input)
+    // console.log(input)
     // convert input to arraybuffer
     const sha1Hash = await window.crypto.subtle.digest('sha-1', input)
     // createHash('sha1');
