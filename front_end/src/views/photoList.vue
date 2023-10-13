@@ -5,7 +5,7 @@
       <!--                   @click="openDialog(element)"-->
       <!--            ></v-img>-->
       <template v-for="(element, index) in showElements" :key="index">
-        <v-col cols="auto" :xs="12" :sm="12" :md="3" :lg="2">
+        <v-col :xs="12" :sm="12" :md="3" :lg="2">
           <v-card class="clickable-card" :class="{ 'selected-card': isSelected(element) }">
             <v-img :src="element.thum_url" height="100%" :cover=true @click="toggleSelect(element)">
               <!-- Container to position the select button/icon -->
