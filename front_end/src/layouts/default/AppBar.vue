@@ -1,9 +1,9 @@
 <template>
   <v-app-bar flat>
     <v-app-bar-title
-      class="d-none d-sm-flex text-decoration-none"
+        class="d-none d-sm-flex text-decoration-none"
     >
-<!--      remove decoration for this link -->
+      <!--      remove decoration for this link -->
       <router-link to="/" class="text-decoration-none">
         <v-icon icon="mdi-circle-slice-4"/>
         GGETA
@@ -15,20 +15,20 @@
 
 
     <v-text-field
-      flat
-      ref="searchText"
-      v-show="showSearch"
-      v-model="values"
-      prepend-inner-icon="mdi-magnify"
-      placeholder="Search"
-      single-line
-      density="compact"
-      hide-details
-      variant="solo-filled"
-      class="mr-4"
-      @keydown.enter="$emit('search', values)"
-      @focusout="showSearch=!showSearch"
-      autofocus
+        flat
+        ref="searchText"
+        v-show="showSearch"
+        v-model="values"
+        prepend-inner-icon="mdi-magnify"
+        placeholder="Search"
+        single-line
+        density="compact"
+        hide-details
+        variant="solo-filled"
+        class="mr-4"
+        @keydown.enter="$emit('search', values)"
+        @focusout="showSearch=!showSearch"
+        autofocus
     ></v-text-field>
     <v-app-bar-nav-icon class="" icon="mdi-magnify" @click="showSearch=!showSearch;"/>
 
@@ -37,12 +37,13 @@
     <v-btn text="Tags" to="/tags" class="d-none d-sm-flex"/>
     <v-btn text="About" to="/about" class="d-none d-sm-flex"/>
 
-    <v-app-bar-nav-icon class="d-sm-none"><i class="fa fa-camera fa-lg" /></v-app-bar-nav-icon>
-    <v-app-bar-nav-icon class="d-sm-none"><i class="fa fa-tags fa-lg" /></v-app-bar-nav-icon>
-    <v-app-bar-nav-icon class="d-sm-none"><i class="fa fa-sticky-note fa-lg"/> </v-app-bar-nav-icon>
-    <v-app-bar-nav-icon class="d-sm-none"><i class="fa fa-info fa-lg" /> </v-app-bar-nav-icon>
-    <v-app-bar-nav-icon @click="login()" v-if="!is_logined"><i class="fa fa-user" /></v-app-bar-nav-icon>
-    <v-app-bar-nav-icon @click="newpost()" v-if="is_logined"> <i class="fa fa-plus" /> </v-app-bar-nav-icon>
+    <v-app-bar-nav-icon class="d-sm-none" to="/photos"><i class="fa fa-camera fa-lg"/></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon class="d-sm-none" to="/posts"><i class="fa fa-sticky-note fa-lg"/></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon class="d-sm-none" to="/tags"><i class="fa fa-tags fa-lg"/></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon class="d-sm-none" to="/about"><i class="fa fa-info fa-lg"/></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon @click="login()" v-if="!is_logined"><i class="fa fa-user"/></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon class="d-sm-none" @click="newpost()" v-if="is_logined"><i class="fa fa-plus"/>
+    </v-app-bar-nav-icon>
   </v-app-bar>
 </template>
 
@@ -62,10 +63,12 @@ function login() {
     router.push('/login')
   }
 }
+
 function newpost() {
   newPostV4().then(response => {
     router.push('/posts/edit/' + response.url)
   })
 }
+
 logined()
 </script>
