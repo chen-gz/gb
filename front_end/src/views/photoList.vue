@@ -90,7 +90,6 @@ fileUploadArea.addEventListener("drop", async (event) => {
   // @ts-ignore
   const files = event.dataTransfer.files;
   uploadPhotos(files);
-  console.log("drop function called");
 });
 // get photo 6
 var showElements = ref([] as PhotoWithUrl[]);

@@ -1,3 +1,5 @@
+import {showSuccess} from "@/apiv4";
+
 const photoBackendUrl = "https://blog.ggeta.com"
 
 import * as crypto from "crypto";
@@ -186,10 +188,16 @@ export async function uploadPhotos(files: FileList) {
         }
     }
 
+    showSuccess("Total " + jpeg_files.size + " photos to upload. Uploading...")
+
     // upload file to server
+    let cnt = 0
     for (var [key, value] of jpeg_files) {
         var ori_file = ori_files.get(key)
         await addPhoto(value, ori_file)
+        // number of photos uploaded and how many photos left
+        showSuccess("Uploaded " + cnt + " photos. " + (jpeg_files.size - cnt) + " photos left.")
+        cnt += 1
     }
 }
 
