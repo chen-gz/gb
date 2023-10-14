@@ -176,7 +176,7 @@ export async function uploadPhotos(files: FileList) {
         console.log("filename_without_ext: " + filename_without_ext)
         if (file.name.endsWith(".NEF")) {
             ori_files.set(filename_without_ext, file)
-        } else if (file.name.endsWith(".JPG")) {
+        } else if (file.name.endsWith(".JPG") || file.name.endsWith(".jpg") || file.name.endsWith(".jpeg")) {
             jpeg_files.set(filename_without_ext, file)
         }
     }
