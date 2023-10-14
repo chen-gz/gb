@@ -1,25 +1,18 @@
 <template>
   <v-container fluid>
     <v-row>
-      <!--            <v-img :src="element.thum_url" height="100%" :cover=true-->
-      <!--                   @click="openDialog(element)"-->
-      <!--            ></v-img>-->
-      <template v-for="(element, index) in showElements" :key="index">
-        <v-col  sm="12" md="3" lg="2">
-          <v-card class="clickable-card" :class="{ 'selected-card': isSelected(element) }">
-            <v-img :src="element.thum_url" height="100%" :cover=true @click="toggleSelect(element)">
-              <!-- Container to position the select button/icon -->
-              <div class="select-icon-container">
-                <v-btn icon class="select-button" @click.stop="toggleSelectMode">
-                  <v-icon v-if="!selectMode">mdi mdi-checkbox-blank-outline</v-icon>
-                  <v-icon v-else>mdi mdi-checkbox-marked</v-icon>
-                </v-btn>
-              </div>
+      <template v-for="(element, _) in showElements" :key="index">
+        <v-col sm="12" md="3" lg="2">
+          <v-card>
+            <v-img :src="element.thum_url"
+                   style="min-height: 200px; min-width: 200px; position: relative;"
+                   @click="openDialog(element)">
             </v-img>
-            <v-card-actions class="justify-center">
+            <v-card-actions style="height: 30px;">
               <v-spacer/>
-              <v-btn icon="mdi mdi-download" class="mx-2" @click="downloadPhoto(element)"></v-btn>
-              <v-btn icon="mdi mdi-delete" class="mx-2" @click="deletePhoto(element.photo)"></v-btn>
+              <v-btn icon="mdi mdi-download" @click="downloadPhoto(element)"></v-btn>
+              <v-btn icon="mdi mdi-delete" @click="deletePhoto(element.photo)"></v-btn>
+              <v-btn icon="mdi mdi-share-variant" @click="sharePhoto(element)"></v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
@@ -27,9 +20,11 @@
 
     </v-row>
     <v-dialog v-model="dialog">
-      <v-card>
+      <v-card height=95vh>
         <v-card-title>Dialog Title</v-card-title>
-        <v-img :src="dialogImageSrc" width="95%" style="margin-right: auto; margin-left: auto;"></v-img>
+        <v-card variant="flat">
+          <v-img :src="dialogImageSrc" width="100%" style="margin-right: auto; margin-left: auto;"></v-img>
+        </v-card>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn @click="closeDialog">Close</v-btn>
@@ -43,6 +38,7 @@
 
 import {getPhoto, getPhotoIds, PhotoItem, UpdatePhoto, uploadPhotos} from "@/photo_api";
 import {ref} from "vue";
+import {showSuccess} from "@/apiv4";
 
 const fileUploadArea = document.documentElement;
 const dialog = ref(false);
@@ -147,12 +143,18 @@ function deletePhoto(photo: PhotoItem) {
   UpdatePhoto(photo);
   // remove correspond tags
   showElements.value = showElements.value.filter((element) => element.photo.id !== photo.id);
-
 }
 
 function downloadPhoto(photo: PhotoWithUrl) {
-  // in new tab
   window.open(photo.jpg_url, "_blank");
+}
+
+function sharePhoto(photo: PhotoWithUrl) {
+  // copy to clipboard
+  navigator.clipboard.writeText(photo.jpg_url).then(() => {
+    showSuccess("Copied to clipboard")
+  });
+
 }
 </script>
 <style scoped>
