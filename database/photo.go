@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
 )
 
 // each user has its own photo table
@@ -85,7 +84,7 @@ func updatePhoto(photo_db *sql.DB, user User, photo PhotoItem) error {
 func getPhoto(photo_db *sql.DB, user User, id int) (PhotoItem, error) {
 	table_name := fmt.Sprintf("photo_%d", user.Id)
 	query := fmt.Sprintf(`SELECT id, hash, has_original, original_ext, deleted, tags, category FROM %s WHERE id = ?`, table_name)
-	log.Println("getPhoto: ", query, "id: ", id)
+	//log.Println("getPhoto: ", query, "id: ", id)
 	row := photo_db.QueryRow(query, id)
 	var photo PhotoItem
 	err := row.Scan(&photo.Id, &photo.Hash, &photo.HasOriginal, &photo.OriginalExt, &photo.Deleted, &photo.Tags, &photo.Category)

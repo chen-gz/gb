@@ -18,4 +18,12 @@
 import {alert} from "@/apiv4";
 
 document.title = "EtaBlog";
+
+
+const script1 = document.createElement("script")
+script1.src = "https://cdn.jsdelivr.net/npm/hash-wasm"
+script1.type = "text/javascript"
+document.head.appendChild(script1)
+
 </script>
+

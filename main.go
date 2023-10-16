@@ -8,6 +8,7 @@ import (
 	hd "go_blog/handler"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 //go:embed front_end/dist/*
@@ -32,12 +33,14 @@ func ginServer() {
 	db_blog := database.InitV4(config.BlogDatabase)
 	db_user, _ := database.UserDbInit(config.UserDatabase)
 	db_photo, _ := database.InitPhotoDb(config.PhotoDatabase)
+	database.InitPhotoTableV2(db_photo, database.User{Id: 2})
 	log.Println(config.Minio)
 	minio_client := hd.InitMinioClient(config.Minio)
 	photo_minio_client := hd.InitPhotoMinioClient(config.PhotoMinio)
 	r.POST("/api/blog_file/v1/get_presigned_url", func(c *gin.Context) {
 		hd.GetPresignedUrl(c, db_user, db_blog, minio_client)
 	})
+
 	r.POST("/api/photo/v1/insert_photo", func(c *gin.Context) {
 		hd.InsertPhoto(c, db_user, db_photo, photo_minio_client)
 	})
@@ -53,12 +56,36 @@ func ginServer() {
 	r.POST("/api/photo/v1/get_deleted_photo_list", func(c *gin.Context) {
 		hd.GetDeletedPhotoIds(c, db_user, db_photo)
 	})
+	r.POST("/api/photo/v1/get_photo_id", func(c *gin.Context) {
+		hd.GetPhoto(c, db_user, db_photo, photo_minio_client)
+	})
+	///////////////////////////////////////////////////////////////////////////////////// v2 api with new photo table
+	r.GET("/api/photo/v2/get_photo_hash/:hash", func(c *gin.Context) { // hash should be jpeg hash
+		hash := c.Param("hash")
+		hd.GetPhotoHash(c, hash, db_user, db_photo, photo_minio_client)
+	})
+	r.GET("/api/photo/v2/get_photo_id/:id", func(c *gin.Context) {
+		idStr := c.Param("id")
+		id, err := strconv.Atoi(idStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "invalid id",
+			})
+			return
+		}
+		hd.GetPhotoId(c, id, db_user, db_photo, photo_minio_client)
+	})
+	r.POST("/api/photo/v2/update_photo_meta", func(c *gin.Context) {
+		hd.UpdatePhotoMeta(c, db_user, db_photo)
+	})
+	r.POST("/api/photo/v2/update_photo_file", func(c *gin.Context) {
+		hd.UpdatePhotoFile(c, db_user, db_photo, photo_minio_client)
+	})
+	r.POST("/api/photo/v2/insert_photo", func(c *gin.Context) {
+		hd.InsertPhotoV2(c, db_user, db_photo, photo_minio_client)
+	})
+	///////////////////////////////////////////////////////////////////////////////////// end of v2 api
 
-	//r.POST("/api/blog_file/v1/upload_finish", func(c *gin.Context) {
-	//	c.JSON(http.StatusOK, gin.H{
-	//		"msg": "upload finish",
-	//	})
-	//})
 	r.POST("/api/v4/login", func(c *gin.Context) {
 		hd.V4Login(c, db_user)
 	})
