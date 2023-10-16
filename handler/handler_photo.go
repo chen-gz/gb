@@ -408,13 +408,14 @@ func UpdatePhotoFile(c *gin.Context, dbUser *sql.DB, dbPhoto *sql.DB, client *mi
 	if photo.OriHash != updatePhotoFileRequest.OriHash && len(updatePhotoFileRequest.OriHash) > 0 {
 		// delete old original file and upload new original file
 		fmt.Println("%+v", photo)
-		if photo.HasOriginal != false {
+		if photo.OriHash != "" && photo.OriExt == "" {
+
 			oldFilePath := fmt.Sprintf("%d_%s.%s", photo.Id, photo.OriHash[0:10], photo.OriExt)
 			err = client.RemoveObject(context.Background(), PhotoMinioConfig.BucketName, oldFilePath, minio.RemoveObjectOptions{})
 			if err != nil {
-				log.Println("UpdatePhotoFile: ", err)
-				c.JSON(http.StatusInternalServerError, UpdatePhotoFileResponse{Message: "internal error"})
-				return
+				log.Println("UpdatePhotoFile remove old file failed: ", err)
+				//c.JSON(http.StatusInternalServerError, UpdatePhotoFileResponse{Message: "internal error"})
+				//return
 			}
 		}
 		newFilePath := fmt.Sprintf("%d_%s.%s", photo.Id, updatePhotoFileRequest.OriHash[0:10], updatePhotoFileRequest.OriExt)
@@ -434,9 +435,10 @@ func UpdatePhotoFile(c *gin.Context, dbUser *sql.DB, dbPhoto *sql.DB, client *mi
 		oldFilePath := fmt.Sprintf("%d_%s.jpg", photo.Id, photo.JpgHash[0:10])
 		err = client.RemoveObject(context.Background(), PhotoMinioConfig.BucketName, oldFilePath, minio.RemoveObjectOptions{})
 		if err != nil {
-			log.Println("UpdatePhotoFile: ", err)
-			c.JSON(http.StatusInternalServerError, UpdatePhotoFileResponse{Message: "internal error"})
-			return
+			log.Println("UpdatePhotoFile remove old file failed: ", err)
+			//log.Println("UpdatePhotoFile: ", err)
+			//c.JSON(http.StatusInternalServerError, UpdatePhotoFileResponse{Message: "internal error"})
+			//return
 		}
 		photo.JpgHash = updatePhotoFileRequest.JpgHash
 		newFilePath := fmt.Sprintf("%d_%s.jpg", photo.Id, updatePhotoFileRequest.JpgHash[0:10])
@@ -454,9 +456,10 @@ func UpdatePhotoFile(c *gin.Context, dbUser *sql.DB, dbPhoto *sql.DB, client *mi
 		err = client.RemoveObject(context.Background(), PhotoMinioConfig.BucketName, oldFilePath, minio.RemoveObjectOptions{})
 		//photo.OriHash+"_thumbnail.jpg", minio.RemoveObjectOptions{})
 		if err != nil {
-			log.Println("UpdatePhotoFile: ", err)
-			c.JSON(http.StatusInternalServerError, UpdatePhotoFileResponse{Message: "internal error"})
-			return
+			//log.Println("UpdatePhotoFile: ", err)
+			//c.JSON(http.StatusInternalServerError, UpdatePhotoFileResponse{Message: "internal error"})
+			//return
+			log.Println("UpdatePhotoFile remove old file failed: ", err)
 		}
 		photo.ThumbHash = updatePhotoFileRequest.ThumbHash
 		newFilePath := fmt.Sprintf("%d_%s.jpg", photo.Id, updatePhotoFileRequest.ThumbHash[0:10])
@@ -467,7 +470,7 @@ func UpdatePhotoFile(c *gin.Context, dbUser *sql.DB, dbPhoto *sql.DB, client *mi
 			c.JSON(http.StatusBadRequest, UpdatePhotoFileResponse{Message: "invalid request"})
 			return
 		}
-		updatePhotoFileResponse.PresignedJpegUrl = url.String()
+		updatePhotoFileResponse.PresignedThumbUrl = url.String()
 	}
 	// update database
 

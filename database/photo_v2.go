@@ -136,12 +136,14 @@ func UpdatePhotoMetaById(photoDb *sql.DB, user User, photo PhotoItemV2) error {
 
 func UpdatePhotoById(photoDb *sql.DB, user User, photo PhotoItemV2) error {
 	tableName := fmt.Sprintf("photo_v2_%d", user.Id)
-	query := fmt.Sprintf(`UPDATE %s SET ori_hash = ?, jpg_hash = ?, has_original = ?, ori_ext = ?, deleted = ?, tags = ?, category = ? WHERE id = ?`, tableName)
+	query := fmt.Sprintf(`UPDATE %s SET ori_hash = ?, jpg_hash = ?, thumb_hash = ?,
+              has_original = ?, ori_ext = ?, deleted = ?, tags = ?, category = ? WHERE id = ?`, tableName)
 	//stmt, err := photoDb.Prepare(`UPDATE ? SET ori_hash = ?, jpg_hash = ?, has_original = ?, ori_ext = ?, deleted = ?, tags = ?, category = ? WHERE id = ?`)
 	stmt, err := photoDb.Prepare(query)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(photo.OriHash, photo.JpgHash, photo.HasOriginal, photo.OriExt, photo.Deleted, photo.Tags, photo.Category, photo.Id)
+	_, err = stmt.Exec(photo.OriHash, photo.JpgHash, photo.ThumbHash,
+		photo.HasOriginal, photo.OriExt, photo.Deleted, photo.Tags, photo.Category, photo.Id)
 	return err
 }

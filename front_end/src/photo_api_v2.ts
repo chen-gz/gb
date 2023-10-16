@@ -108,15 +108,14 @@ async function calculateMD5(input: Uint8Array): Promise<string> {
 
 // ori_file can be nil or File
 export async function addPhoto(jpeg_file: File, ori_file?: File) {
-    var request = {} as PhotoItemV2
+    const request = {} as PhotoItemV2
     // resize jpeg file
-    var thumbnail_file = await resizeImage(jpeg_file)
+    const thumbnail_file = await resizeImage(jpeg_file)
     // calculate hash of thumbnail file
     request.thumb_hash = await thumbnail_file.arrayBuffer().then((buffer) => {
         const uint8array = new Uint8Array(buffer);
         return calculateMD5(uint8array);
     })
-
     if (ori_file != null) {
         // calculate hash of orifile
         request.ori_hash = await ori_file.arrayBuffer().then((buffer) => {
@@ -124,51 +123,57 @@ export async function addPhoto(jpeg_file: File, ori_file?: File) {
             return calculateMD5(uint8array);
         })
         request.has_original = true
+        request.ori_ext = ori_file.name.split(".")[1]
     }
     // calculate hash of jpegfile
     request.jpg_hash = await jpeg_file.arrayBuffer().then((buffer) => {
         const uint8array = new Uint8Array(buffer);
         return calculateMD5(uint8array);
     })
-    console.log("request", request)
-    // return
-    request.ori_ext = ori_file?.name.split('.').pop() || ""
-    var insertResponse = await insertPhoto(request)
-    if (insertResponse.message != "ok" && insertResponse.message != "jpg_hash exists") {
-        console.log("response", insertResponse)
-        console.error(insertResponse.message)
-        return
+    // get photo by hash
+    const getResponse = await getPhotoByHash(request.jpg_hash)
+    if (getResponse. message == "hash not found") {
+        // insert photo
+        var insertResponse = await insertPhoto(request)
+        if (insertResponse.message != "ok") {
+            console.error(insertResponse.message)
+            return
+        }
+        console.log("insert photo", insertResponse)
+        // upload file to presign url
+        if (ori_file != null && insertResponse.presigned_original_url.length > 0) {
+            await uploadFileToPresignURL(ori_file, insertResponse.presigned_original_url)
+        }
+        if (insertResponse.presigned_jpeg_url.length > 0) {
+            await uploadFileToPresignURL(jpeg_file, insertResponse.presigned_jpeg_url)
+        }
+        if (insertResponse.presigned_thumb_url.length > 0) {
+            await uploadFileToPresignURL(thumbnail_file, insertResponse.presigned_thumb_url)
+        }
     }
-    if (insertResponse.message == "jpg_hash exists") {
+    else if (getResponse.message == "ok") {
         // update photo
-        // get photo by hash
-        var getResponse = await getPhotoByHash(request.jpg_hash)
-        if (getResponse.message != "ok") {
-            return
-        }
         request.id = getResponse.photo.id
-        console.log("update photo", request)
-        const response = await updatePhotoFile(request)
-        if (response.message != "ok") {
-            console.log("response", response)
-            console.error(response.message)
+        const updateResponse = await updatePhotoFile(request)
+        if (updateResponse.message != "ok") {
+            console.error(updateResponse.message)
             return
         }
-        console.log("update photo", response)
-        insertResponse.id = response.id
-        insertResponse.presigned_thumb_url = response.presigned_thumb_url
-        insertResponse.presigned_jpeg_url = response.presigned_jpeg_url
-        insertResponse.presigned_original_url = response.presigned_original_url
+        console.log("update photo", updateResponse)
+        // upload file to presign url
+        if (ori_file != null && updateResponse.presigned_original_url.length > 0) {
+            await uploadFileToPresignURL(ori_file, updateResponse.presigned_original_url)
+        }
+        if (updateResponse.presigned_jpeg_url.length > 0) {
+            await uploadFileToPresignURL(jpeg_file, updateResponse.presigned_jpeg_url)
+        }
+        if (updateResponse.presigned_thumb_url.length > 0) {
+            await uploadFileToPresignURL(thumbnail_file, updateResponse.presigned_thumb_url)
+        }
     }
-    console.log(insertResponse)
-    if (ori_file != null && insertResponse.presigned_original_url.length > 0) {
-        await uploadFileToPresignURL(ori_file, insertResponse.presigned_original_url)
-    }
-    if (insertResponse.presigned_jpeg_url.length > 0) {
-        await uploadFileToPresignURL(jpeg_file, insertResponse.presigned_jpeg_url)
-    }
-    if (insertResponse.presigned_thumb_url.length > 0) {
-        await uploadFileToPresignURL(thumbnail_file, insertResponse.presigned_thumb_url)
+    else {
+        console.error(getResponse.message)
+        return
     }
 
 }
