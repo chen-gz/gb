@@ -1,10 +1,15 @@
-import {createCommentVNode, ref} from "vue";
+import {ref} from "vue";
+// const crc32 = require("crc32");
+// import "crc32/lib/crc32.js"
+import CRC32 from "crc-32/crc32.js"
+import router from "@/router";
 
 // const blogBackendUrl = "http://localhost:2009"
 
 const blogBackendUrl = "https://blog.ggeta.com"
 
 export let is_logined = ref(false)
+
 export interface V4PostData {
     id: number
     title: string
@@ -79,14 +84,14 @@ export async function deletePost(post: V4PostData) {
 
 export async function savePost(post: V4PostData) {
     updatePostV4(post).then(
-    (response) => {
-        if (response.status == "success") {
-            showSuccess("Post saved")
+        (response) => {
+            if (response.status == "success") {
+                showSuccess("Post saved")
                 router.push({path: '/posts/edit/' + response.post.url})
-        } else {
-            showError("Failed to save post")
-        }
-    })
+            } else {
+                showError("Failed to save post")
+            }
+        })
 }
 
 export interface NewPostResponseV4 {
@@ -211,7 +216,14 @@ export async function verifyToken(): Promise<LoginResponse> {
         headers: {
             "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
         },
-    }).then(response => response.json())
+    }).then(response => {
+            if (response.ok) {
+                return response.json()
+            } else {
+                logout()
+            }
+        }
+    )
 }
 
 
@@ -254,7 +266,6 @@ export function formatDate(date: Date) {
 }
 
 
-
 // `retrieveNewURL` accepts the name of the current file and invokes the `/presignedUrl` endpoint to
 // generate a pre-signed URL for use in uploading that file:
 export interface GetPresignedUrlRequest {
@@ -272,11 +283,6 @@ export interface GetPresignedUrlResponse {
 }
 
 // import "crc32/lib/crc32.js"
-
-// const crc32 = require("crc32");
-// import "crc32/lib/crc32.js"
-import CRC32 from "crc-32/crc32.js"
-import router from "@/router";
 
 export async function UploadFile(file: File, post_id: number) {
     console.log(file)

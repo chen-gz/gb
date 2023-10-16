@@ -15,9 +15,17 @@
 </template>
 
 <script lang="ts" setup>
-import {alert} from "@/apiv4";
+import {alert, verifyToken} from "@/apiv4";
 
 document.title = "EtaBlog";
+// verify token
+verifyToken().then(() => {
+  console.log("token verified")
+    res
+}).catch(() => {
+  console.log("token not verified")
+})
+
 
 
 const script1 = document.createElement("script")
