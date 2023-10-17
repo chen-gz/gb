@@ -247,7 +247,7 @@ export async function uploadPhotos(files: FileList) {
         var ori_file = ori_files.get(key)
         await addPhoto(value, ori_file)
         cnt += 1
-        alert("Uploaded " + cnt + " photos. " + (jpeg_files.size - cnt) + " photos left.")
+        showSuccess("Uploaded " + cnt + " photos. " + (jpeg_files.size - cnt) + " photos left.")
     }
     console.log("upload finished")
 }
