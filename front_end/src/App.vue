@@ -38,9 +38,19 @@ document.head.appendChild(script2)
 
 </script>
 <style>
-ol {
+ol, ul {
     margin-left: 20px;
 }
+/* Apply styles to nested ol and ul */
+ol ol, ul ul {
+    margin-left: 30px; /* Adjust the left margin for nested lists */
+}
+
+/* Apply styles to nested li elements */
+li li {
+    margin-left: 30px; /* Adjust the left margin for nested list items */
+}
+
 a {
     color: #1e88e5;
     text-decoration: none;
