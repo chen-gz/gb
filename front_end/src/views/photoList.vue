@@ -124,13 +124,13 @@ function downloadPhoto(photo: PhotoWithUrl) {
     window.open(photo.jpg_url, "_blank");
 }
 
-// function sharePhoto(photo: PhotoWithUrl) {
-//     // copy to clipboard
-//     navigator.clipboard.writeText(photo.jpg_url).then(() => {
-//         showSuccess("Copied to clipboard")
-//     });
-//
-// }
+function sharePhoto(photo: PhotoWithUrl) {
+    // copy to clipboard
+    navigator.clipboard.writeText(photo.jpg_url).then(() => {
+        showSuccess("Copied to clipboard")
+    });
+
+}
 </script>
 <style scoped>
 .select-icon-container {
@@ -150,16 +150,18 @@ function downloadPhoto(photo: PhotoWithUrl) {
     <v-row>
       <template v-for="(element, index) in showElements" :key="index">
         <v-col sm="12" md="3" lg="2">
-          <v-card>
+          <v-card :key="element.photo.id" >
             <v-img :src="element.thum_url"
+                   :key="element.photo.id"
                    style="position: relative;"
-                   @click="openDialog(element)">
+                   @click="openDialog(element)"
+            >
             </v-img>
             <v-card-actions style="height: 30px;">
               <v-spacer/>
               <v-btn icon="mdi mdi-download" @click="downloadPhoto(element)"></v-btn>
 <!--              <v-btn icon="mdi mdi-delete" @click="deletePhoto(element.photo)"></v-btn>-->
-<!--              <v-btn icon="mdi mdi-share-variant" @click="sharePhoto(element)"></v-btn>-->
+              <v-btn icon="mdi mdi-share-variant" @click="sharePhoto(element)"></v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
