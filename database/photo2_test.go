@@ -28,6 +28,73 @@ func InitMinioClient(_config MinioConfig) *minio.Client {
 	return minioClient
 }
 
+//func TestMigration(t *testing.T) {
+//	config := PhotoDbConfig{
+//		Address:       "tcp(192.168.0.174:3306)",
+//		User:          "zong",
+//		Password:      "Connie",
+//		PhotoDatabase: "eta_photo",
+//	}
+//	minio_config := MinioConfig{
+//		Endpoint:         "minio.ggeta.com",
+//		AccessKeyID:      "HI4mSQabJ6GWesqES4V4",
+//		SecreteAccessKey: "WIK6SwKqceiPCalmhDj4meOdqLdErSfw4QNpEZxx",
+//		BucketName:       "photo",
+//	}
+//	db_photo, _ := InitPhotoDb(config)
+//	minio_client := InitMinioClient(minio_config)
+//	user := User{Id: 2, Name: "Guangzong Chen"}
+//	InitPhotoTableV2(db_photo, user)
+//	ids, _ := GetPhotoIds(db_photo, user)
+//	//
+//	//log.Println(ids, err)
+//	_, _ = minio_client, user
+//	// get each jpg file and calculate md5 and sha256
+//	for _, id := range ids {
+//		photo, err := GetPhotoById(db_photo, user, id)
+//		//log.Println(photo, err)
+//		// get jpg file
+//		fileName := fmt.Sprintf("%d_%s.jpg", photo.Id, photo.JpgMd5[0:10])
+//		//log.Println(fileName)
+//		//stat, err := minio_client.StatObject(context.Background(), minio_config.BucketName, fileName, minio.StatObjectOptions{Checksum: true})
+//		//log.Println(stat, err)
+//		//log.Println(stat.ChecksumSHA256)
+//		//get file
+//		//log.Println(fileName)
+//		obj, err := minio_client.GetObject(context.Background(), minio_config.BucketName, fileName, minio.GetObjectOptions{})
+//		defer obj.Close()
+//		// calculate md5 and sha256
+//		md5Hash := md5.New()
+//		sha256Hash := sha256.New()
+//		//io.Copy(md5Hash, obj)
+//		io.Copy(sha256Hash, obj)
+//		//log.Println(fmt.Sprintf("%x", md5Hash.Sum(nil)))
+//		//log.Println(fmt.Sprintf("%x", sha256Hash.Sum(nil)))
+//		sha256Sum := fmt.Sprintf("%x", sha256Hash.Sum(nil))
+//		obj.Seek(0, 0)
+//		io.Copy(md5Hash, obj)
+//		//log.Println(fmt.Sprintf("%x", md5Hash.Sum(nil)))
+//		md5Sum := fmt.Sprintf("%x", md5Hash.Sum(nil))
+//
+//		//log.Println(fmt.Sprintf("%x", sha256Hash.Sum(nil)))
+//		// write to db
+//		if md5Sum != photo.JpgMd5 {
+//			log.Println("md5 not match")
+//		}
+//		query := fmt.Sprintf(`UPDATE photo_v2_%d SET jpg_sha256 = ? WHERE id = ?`, user.Id)
+//		stmt, err := db_photo.Prepare(query)
+//		if err != nil {
+//			log.Println(err)
+//			return
+//		}
+//		_, err = stmt.Exec(sha256Sum, photo.Id)
+//		if err != nil {
+//			log.Println(err)
+//		}
+//	}
+//
+//}
+
 // migration from v1 to v2
 //func TestMigration(t *testing.T) {
 //	// get photo from v1

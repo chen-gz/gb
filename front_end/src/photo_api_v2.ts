@@ -10,7 +10,8 @@ const photoBackendUrl = "http://localhost:2009"
 export interface PhotoItemV2 {
     id: number,
     ori_hash: string,
-    jpg_hash: string,
+    jpg_md5: string,
+    jpg_sha256: string,
     thumb_hash: string,
     has_original: boolean,
     ori_ext: string,
@@ -98,11 +99,13 @@ function arrayBufferToHexString(buffer: ArrayBuffer) {
 }
 
 async function calculateMD5(input: Uint8Array): Promise<string> {
-    // const md5Hash = await window.crypto.subtle.
     // @ts-ignore
     return hashwasm.md5(input)
+}
 
-    // return arrayBufferToHexString(md5Hash)
+async function calculateSHA256(input: Uint8Array): Promise<string> {
+    // @ts-ignore
+    return hashwasm.sha256(input)
 }
 
 
@@ -112,70 +115,64 @@ export async function addPhoto(jpeg_file: File, ori_file?: File) {
     // resize jpeg file
     const thumbnail_file = await resizeImage(jpeg_file)
     // calculate hash of thumbnail file
-    request.thumb_hash = await thumbnail_file.arrayBuffer().then((buffer) => {
+    // request.thumb_hash
+    var thumb_hash = thumbnail_file.arrayBuffer().then((buffer) => {
         const uint8array = new Uint8Array(buffer);
         return calculateMD5(uint8array);
     })
+    // request.jpg_md5
+    var jpg_md5 = jpeg_file.arrayBuffer().then((buffer) => {
+        const uint8array = new Uint8Array(buffer);
+        return calculateMD5(uint8array);
+    })
+    // request.jpg_sha256
+    var jpgsha256 = jpeg_file.arrayBuffer().then((buffer) => {
+        const uint8array = new Uint8Array(buffer);
+        return calculateSHA256(uint8array);
+    })
+    // wait for all hash calculation
+    await Promise.all([thumb_hash, jpg_md5, jpgsha256]).then(
+        (values) => {
+            request.thumb_hash = values[0]
+            request.jpg_md5 = values[1]
+            request.jpg_sha256 = values[2]
+        }
+    )
+    // calculate hash of orifile if exists
+    // request.ori_hash
     if (ori_file != null) {
-        // calculate hash of orifile
+        request.has_original = true
+        request.ori_ext = ori_file.name.split(".")[1]
         request.ori_hash = await ori_file.arrayBuffer().then((buffer) => {
             const uint8array = new Uint8Array(buffer);
             return calculateMD5(uint8array);
         })
-        request.has_original = true
-        request.ori_ext = ori_file.name.split(".")[1]
-    }
-    // calculate hash of jpegfile
-    request.jpg_hash = await jpeg_file.arrayBuffer().then((buffer) => {
-        const uint8array = new Uint8Array(buffer);
-        return calculateMD5(uint8array);
-    })
-    // get photo by hash
-    const getResponse = await getPhotoByHash(request.jpg_hash)
-    if (getResponse. message == "hash not found") {
-        // insert photo
-        var insertResponse = await insertPhoto(request)
-        if (insertResponse.message != "ok") {
-            console.error(insertResponse.message)
-            return
-        }
-        console.log("insert photo", insertResponse)
-        // upload file to presign url
-        if (ori_file != null && insertResponse.presigned_original_url.length > 0) {
-            await uploadFileToPresignURL(ori_file, insertResponse.presigned_original_url)
-        }
-        if (insertResponse.presigned_jpeg_url.length > 0) {
-            await uploadFileToPresignURL(jpeg_file, insertResponse.presigned_jpeg_url)
-        }
-        if (insertResponse.presigned_thumb_url.length > 0) {
-            await uploadFileToPresignURL(thumbnail_file, insertResponse.presigned_thumb_url)
-        }
-    }
-    else if (getResponse.message == "ok") {
-        // update photo
-        request.id = getResponse.photo.id
-        const updateResponse = await updatePhotoFile(request)
-        if (updateResponse.message != "ok") {
-            console.error(updateResponse.message)
-            return
-        }
-        console.log("update photo", updateResponse)
-        // upload file to presign url
-        if (ori_file != null && updateResponse.presigned_original_url.length > 0) {
-            await uploadFileToPresignURL(ori_file, updateResponse.presigned_original_url)
-        }
-        if (updateResponse.presigned_jpeg_url.length > 0) {
-            await uploadFileToPresignURL(jpeg_file, updateResponse.presigned_jpeg_url)
-        }
-        if (updateResponse.presigned_thumb_url.length > 0) {
-            await uploadFileToPresignURL(thumbnail_file, updateResponse.presigned_thumb_url)
-        }
     }
     else {
-        console.error(getResponse.message)
-        return
+        request.has_original = false
+        request.ori_ext = ""
+        request.ori_hash = ""
     }
 
+    const update_response = await insertPhoto(request)
+    console.log(request)
+    console.log(update_response)
+    // the first two characters of the hash is ok
+    if (update_response.message.substring(0, 2) == "ok") {
+        var ori_upload_promise: Promise<Response> = Promise.resolve(new Response())
+        var jpeg_upload_promise: Promise<Response> = Promise.resolve(new Response())
+        var thumb_upload_promise: Promise<Response> =  Promise.resolve(new Response())
+        if (update_response.presigned_original_url.length > 0 && ori_file != null) {
+            ori_upload_promise = uploadFileToPresignURL(ori_file, update_response.presigned_original_url)
+        }
+        if (update_response.presigned_jpeg_url.length > 0) {
+            jpeg_upload_promise = uploadFileToPresignURL(jpeg_file, update_response.presigned_jpeg_url)
+        }
+        if (update_response.presigned_thumb_url.length > 0) {
+            thumb_upload_promise = uploadFileToPresignURL(thumbnail_file, update_response.presigned_thumb_url)
+        }
+        await Promise.all([ori_upload_promise, jpeg_upload_promise, thumb_upload_promise])
+    }
 }
 
 function uploadFileToPresignURL(file: File, presignedURL: string): Promise<Response> {
@@ -230,7 +227,7 @@ export async function uploadPhotos(files: FileList) {
             heic_files.set(filename_without_ext, file)
         } else if (file.name.toLowerCase().endsWith(".jpg")
             || file.name.endsWith(".jpeg")
-            || file.name.endsWith(".png")
+            // || file.name.endsWith(".png")
         ) {
             jpeg_files.set(filename_without_ext, file)
         }
@@ -245,12 +242,22 @@ export async function uploadPhotos(files: FileList) {
     showSuccess("Total " + jpeg_files.size + " photos to upload. Uploading...")
     // upload file to server
     let cnt = 0
+    const tasks = []
     for (var [key, value] of jpeg_files) {
         var ori_file = ori_files.get(key)
-        await addPhoto(value, ori_file)
-        // number of photos uploaded and how many photos left
-        showSuccess("Uploaded " + cnt + " photos. " + (jpeg_files.size + heic_files.size - cnt) + " photos left.")
+        tasks.push(addPhoto(value, ori_file))
+        // await addPhoto(value, ori_file)
+        if (tasks.length >= 10) {
+            await Promise.all(tasks)
+            // clear tasks
+            tasks.length = 0
+            showSuccess("Uploaded " + cnt + " photos. " + (jpeg_files.size + heic_files.size - cnt) + " photos left.")
+        }
         cnt += 1
+    }
+    if (tasks.length > 0){
+        await Promise.all(tasks)
+        showSuccess("Uploaded " + cnt + " photos. " + (jpeg_files.size + heic_files.size - cnt) + " photos left.")
     }
     // upload heic file to server
     // for (var [key, value] of heic_files) {
@@ -261,19 +268,20 @@ export async function uploadPhotos(files: FileList) {
     // }
 }
 
-// export interface PhotoListResponse {
-//     message: string,
-//     ids: number[],
-// }
+export interface PhotoListResponse {
+    message: string,
+    ids: number[],
+}
 
-// export async function getPhotoIds(): Promise<PhotoListResponse> {
-//     return await fetch(`${photoBackendUrl}/api/photo/v1/get_photo_list`, {
-//         method: "GET",
-//         headers: {
-//             "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
-//         },
-//     }).then(response => response.json())
-// }
+export async function getPhotoIds(): Promise<PhotoListResponse> {
+    return await fetch(`${photoBackendUrl}/api/photo/v2/get_photo_list`, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
+        },
+    }).then(response => response.json())
+}
+
 //
 // export async function UpdatePhoto(photo: PhotoItemV2){
 //     return await fetch(`${photoBackendUrl}/api/photo/v1/update_photo`, {

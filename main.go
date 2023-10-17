@@ -41,28 +41,33 @@ func ginServer() {
 		hd.GetPresignedUrl(c, db_user, db_blog, minio_client)
 	})
 
-	r.POST("/api/photo/v1/insert_photo", func(c *gin.Context) {
-		hd.InsertPhoto(c, db_user, db_photo, photo_minio_client)
-	})
-	r.POST("/api/photo/v1/get_photo", func(c *gin.Context) {
-		hd.GetPhoto(c, db_user, db_photo, photo_minio_client)
-	})
-	r.GET("/api/photo/v1/get_photo_list", func(c *gin.Context) {
-		hd.GetPhotoIds(c, db_user, db_photo)
-	})
-	r.POST("/api/photo/v1/update_photo", func(c *gin.Context) {
-		hd.UpdatePhoto(c, db_user, db_photo)
-	})
-	r.POST("/api/photo/v1/get_deleted_photo_list", func(c *gin.Context) {
-		hd.GetDeletedPhotoIds(c, db_user, db_photo)
-	})
-	r.POST("/api/photo/v1/get_photo_id", func(c *gin.Context) {
-		hd.GetPhoto(c, db_user, db_photo, photo_minio_client)
-	})
+	//r.POST("/api/photo/v1/insert_photo", func(c *gin.Context) {
+	//	hd.InsertPhoto(c, db_user, db_photo, photo_minio_client)
+	//})
+	//r.POST("/api/photo/v1/get_photo", func(c *gin.Context) {
+	//	hd.GetPhoto(c, db_user, db_photo, photo_minio_client)
+	//})
+	//r.GET("/api/photo/v1/get_photo_list", func(c *gin.Context) {
+	//	hd.GetPhotoIds(c, db_user, db_photo)
+	//})
+	//r.POST("/api/photo/v1/update_photo", func(c *gin.Context) {
+	//	hd.UpdatePhoto(c, db_user, db_photo)
+	//})
+	//r.POST("/api/photo/v1/get_deleted_photo_list", func(c *gin.Context) {
+	//	hd.GetDeletedPhotoIds(c, db_user, db_photo)
+	//})
+	//r.POST("/api/photo/v1/get_photo_id", func(c *gin.Context) {
+	//	hd.GetPhoto(c, db_user, db_photo, photo_minio_client)
+	//})
 	///////////////////////////////////////////////////////////////////////////////////// v2 api with new photo table
-	r.GET("/api/photo/v2/get_photo_hash/:hash", func(c *gin.Context) { // hash should be jpeg hash
-		hash := c.Param("hash")
-		hd.GetPhotoHash(c, hash, db_user, db_photo, photo_minio_client)
+	r.GET("/api/photo/v2/get_photo_list", func(c *gin.Context) {
+		hd.GetPhotoIdsV2(c, db_user, db_photo)
+	})
+
+	r.GET("/api/photo/v2/get_photo_hash/:md5/:sha256", func(c *gin.Context) {
+		md5 := c.Param("md5")
+		sha256 := c.Param("sha256")
+		hd.GetPhotoHash(c, md5, sha256, db_user, db_photo, photo_minio_client)
 	})
 	r.GET("/api/photo/v2/get_photo_id/:id", func(c *gin.Context) {
 		idStr := c.Param("id")
@@ -78,9 +83,9 @@ func ginServer() {
 	r.POST("/api/photo/v2/update_photo_meta", func(c *gin.Context) {
 		hd.UpdatePhotoMeta(c, db_user, db_photo)
 	})
-	r.POST("/api/photo/v2/update_photo_file", func(c *gin.Context) {
-		hd.UpdatePhotoFile(c, db_user, db_photo, photo_minio_client)
-	})
+	//r.POST("/api/photo/v2/update_photo_file", func(c *gin.Context) {
+	//	hd.UpdatePhotoFile(c, db_user, db_photo, photo_minio_client)
+	//})
 	r.POST("/api/photo/v2/insert_photo", func(c *gin.Context) {
 		hd.InsertPhotoV2(c, db_user, db_photo, photo_minio_client)
 	})
