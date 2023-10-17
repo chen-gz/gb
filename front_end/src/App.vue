@@ -26,11 +26,15 @@ verifyToken().then(() => {
 })
 
 
-
 const script1 = document.createElement("script")
 script1.src = "https://cdn.jsdelivr.net/npm/hash-wasm"
 script1.type = "text/javascript"
 document.head.appendChild(script1)
+const script2 = document.createElement("script")
+script2.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML"
+script2.async = false
+script2.type = 'text/javascript'
+document.head.appendChild(script2)
 
 </script>
 
