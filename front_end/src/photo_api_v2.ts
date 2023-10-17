@@ -245,27 +245,11 @@ export async function uploadPhotos(files: FileList) {
     const tasks = []
     for (var [key, value] of jpeg_files) {
         var ori_file = ori_files.get(key)
-        tasks.push(addPhoto(value, ori_file))
-        // await addPhoto(value, ori_file)
-        if (tasks.length >= 10) {
-            await Promise.all(tasks)
-            // clear tasks
-            tasks.length = 0
-            showSuccess("Uploaded " + cnt + " photos. " + (jpeg_files.size + heic_files.size - cnt) + " photos left.")
-        }
+        await addPhoto(value, ori_file)
         cnt += 1
+        alert("Uploaded " + cnt + " photos. " + (jpeg_files.size - cnt) + " photos left.")
     }
-    if (tasks.length > 0){
-        await Promise.all(tasks)
-        showSuccess("Uploaded " + cnt + " photos. " + (jpeg_files.size + heic_files.size - cnt) + " photos left.")
-    }
-    // upload heic file to server
-    // for (var [key, value] of heic_files) {
-    //     await addPhoto(value)
-    //     // number of photos uploaded and how many photos left
-    //     showSuccess("Uploaded " + cnt + " photos. " + (jpeg_files.size + heic_files.size - cnt) + " photos left.")
-    //     cnt += 1
-    // }
+    console.log("upload finished")
 }
 
 export interface PhotoListResponse {
