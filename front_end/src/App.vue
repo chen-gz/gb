@@ -21,7 +21,6 @@ document.title = "EtaBlog";
 // verify token
 verifyToken().then(() => {
   console.log("token verified")
-    res
 }).catch(() => {
   console.log("token not verified")
 })
