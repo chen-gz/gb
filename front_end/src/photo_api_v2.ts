@@ -1,11 +1,11 @@
 import {showSuccess} from "@/apiv4";
 
-// const photoBackendUrl = "https://blog.ggeta.com"
+const photoBackendUrl = "https://blog.ggeta.com"
 
 import * as crypto from "crypto";
 import {compileString} from "sass";
 
-const photoBackendUrl = "http://localhost:2009"
+// const photoBackendUrl = "http://localhost:2009"
 
 export interface PhotoItemV2 {
     id: number,
