@@ -38,7 +38,11 @@ document.head.appendChild(script2)
 
 </script>
 <style>
-.ol {
-  margin-left: 20px;
+ol {
+    margin-left: 20px;
+}
+a {
+    color: #1e88e5;
+    text-decoration: none;
 }
 </style>
