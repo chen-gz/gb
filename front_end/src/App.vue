@@ -2,6 +2,8 @@
 
   <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlightjs-themes@1.0.0/androidstudio.css" />-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/a11y-light.min.css" integrity="sha512-WDk6RzwygsN9KecRHAfm9HTN87LQjqdygDmkHSJxVkVI7ErCZ8ZWxP6T8RvBujY1n2/E4Ac+bn2ChXnp5rnnHA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   </head>
   <v-snackbar v-model="alert.show"
               :timeout="500"
@@ -35,6 +37,18 @@ script2.src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?c
 script2.async = false
 script2.type = 'text/javascript'
 document.head.appendChild(script2)
+// const script2 = document.createElement('script')
+// script2.src = "//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+// script2.type = 'text/javascript'
+// document.head.appendChild(script2)
+const script3 = document.createElement('script')
+script3.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+script3.type = 'text/javascript'
+document.head.appendChild(script3)
+const script4 = document.createElement('script')
+script4.text= "hljs.highlightAll();"
+script4.type = 'text/javascript'
+document.head.appendChild(script4)
 
 </script>
 <style>
