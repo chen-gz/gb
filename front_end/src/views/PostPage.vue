@@ -74,7 +74,7 @@ watch(post_content, (old, newe) => {
     // @ts-ignore
     window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub]);
     // @ts-ignore
-    // window.hljs.highlightAll()
+    window.hljs.highlightAll()
   })
 });
 

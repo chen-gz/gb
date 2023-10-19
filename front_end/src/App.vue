@@ -45,10 +45,6 @@ const script3 = document.createElement('script')
 script3.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
 script3.type = 'text/javascript'
 document.head.appendChild(script3)
-const script4 = document.createElement('script')
-script4.text= "hljs.highlightAll();"
-script4.type = 'text/javascript'
-document.head.appendChild(script4)
 
 </script>
 <style>
