@@ -26,7 +26,9 @@ func ginServer() {
 		AllowOrigins: []string{
 			"http://localhost:3000",
 			"http://localhost:2009",
-			"https://blog.ggeta.com"},
+			"https://blog.ggeta.com",
+			"https://ggeta.com",
+		},
 	}))
 
 	config := ReadConfig()
@@ -77,6 +79,14 @@ func ginServer() {
 		hd.InsertPhotoV2(c, db_user, db_photo, photo_minio_client)
 	})
 	///////////////////////////////////////////////////////////////////////////////////// end of v2 api
+	r.POST("/api/video/v1/add_photo", func(c *gin.Context) {
+		// hd.AddVideoPhoto(c, db_user, db_video, video_minio_client)
+	})
+	r.GET("/api/video/v1/get_video_list", func(c *gin.Context) {
+		// hd.GetVideoList(c, db_user, db_video)
+	})
+
+	///////////////////////////////////////////////////////////////////////////////////// video api
 
 	r.POST("/api/v4/login", func(c *gin.Context) {
 		hd.V4Login(c, db_user)
