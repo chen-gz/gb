@@ -40,26 +40,6 @@ func ginServer() {
 	r.POST("/api/blog_file/v1/get_presigned_url", func(c *gin.Context) {
 		hd.GetPresignedUrl(c, db_user, db_blog, minio_client)
 	})
-
-	//r.POST("/api/photo/v1/insert_photo", func(c *gin.Context) {
-	//	hd.InsertPhoto(c, db_user, db_photo, photo_minio_client)
-	//})
-	//r.POST("/api/photo/v1/get_photo", func(c *gin.Context) {
-	//	hd.GetPhoto(c, db_user, db_photo, photo_minio_client)
-	//})
-	//r.GET("/api/photo/v1/get_photo_list", func(c *gin.Context) {
-	//	hd.GetPhotoIds(c, db_user, db_photo)
-	//})
-	//r.POST("/api/photo/v1/update_photo", func(c *gin.Context) {
-	//	hd.UpdatePhoto(c, db_user, db_photo)
-	//})
-	//r.POST("/api/photo/v1/get_deleted_photo_list", func(c *gin.Context) {
-	//	hd.GetDeletedPhotoIds(c, db_user, db_photo)
-	//})
-	//r.POST("/api/photo/v1/get_photo_id", func(c *gin.Context) {
-	//	hd.GetPhoto(c, db_user, db_photo, photo_minio_client)
-	//})
-	///////////////////////////////////////////////////////////////////////////////////// v2 api with new photo table
 	r.GET("/api/photo/v2/get_photo_list", func(c *gin.Context) {
 		hd.GetPhotoIdsV2(c, db_user, db_photo)
 	})
@@ -67,6 +47,13 @@ func ginServer() {
 	r.GET("/api/photo/v2/get_photo_hash/:md5/:sha256", func(c *gin.Context) {
 		md5 := c.Param("md5")
 		sha256 := c.Param("sha256")
+		// check md5 and sha256 length is valid or not
+		if len(md5) != 32 || len(sha256) != 64 {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "invalid md5 or sha256",
+			})
+			return
+		}
 		hd.GetPhotoHash(c, md5, sha256, db_user, db_photo, photo_minio_client)
 	})
 	r.GET("/api/photo/v2/get_photo_id/:id", func(c *gin.Context) {

@@ -44,6 +44,11 @@ func GetPresignedUrl(c *gin.Context, db_user *sql.DB, db_blog *sql.DB, client *m
 		c.JSON(http.StatusBadRequest, UploadFileResponse{Message: "invalid request"})
 		return
 	}
+	// check request is parameter valid or not
+	if uploadFileRequest.PostId <= 0 || uploadFileRequest.FileName == "" || uploadFileRequest.HashCrc32 == "" {
+		c.JSON(http.StatusBadRequest, UploadFileResponse{Message: "invalid request"})
+		return
+	}
 	if !database.UpdatePostPermissionCheck(db_blog, user, uploadFileRequest.PostId) {
 		c.JSON(http.StatusForbidden, UploadFileResponse{Message: "permission denied"})
 		return
