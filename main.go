@@ -28,6 +28,7 @@ func ginServer() {
 			"http://localhost:2009",
 			"https://blog.ggeta.com",
 			"https://ggeta.com",
+			"*",
 		},
 	}))
 
@@ -72,18 +73,15 @@ func ginServer() {
 	r.POST("/api/photo/v2/update_photo_meta", func(c *gin.Context) {
 		hd.UpdatePhotoMeta(c, db_user, db_photo)
 	})
-	//r.POST("/api/photo/v2/update_photo_file", func(c *gin.Context) {
-	//	hd.UpdatePhotoFile(c, db_user, db_photo, photo_minio_client)
-	//})
 	r.POST("/api/photo/v2/insert_photo", func(c *gin.Context) {
 		hd.InsertPhotoV2(c, db_user, db_photo, photo_minio_client)
 	})
 	///////////////////////////////////////////////////////////////////////////////////// end of v2 api
 	r.POST("/api/video/v1/add_photo", func(c *gin.Context) {
-		// hd.AddVideoPhoto(c, db_user, db_video, video_minio_client)
+		//hd.AddVideo(c, db_user, db_video, video_minio_client)
 	})
 	r.GET("/api/video/v1/get_video_list", func(c *gin.Context) {
-		// hd.GetVideoList(c, db_user, db_video)
+		//hd.GetVideoList(c, db_user, db_video)
 	})
 
 	///////////////////////////////////////////////////////////////////////////////////// video api
