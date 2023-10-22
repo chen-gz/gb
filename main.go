@@ -99,9 +99,18 @@ func ginServer() {
 		if err != nil {
 			idInt = 0
 		}
-
 		hd.GetVideo(c, db_user, dbVideo, videoMinioClient, md5, sha256, idInt)
-
+	})
+	r.GET("/api/video/v1/get_video_meta", func(c *gin.Context) {
+		md5 := c.Query("md5")
+		sha256 := c.Query("sha256")
+		id := c.Query("id")
+		// convert id to int, if failed id set to 0
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			idInt = 0
+		}
+		hd.GetVideoMeta(c, db_user, dbVideo, videoMinioClient, md5, sha256, idInt)
 	})
 
 	///////////////////////////////////////////////////////////////////////////////////// video api

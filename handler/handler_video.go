@@ -70,6 +70,7 @@ func AddVideo(c *gin.Context, dbUser *sql.DB, dbVideo *sql.DB,
 }
 func putPresignedUrl(minioClient *minio.Client, user database.User, md5 string, sha256 string, ext string) (string, error) {
 	objectName := fmt.Sprintf("%d/%s/%s.%s", user.Id, md5[0:5], sha256[0:5], ext)
+	fmt.Println("objectName: ", objectName)
 	presignedUrl, err := minioClient.PresignedPutObject(context.Background(), VideoMinioConfig.BucketName, objectName, time.Hour*2)
 	if err != nil {
 		return "", err
@@ -78,7 +79,17 @@ func putPresignedUrl(minioClient *minio.Client, user database.User, md5 string, 
 }
 func getPresignedUrl(minioClient *minio.Client, user database.User, md5 string, sha256 string, ext string) (string, error) {
 	objectName := fmt.Sprintf("%d/%s/%s.%s", user.Id, md5[0:5], sha256[0:5], ext)
+	fmt.Println("objectName: ", objectName)
 	presignedUrl, err := minioClient.PresignedGetObject(context.Background(), VideoMinioConfig.BucketName, objectName, time.Hour*2, nil)
+	if err != nil {
+		return "", err
+	}
+	return presignedUrl.String(), nil
+}
+func getPresignedCoverImg(client *minio.Client, user database.User, md5 string, sha256 string) (string, error) {
+	objectName := fmt.Sprintf("%d/%s/%s.jpg", user.Id, md5[0:5], sha256[0:5])
+	fmt.Println("objectName: ", objectName)
+	presignedUrl, err := client.PresignedGetObject(context.Background(), VideoMinioConfig.BucketName, objectName, time.Hour*2, nil)
 	if err != nil {
 		return "", err
 	}
@@ -177,5 +188,49 @@ func GetVideo(c *gin.Context, dbUser *sql.DB, dbVideo *sql.DB, minioClient *mini
 		Video:        video,
 		Message:      "success",
 		PresignedUrl: url,
+	})
+}
+
+func GetVideoMeta(c *gin.Context, dbUser *sql.DB, dbVideo *sql.DB, minioClient *minio.Client, md5 string, sha256 string, id int) {
+	type response struct {
+		Video             interfaces.VideoItem `json:"video"`
+		Message           string               `json:"message"`
+		PresignedCoverImg string               `json:"presigned_cover_img"`
+	}
+	if (len(md5) != 32 || len(sha256) != 64) && id == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid request",
+		})
+		return
+	}
+	user := database.V3GetUserByAuthHeader(dbUser, c.Request.Header.Get("Authorization"))
+	if user.Id == 0 {
+		c.JSON(http.StatusForbidden, response{Message: "permission denied"})
+		return
+	}
+	// id is the first priority, then sha256, then md5
+	var video interfaces.VideoItem
+	if id != 0 {
+		video = database.GetVideoById(dbVideo, user.Id, id)
+	} else {
+		video = database.GetVideoByMd5Sha256(dbVideo, user.Id, md5, sha256)
+	}
+	if video.Id == 0 {
+		c.JSON(http.StatusNotFound, response{
+			Message: "video not found",
+		})
+		return
+	}
+	url, err := getPresignedCoverImg(minioClient, user, video.Md5, video.Sha256)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, response{
+			Message: "get presigned url error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, response{
+		Video:             video,
+		PresignedCoverImg: url,
+		Message:           "success",
 	})
 }
