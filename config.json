@@ -33,5 +33,17 @@
         "access_key_id": "HI4mSQabJ6GWesqES4V4",
         "secrete_access_key": "WIK6SwKqceiPCalmhDj4meOdqLdErSfw4QNpEZxx",
         "bucket_name": "photo"
+    },
+    "video_db": {
+        "address": "tcp(192.168.0.174:3306)",
+        "user": "zong",
+        "password": "Connie",
+        "database_name": "eta_video"
+    },
+    "video_minio": {
+        "endpoint": "minio.ggeta.com",
+        "access_key_id": "HI4mSQabJ6GWesqES4V4",
+        "secrete_access_key": "WIK6SwKqceiPCalmhDj4meOdqLdErSfw4QNpEZxx",
+        "bucket_name": "video"
     }
 }

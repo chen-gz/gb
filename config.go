@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go_blog/database"
 	"go_blog/handler"
+	"go_blog/interfaces"
 	"os"
 )
 
@@ -14,6 +15,8 @@ type Config struct {
 	PhotoDatabase database.PhotoDbConfig `json:"photo_database"`
 	Minio         handler.MinioConfig    `json:"minio"`
 	PhotoMinio    handler.MinioConfig    `json:"photo_minio"`
+	VideoMinio    handler.MinioConfig    `json:"video_minio"`
+	VideoDb       interfaces.DbConfig    `json:"video_db"`
 }
 
 // read config.json and return Config struct

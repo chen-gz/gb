@@ -36,10 +36,12 @@ func ginServer() {
 	db_blog := database.InitV4(config.BlogDatabase)
 	db_user, _ := database.UserDbInit(config.UserDatabase)
 	db_photo, _ := database.InitPhotoDb(config.PhotoDatabase)
+	dbVideo := database.InitVideoDb(config.VideoDb)
 	database.InitPhotoTableV2(db_photo, database.User{Id: 2})
 	log.Println(config.Minio)
 	minio_client := hd.InitMinioClient(config.Minio)
 	photo_minio_client := hd.InitPhotoMinioClient(config.PhotoMinio)
+	videoMinioClient := hd.InitVideoMinioClient(config.VideoMinio)
 	r.POST("/api/blog_file/v1/get_presigned_url", func(c *gin.Context) {
 		hd.GetPresignedUrl(c, db_user, db_blog, minio_client)
 	})
@@ -77,11 +79,29 @@ func ginServer() {
 		hd.InsertPhotoV2(c, db_user, db_photo, photo_minio_client)
 	})
 	///////////////////////////////////////////////////////////////////////////////////// end of v2 api
-	r.POST("/api/video/v1/add_photo", func(c *gin.Context) {
-		//hd.AddVideo(c, db_user, db_video, video_minio_client)
+	r.POST("/api/video/v1/add_video", func(c *gin.Context) {
+		// get md5 and sha256 from query
+		md5 := c.Query("md5")
+		sha256 := c.Query("sha256")
+		title := c.Query("title")
+		ext := c.Query("ext")
+		hd.AddVideo(c, db_user, dbVideo, videoMinioClient, md5, sha256, title, ext)
 	})
 	r.GET("/api/video/v1/get_video_list", func(c *gin.Context) {
-		//hd.GetVideoList(c, db_user, db_video)
+		hd.GetVideoList(c, db_user, dbVideo)
+	})
+	r.GET("/api/video/v1/get_video", func(c *gin.Context) {
+		md5 := c.Query("md5")
+		sha256 := c.Query("sha256")
+		id := c.Query("id")
+		// convert id to int, if failed id set to 0
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			idInt = 0
+		}
+
+		hd.GetVideo(c, db_user, dbVideo, videoMinioClient, md5, sha256, idInt)
+
 	})
 
 	///////////////////////////////////////////////////////////////////////////////////// video api
@@ -132,9 +152,7 @@ func ginServer() {
 	r.NoRoute(func(c *gin.Context) {
 		c.FileFromFS("front_end/dist/", http.FS(frontend))
 	})
-
 	r.Run(":2009") // listen and serve on
-
 }
 
 func main() {
