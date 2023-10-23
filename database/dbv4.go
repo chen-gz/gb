@@ -340,7 +340,8 @@ func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, erro
 		stmt += `AND MATCH (content) AGAINST ("` + params.Content + `") `
 	}
 	if params.Tags != "" {
-		stmt += `AND MATCH (tags) AGAINST ("` + params.Tags + `") `
+		//stmt += `AND MATCH (tags) AGAINST ("` + params.Tags + `") `
+		stmt += `AND tags="` + params.Tags + `"`
 	}
 	if params.Categories != "" {
 		stmt += `AND MATCH (category) AGAINST ("` + params.Categories + `") `
@@ -362,6 +363,7 @@ func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, erro
 	stmt += `LIMIT ` + fmt.Sprintf("%d", params.Limit["start"]) + `,` + fmt.Sprintf("%d", params.Limit["size"])
 	// execute sql
 	rows, err := db.Query(stmt)
+	log.Println("searchPosts: ", stmt)
 	if err != nil {
 		log.Println("searchPosts error: ", err)
 		return []V4PostData{}, err

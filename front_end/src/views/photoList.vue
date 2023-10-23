@@ -114,13 +114,6 @@ async function fetchData() {
 fetchData();
 fetchPage(1);
 
-// function deletePhoto(photo: PhotoItem) {
-//     photo.deleted = true;
-//     UpdatePhoto(photo);
-//     // remove correspond tags
-//     showElements.value = showElements.value.filter((element) => element.photo.id !== photo.id);
-// }
-
 function downloadPhoto(photo: PhotoWithUrl) {
   window.open(photo.jpg_url, "_blank");
 }
@@ -140,7 +133,6 @@ function sharePhoto(photo: PhotoWithUrl) {
   right: 10px; /* Adjust the right position as needed */
   z-index: 1; /* Ensure the icon is above the image */
   opacity: 0.1; /* Adjust the opacity value as needed (0.0 for fully transparent, 1.0 for fully opaque) */
-
 }
 
 
