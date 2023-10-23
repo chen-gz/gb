@@ -37,7 +37,7 @@ searchPostsV4(params).then((response) => {
 </script>
 
 <template>
-    <v-table>
+    <v-table class="ml-5 mr-5">
         <tbody>
         <tr v-for="(item, index) in res.posts" :key="index" style="font-family: 'JetBrains Mono', monospace">
             <td>
@@ -45,9 +45,9 @@ searchPostsV4(params).then((response) => {
                     <span> {{ item.title }} </span>
                 </router-link>
             </td>
-            <td>{{ formatDate(item.created_at) }}</td>
-            <td>
-            </td>
+<!--            align right for data -->
+            <td class="text-right"
+            >{{ formatDate(item.created_at) }}</td>
         </tr>
         </tbody>
     </v-table>

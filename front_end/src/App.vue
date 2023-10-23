@@ -19,7 +19,6 @@
 <script lang="ts" setup>
 import {alert, verifyToken} from "@/apiv4";
 
-document.title = "EtaBlog";
 // verify token
 verifyToken().then(() => {
   console.log("token verified")
@@ -61,8 +60,9 @@ li li {
     margin-left: 30px; /* Adjust the left margin for nested list items */
 }
 
+/* remove all color and style changes for link */
 a {
-    color: #1e88e5;
-    text-decoration: none;
+    color: inherit;
+    text-decoration: inherit;
 }
 </style>
