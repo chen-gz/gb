@@ -2,8 +2,9 @@
   <!--        element inside this block from left to right -->
   <div class="post_page">
     <v-container>
-      <v-row>
-        <v-col cols="10" sm="12" md="10">
+<!--      <v-row>-->
+        <v-col cols="10" sm="12" md="10" class="scrolling-content" >
+
           <div style="justify-content: center">
             <h1 class="post_title" v-html="post.title" style="font-size: 40px; font-family: 'Noto Serif SC', serif;"/>
             <div class="post_content">
@@ -28,10 +29,10 @@
             </div>
           </div>
         </v-col>
-        <v-col cols="2" sm="0" md="2">
+        <v-col cols="2" sm="0" md="2" class="fixed-sidebar">
           <div v-if="post_toc.length >0 " class="post_toc" v-html="post_toc" style="top: 10%; wrap-option: wrap;"></div>
         </v-col>
-      </v-row>
+<!--      </v-row>-->
     </v-container>
   </div>
 </template>
@@ -102,6 +103,19 @@ watch(post_content, () => {
   justify-content: center;
   justify-self: center;
   wrap-option: wrap;
+}
+.fixed-sidebar {
+  position: fixed;
+  top: 80px;
+  /*bottom: 0;*/
+  right: 0;
+  overflow-y: auto; /* Allow scrolling if content exceeds the sidebar height */
+}
+
+.scrolling-content {
+  /*margin-left: 25%; */
+  /* Adjust the margin as needed */
+  /* You can also set a max-height or add other styles to control scrolling behavior */
 }
 </style>
 
