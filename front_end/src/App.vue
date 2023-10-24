@@ -2,8 +2,8 @@
 
   <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlightjs-themes@1.0.0/androidstudio.css" />-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/a11y-light.min.css" integrity="sha512-WDk6RzwygsN9KecRHAfm9HTN87LQjqdygDmkHSJxVkVI7ErCZ8ZWxP6T8RvBujY1n2/E4Ac+bn2ChXnp5rnnHA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   </head>
   <v-snackbar v-model="alert.show"
               :timeout="500"
@@ -42,8 +42,20 @@ document.head.appendChild(script2)
 // document.head.appendChild(script2)
 const script3 = document.createElement('script')
 script3.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"
+// script3.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"
+// script3.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"
 script3.type = 'text/javascript'
 document.head.appendChild(script3)
+const script4 = document.createElement('script') // clipboard
+script4.src = "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"
+script4.type = 'text/javascript'
+document.head.appendChild(script4)
+
+// const script5 = document.createElement('script')
+// script5.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/css.min.js"
+// script5.type = 'text/javascript'
+// document.head.appendChild(script5)
+
 
 </script>
 <style>
@@ -64,5 +76,9 @@ li li {
 a {
     color: inherit;
     text-decoration: inherit;
+}
+/* soft light block color wrapper */
+pre > code {
+  background-color: #f6f8fa !important;
 }
 </style>

@@ -27,8 +27,8 @@
           </div>
         </div>
       </div>
-      <div class="fixed-sidebar mr-5 pr-3" style="height: 100%">
-        <div v-if="post_toc.length > 0" class="post_toc" v-html="post_toc"></div>
+      <div class="fixed-sidebar " style="height: 100%">
+        <div v-if="post_toc.length > 0" id="post_toc" v-html="post_toc"></div>
       </div>
 
     </div>
@@ -109,6 +109,7 @@ watch(post_content, () => {
   display: flex;
   /*background-color: yellow;*/
   margin-right: 5px;
+  width: 300px;
 }
 
 .scrolling-content {
@@ -116,9 +117,12 @@ watch(post_content, () => {
   overflow-y: auto;
   /*background-color: blue;*/
   height: calc(100vh - 64px);
-  width: 100%;
+  /*width: 100%;*/
   scrollbar-width: none;
 }
+
+
+
 
 </style>
 
