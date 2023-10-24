@@ -1,39 +1,39 @@
 <template>
   <!--        element inside this block from left to right -->
   <div class="post_page">
-    <v-container>
-<!--      <v-row>-->
-        <v-col cols="10" sm="12" md="10" class="scrolling-content" >
+    <div class="d-flex">
+      <div class="scrolling-content ml-5">
+        <div style="justify-content: center">
+          <h1 class="post_title" v-html="post.title"
+              style="font-size: 40px; font-family: 'Noto Serif SC', serif;"/>
+          <div class="post_content">
+            <!--              close to title far away from content -->
+            <div style="font-size: 15px; font-family: 'Noto Serif SC', serif; color: #6c6c6c;
+                    margin-top: -10px; margin-bottom: 20px;">
+              <span>Author：{{ post.author }}</span>
+              <span class="ml-3">Update: {{ formatDate(post.updated_at) }}</span>
+              <span class="ml-1">|</span>
 
-          <div style="justify-content: center">
-            <h1 class="post_title" v-html="post.title" style="font-size: 40px; font-family: 'Noto Serif SC', serif;"/>
-            <div class="post_content">
-              <!--              close to title far away from content -->
-              <div style="font-size: 15px; font-family: 'Noto Serif SC', serif; color: #6c6c6c;
-                margin-top: -10px; margin-bottom: 20px;">
-                <span>Author：{{ post.author }}</span>
-                <span class="ml-3">Update: {{ formatDate(post.updated_at) }}</span>
-                <span class="ml-1">|</span>
-
-                <span class="ml-3" style="color: #000000; cursor: pointer;" @click="sharepost()">Share</span>
-                <span class="ml-3" style="color: #000000;  cursor: pointer;" @click="deletePost(post)">Delete</span>
-                <router-link :to="'/posts/edit/' + post.url">
-                        <span class="ml-3" style="color: #000000;">
-                        Edit
-                        </span>
-                </router-link>
-
-
-              </div>
-              <div v-html="post_content"></div>
+              <span class="ml-3" style="color: #000000; cursor: pointer;"
+                    @click="sharepost()">Share</span>
+              <span class="ml-3" style="color: #000000;  cursor: pointer;" @click="deletePost(post)">Delete</span>
+              <router-link :to="'/posts/edit/' + post.url">
+                            <span class="ml-3" style="color: #000000;">
+                            Edit
+                            </span>
+              </router-link>
             </div>
+            <div v-html="post_content"></div>
           </div>
-        </v-col>
-        <v-col cols="2" sm="0" md="2" class="fixed-sidebar">
-          <div v-if="post_toc.length >0 " class="post_toc" v-html="post_toc" style="top: 10%; wrap-option: wrap;"></div>
-        </v-col>
-<!--      </v-row>-->
-    </v-container>
+        </div>
+      </div>
+      <div class="fixed-sidebar mr-5 pr-3" style="height: 100%">
+        <div v-if="post_toc.length > 0" class="post_toc" v-html="post_toc"></div>
+      </div>
+
+    </div>
+
+
   </div>
 </template>
 
@@ -95,8 +95,8 @@ watch(post_content, () => {
 
 <style scoped>
 .post_content {
-  font-size: 20px;
-  line-height: 40px;
+  /*font-size: 15px;*/
+  line-height: 25px;
   font-family: "Noto Serif SC", serif;
   align-self: center;
   align-content: center;
@@ -104,18 +104,21 @@ watch(post_content, () => {
   justify-self: center;
   wrap-option: wrap;
 }
+
 .fixed-sidebar {
-  position: fixed;
-  top: 80px;
-  /*bottom: 0;*/
-  right: 0;
-  overflow-y: auto; /* Allow scrolling if content exceeds the sidebar height */
+  display: flex;
+  /*background-color: yellow;*/
+  margin-right: 5px;
 }
 
 .scrolling-content {
-  /*margin-left: 25%; */
-  /* Adjust the margin as needed */
-  /* You can also set a max-height or add other styles to control scrolling behavior */
+  display: flex;
+  overflow-y: auto;
+  /*background-color: blue;*/
+  height: calc(100vh - 64px);
+  width: 100%;
+  scrollbar-width: none;
 }
+
 </style>
 

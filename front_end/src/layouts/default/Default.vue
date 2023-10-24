@@ -1,11 +1,10 @@
 <!--this is the home page -->
 <template>
-  <v-app>
+  <v-app style="height: 100vh">
     <default-bar/>
-    <v-main style="max-width: 1400px; width: 100vw;" class="align-self-center">
+    <v-main class="main-container align-self-center" style=" max-width: 1400px; width: 100vw;">
       <Suspense>
-
-      <router-view/>
+        <router-view/>
       </Suspense>
     </v-main>
 
@@ -23,6 +22,7 @@ const itemPerPage = 10
 let blog_list = ref([] as V4PostData[])
 
 let len = ref(0)
+
 async function getPostPage(page: number) {
   let pa2: SearchPostsRequestV4 = {} as SearchPostsRequestV4
   pa2.sort = "updated_at DESC"
@@ -49,3 +49,9 @@ async function getPostPage(page: number) {
 //
 // init()
 </script>
+
+<style scoped>
+.main-container {
+  height: calc(100vh - 64px);
+}
+</style>
