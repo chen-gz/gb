@@ -7,14 +7,23 @@
           <div style="justify-content: center">
             <h1 class="post_title" v-html="post.title" style="font-size: 40px; font-family: 'Noto Serif SC', serif;"/>
             <div class="post_content">
-              <v-toolbar class="post_toolbar mt-2 mb-3" density="compact">
+              <!--              close to title far away from content -->
+              <div style="font-size: 15px; font-family: 'Noto Serif SC', serif; color: #6c6c6c;
+                margin-top: -10px; margin-bottom: 20px;">
                 <span>Author：{{ post.author }}</span>
-                <span class="ml-5">Update: {{ formatDate(post.updated_at) }}</span>
-                <v-spacer tag="span"/>
-                <v-btn icon="mdi mdi-share-variant" class="mx-2" @click="sharepost()"/>
-                <v-btn icon="mdi mdi-delete" class="mx-2" @click="deletePost(post)"/>
-                <v-btn icon="mdi mdi-pencil" class="mx-2" :to="'/posts/edit/' + post.url"/>
-              </v-toolbar>
+                <span class="ml-3">Update: {{ formatDate(post.updated_at) }}</span>
+                <span class="ml-1">|</span>
+
+                <span class="ml-3" style="color: #000000; cursor: pointer;" @click="sharepost()">Share</span>
+                <span class="ml-3" style="color: #000000;  cursor: pointer;" @click="deletePost(post)">Delete</span>
+                <router-link :to="'/posts/edit/' + post.url">
+                        <span class="ml-3" style="color: #000000;">
+                        Edit
+                        </span>
+                </router-link>
+
+
+              </div>
               <div v-html="post_content"></div>
             </div>
           </div>
@@ -28,9 +37,10 @@
 </template>
 
 <script setup lang="ts">
-import {nextTick, ref, watch} from "vue";
+import {ref} from "vue";
 import {useRouter} from "vue-router";
 import {deletePost, formatDate, getPostV4, showSuccess, V4PostData} from "@/apiv4";
+
 const route = useRouter();
 console.log(route.currentRoute.value.params.url)
 let url: string = "";
@@ -41,6 +51,7 @@ if (typeof route.currentRoute.value.params.url !== "undefined") {
 let post = ref({} as V4PostData);
 let post_content = ref("");
 let post_toc = ref("");
+
 function sharepost() {
   let url = window.location.href
   navigator.clipboard.writeText(url).then(() => {
@@ -68,15 +79,15 @@ getPostV4(url, true).then((response) => {
   console.log(post_toc.value)
 })
 
-watch(post_content, (old, newe) => {
-  console.log("post changed")
-  nextTick(() => {
-    // @ts-ignore
-    window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub]);
-    // @ts-ignore
-    window.hljs.highlightAll()
-  })
-});
+// watch(post_content, (old, newe) => {
+//   console.log("post changed")
+//   nextTick(() => {
+//     // @ts-ignore
+//     window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub]);
+//     // @ts-ignore
+//     window.hljs.highlightAll()
+//   })
+// });
 
 </script>
 
