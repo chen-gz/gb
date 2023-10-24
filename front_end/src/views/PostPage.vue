@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from "vue";
+import {nextTick, ref, watch} from "vue";
 import {useRouter} from "vue-router";
 import {deletePost, formatDate, getPostV4, showSuccess, V4PostData} from "@/apiv4";
 
@@ -79,15 +79,15 @@ getPostV4(url, true).then((response) => {
   console.log(post_toc.value)
 })
 
-// watch(post_content, (old, newe) => {
-//   console.log("post changed")
-//   nextTick(() => {
-//     // @ts-ignore
-//     window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub]);
-//     // @ts-ignore
-//     window.hljs.highlightAll()
-//   })
-// });
+watch(post_content, () => {
+  console.log("post changed")
+  nextTick(() => {
+    // @ts-ignore
+    window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub]);
+    // @ts-ignore
+    window.hljs.highlightAll()
+  })
+});
 
 </script>
 
