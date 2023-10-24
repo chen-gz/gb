@@ -1,19 +1,29 @@
 <template>
 
-  <head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/a11y-light.min.css" integrity="sha512-WDk6RzwygsN9KecRHAfm9HTN87LQjqdygDmkHSJxVkVI7ErCZ8ZWxP6T8RvBujY1n2/E4Ac+bn2ChXnp5rnnHA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  </head>
-  <v-snackbar v-model="alert.show"
-              :timeout="500"
-              location="top right"
-              position="relative"
-              :color="alert.color">
-    {{ alert.message }}
-  </v-snackbar>
+    <head>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/a11y-light.min.css"
+              integrity="sha512-WDk6RzwygsN9KecRHAfm9HTN87LQjqdygDmkHSJxVkVI7ErCZ8ZWxP6T8RvBujY1n2/E4Ac+bn2ChXnp5rnnHA=="
+              crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+              integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA=="
+              crossorigin="anonymous" referrerpolicy="no-referrer"/>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.3.0/github-markdown.min.css"
+              integrity="sha512-YrjLinOp+jkkHZHx9+NcrUTY+RehdjzZFGeRpju4CbHzjsapiN7CXbr/8twmMpLxIxBnpEWb8lgJcBsetJXMcA=="
+              crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    </head>
+    <v-snackbar v-model="alert.show"
+                :timeout="500"
+                location="top right"
+                position="relative"
+                :color="alert.color">
+        {{ alert.message }}
+    </v-snackbar>
 
-  <router-view/>
+    <router-view/>
 </template>
 
 <script lang="ts" setup>
@@ -21,9 +31,9 @@ import {alert, verifyToken} from "@/apiv4";
 
 // verify token
 verifyToken().then(() => {
-  console.log("token verified")
+    console.log("token verified")
 }).catch(() => {
-  console.log("token not verified")
+    console.log("token not verified")
 })
 
 
@@ -51,6 +61,8 @@ script4.src = "https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboa
 script4.type = 'text/javascript'
 document.head.appendChild(script4)
 
+
+
 // const script5 = document.createElement('script')
 // script5.src = "https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/css.min.js"
 // script5.type = 'text/javascript'
@@ -62,6 +74,7 @@ document.head.appendChild(script4)
 ol, ul {
     margin-left: 20px;
 }
+
 /* Apply styles to nested ol and ul */
 ol ol, ul ul {
     margin-left: 30px; /* Adjust the left margin for nested lists */
@@ -77,8 +90,9 @@ a {
     color: inherit;
     text-decoration: inherit;
 }
+
 /* soft light block color wrapper */
 pre > code {
-  background-color: #f6f8fa !important;
+    background-color: #f6f8fa !important;
 }
 </style>
