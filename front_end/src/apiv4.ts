@@ -332,3 +332,30 @@ function uploadFileToPresignURL(file: File, presignedURL: string): Promise<Respo
         body: file
     })
 }
+
+export interface RenderResponse {
+    format: string
+    message: string
+    rendered: string
+}
+export async function getRenderedContent(content: string): Promise<string> {
+    return await fetch(`${blogBackendUrl}/api/post/v5/render`, {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+        body: JSON.stringify({
+            content: content,
+            format: "markdown"
+        }),
+    }).then((response) => {
+        if (!response.ok) {
+            console.error(response);
+            return response.json()
+        }
+        return response.json().then((response) => {
+            response as RenderResponse
+            return response.rendered
+        })
+    })
+}

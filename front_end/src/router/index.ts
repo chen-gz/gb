@@ -23,8 +23,12 @@ const routes = [
         children: [
             {path: '', name: 'Posts', component: () => import('@/views/Lists.vue'),},
             {path: ':url', name: 'Post', component: () => import('@/views/PostPage.vue'),},
-            {path: 'edit/:url', name: 'PostEdit', component: () => import('@/views/PostEdit.vue'),},
+            // {path: 'edit/:url', name: 'PostEdit', component: () => import('@/views/PostEdit.vue'),},
         ]
+    },
+    {
+        path: '/posts/edit/:url',
+        component: () => import('@/views/PostEdit.vue'),
     },
     {
         path: '/photos',

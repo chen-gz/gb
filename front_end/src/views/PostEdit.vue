@@ -1,19 +1,32 @@
 <template>
-  <v-container class="d-flex fill-height">
-    <v-row class=" d-flex fill-height">
-      <v-col cols="12">
-        <div id="code-editor" style="width: 100%; border: 1px solid #ccc; "
-             class="fill-height"/>
-      </v-col>
-    </v-row>
-  </v-container>
+  <v-app>
+
+    <!--    <v-container style="height: 100vh; width: 100vw;">-->
+    <!--      <v-row class=" d-flex fill-height">-->
+    <div class="d-flex">
+    <div style="width: 50vw; height: 100vh;">
+      <div id="code-editor" style="width: 100%; border: 1px solid #ccc; "
+           class="fill-height"/>
+
+    </div>
+    <div style="width: 50vw; height: 100vh;">
+      <article id="content-preview"
+               style="width: 100%; border: 1px solid #ccc;  height: 100vh; display: block; overflow-y: auto;"
+               class="fill-height markdown-body" v-html="rendered_content"/>
+    </div>
+    </div>
+    <!--      </v-row>-->
+    <!--    </v-container>-->
+  </v-app>
 </template>
 
 <script lang="ts" setup>
-import {onMounted, onUnmounted, ref} from "vue";
+import {nextTick, onMounted, onUnmounted, ref, watch} from "vue";
 import {useRouter} from "vue-router";
-import {getPostV4, savePost, UploadFile, V4PostData} from "@/apiv4";
+import {getPostV4, getRenderedContent, savePost, UploadFile, V4PostData} from "@/apiv4";
 import * as monaco from "monaco-editor";
+
+var rendered_content = ref("")
 
 const route = useRouter();
 let url = route.currentRoute.value.params.url as string || "";
@@ -22,6 +35,29 @@ window.addEventListener('keydown', handleKeyDown)
 
 
 var editor_show = ref("content")
+
+async function renderContent() {
+  // @ts-ignore
+  rendered_content.value = await getRenderedContent(editor.getValue())
+  let tmp = await getRenderedContent(editor.getValue())
+  console.log("rendered content tmp: ", tmp)
+  console.log("rendered content: ", rendered_content.value)
+  // @ts-ignore
+  // rendered_content.value = window.hljs.highlightAll(rendered_content.value).value
+  // @ts-ignore
+  // window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub]);
+}
+
+// set clock to render content
+setInterval(renderContent, 2000)
+watch(rendered_content, () => {
+  nextTick(() => {
+    // @ts-ignore
+    window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub]);
+    // @ts-ignore
+    window.hljs.highlightAll()
+  })
+});
 
 function handleKeyDown(event: KeyboardEvent) {
   if (event.ctrlKey && event.key === 's') {
@@ -106,6 +142,7 @@ import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
+// import {nextTick, watch} from "vue/dist/vue";
 
 onMounted(async () => {
   await getPostV4(url, false).then(
