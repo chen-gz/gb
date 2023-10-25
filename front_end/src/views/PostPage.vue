@@ -113,7 +113,7 @@ watch(post_content, () => {
     display: flex;
     /*background-color: yellow;*/
     margin-right: 5px;
-    width: 300px;
+    min-width: 300px;
 }
 
 .scrolling-content {

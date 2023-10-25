@@ -137,6 +137,10 @@ func ginServer() {
 		hd.V4GetDistinct(c, db_user, db_blog)
 	})
 
+	r.POST("/api/post/v5/render", func(c *gin.Context) {
+		hd.V5Render(c, db_user)
+	})
+	///////////////////////////////////////////////////////////////////////////////////// v4 api
 	r.GET("/assets/*filepath", func(c *gin.Context) {
 		//c.FileFromFS("/assets/", frontendBox)
 		if data, err := frontend.ReadFile("front_end/dist/assets" + c.Param("filepath")); err == nil {
