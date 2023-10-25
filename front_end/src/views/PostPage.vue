@@ -113,7 +113,8 @@ watch(post_content, () => {
     display: flex;
     /*background-color: yellow;*/
     margin-right: 5px;
-    min-width: 300px;
+    min-width: 200px;
+
 }
 
 .scrolling-content {
@@ -123,6 +124,11 @@ watch(post_content, () => {
     height: calc(100vh - 64px);
     /*width: 100%;*/
     scrollbar-width: none;
+}
+
+/* hide scrollbar for chrome, safari and opera */
+.scrolling-content::-webkit-scrollbar {
+    display: none;
 }
 
 

@@ -169,14 +169,14 @@ func V4UpdatePost(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 	})
 }
 
-func V4NewPost(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
+func V4NewPost(c *gin.Context, dbUser *sql.DB, dbPost *sql.DB) {
 	type NewPostResponse struct {
 		Status  string `json:"status"`
 		Message string `json:"message"`
 		Url     string `json:"url"`
 	}
-	user := database.V3GetUserByAuthHeader(db_user, c.Request.Header.Get("Authorization"))
-	url, err := database.V4NewPostUser(db_post, user)
+	user := database.V3GetUserByAuthHeader(dbUser, c.Request.Header.Get("Authorization"))
+	url, err := database.V4NewPostUser(dbPost, user)
 	if err != nil {
 		c.JSON(http.StatusForbidden, NewPostResponse{
 			Message: "permission denied",
@@ -190,7 +190,7 @@ func V4NewPost(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 	})
 }
 
-func V4GetDistinct(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
+func V4GetDistinct(c *gin.Context, dbUser *sql.DB, dbPost *sql.DB) {
 	type GetDistinctRequest struct {
 		Field string `json:"field"`
 	}
@@ -200,7 +200,7 @@ func V4GetDistinct(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 		Values  []string `json:"values"`
 		Length  int      `json:"length"`
 	}
-	user := database.V3GetUserByAuthHeader(db_user, c.Request.Header.Get("Authorization"))
+	user := database.V3GetUserByAuthHeader(dbUser, c.Request.Header.Get("Authorization"))
 	var request GetDistinctRequest
 	if c.BindJSON(&request) != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -209,7 +209,7 @@ func V4GetDistinct(c *gin.Context, db_user *sql.DB, db_post *sql.DB) {
 		return
 	}
 	print(request.Field)
-	values, err := database.V4GetDistinctUser(db_post, request.Field, user)
+	values, err := database.V4GetDistinctUser(dbPost, request.Field, user)
 	if err != nil {
 		c.JSON(http.StatusForbidden, gin.H{
 			"msg": "permission denied",
