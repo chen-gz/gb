@@ -5,7 +5,7 @@
     <!--      <v-row class=" d-flex fill-height">-->
     <div class="d-flex">
     <div style="width: 50vw; height: 100vh;">
-      <div id="code-editor" style="width: 100%; border: 1px solid #ccc; "
+      <div id="code-editor" style="width: 50vw; border: 1px solid #ccc; "
            class="fill-height"/>
 
     </div>
@@ -58,6 +58,10 @@ watch(rendered_content, () => {
     window.hljs.highlightAll()
   })
 });
+// windows resize editor should resize
+window.addEventListener('resize', () => {
+  editor.layout()
+})
 
 function handleKeyDown(event: KeyboardEvent) {
   if (event.ctrlKey && event.key === 's') {
