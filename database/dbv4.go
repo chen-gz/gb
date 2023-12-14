@@ -358,7 +358,7 @@ func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, erro
 		params.Limit["start"] = 0
 	}
 	if params.Limit["size"] == 0 {
-		params.Limit["size"] = 100
+		params.Limit["size"] = 1000
 	}
 	stmt += `LIMIT ` + fmt.Sprintf("%d", params.Limit["start"]) + `,` + fmt.Sprintf("%d", params.Limit["size"])
 	// execute sql
