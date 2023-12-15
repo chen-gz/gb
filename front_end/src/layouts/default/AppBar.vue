@@ -1,10 +1,7 @@
 <template>
   <v-app-bar flat>
-    <v-app-bar-title
-        class="d-none d-sm-flex text-decoration-none"
-    >
+    <v-app-bar-title class="d-none d-sm-flex text-decoration-none" >
       <router-link to="/" class="text-decoration-none">
-        <v-icon icon="mdi-circle-slice-4"/>
         GGETA
       </router-link>
     </v-app-bar-title>
@@ -37,8 +34,8 @@
     <v-app-bar-nav-icon class="d-sm-none" to="/posts"><i class="fa fa-sticky-note fa-lg"/></v-app-bar-nav-icon>
     <v-app-bar-nav-icon class="d-sm-none" to="/tags"><i class="fa fa-tags fa-lg"/></v-app-bar-nav-icon>
     <v-app-bar-nav-icon class="d-sm-none" to="/about"><i class="fa fa-info fa-lg"/></v-app-bar-nav-icon>
-    <v-app-bar-nav-icon @click="login()" v-if="!is_logined"><i class="fa fa-user"/></v-app-bar-nav-icon>
-    <v-app-bar-nav-icon class="d-none d-sm-flex" @click="newpost()" v-if="is_logined"><i class="fa fa-plus"/>
+    <v-app-bar-nav-icon @click="login()" v-if="!is_logined" :key="is_logined.toString()"><i class="fa fa-user"/></v-app-bar-nav-icon>
+    <v-app-bar-nav-icon class="d-none d-sm-flex" @click="newpost()" v-if="is_logined" :key="is_logined.toString()" ><i class="fa fa-plus"/>
     </v-app-bar-nav-icon>
   </v-app-bar>
 </template>
