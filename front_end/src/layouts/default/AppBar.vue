@@ -3,21 +3,17 @@
     <v-app-bar-title
         class="d-none d-sm-flex text-decoration-none"
     >
-      <!--      remove decoration for this link -->
       <router-link to="/" class="text-decoration-none">
         <v-icon icon="mdi-circle-slice-4"/>
         GGETA
       </router-link>
     </v-app-bar-title>
-    <!--    <v-btn icon="mdi-home" to="/" class="d-sm-none"/>-->
     <v-btn class="d-sm-none"><i class="fa fa-home fa-lg" aria-hidden="true"></i></v-btn>
     <v-spacer class="d-sm-none"/>
-
-
     <v-text-field
         flat
         ref="searchText"
-        v-show="showSearch"
+        v-show="showSearchTextField"
         v-model="values"
         prepend-inner-icon="mdi-magnify"
         placeholder="Search"
@@ -26,11 +22,11 @@
         hide-details
         variant="solo-filled"
         class="mr-4"
-        @keydown.enter="$emit('search', values)"
-        @focusout="showSearch=!showSearch"
+        @input="debouncedEmit(values)"
+        @focusout="showSearchTextField=!showSearchTextField"
         autofocus
     ></v-text-field>
-    <v-app-bar-nav-icon class="" icon="mdi-magnify" @click="showSearch=!showSearch;"/>
+    <v-app-bar-nav-icon class="" icon="mdi-magnify" @click="showSearchTextField=!showSearchTextField;"/>
 
     <v-btn text="Photos" to="/photos" class="d-none d-sm-flex"/>
     <v-btn text="Posts" to="/posts" class="d-none d-sm-flex"/>
@@ -52,7 +48,7 @@ import {createCommentVNode, ref, watch} from "vue";
 import router from "@/router";
 import {logined, newPostV4, is_logined} from "@/apiv4";
 
-var showSearch = ref(false)
+var showSearchTextField = ref(false)
 var values = ref('')
 // var is_logined = ref(false)
 // is_logined.value = logined()
@@ -71,4 +67,35 @@ function newpost() {
 }
 
 logined()
+// function debounce(func, delay) {
+//   let timeoutId = null;
+//   return (...args) => {
+//     clearTimeout(timeoutId);
+//     timeoutId = setTimeout(() => func.apply(this, args), delay);
+//   };
+// }
+// const debouncedEmit = debounce((value) => {
+//   $emit('search', value);
+// }, 500); // Adjust the delay as needed
+
+const emit = defineEmits([ 'search'])
+function debounce<T extends (...args: any[]) => any>(func: T, delay: number): (...funcArgs: Parameters<T>) => void {
+      let timeoutId: number | null = null;
+      return (...args: Parameters<T>) => {
+        if (timeoutId !== null) {
+          clearTimeout(timeoutId);
+        }
+        timeoutId = window.setTimeout(() => {
+          func(...args);
+        }, delay);
+      };
+    }
+
+    // Debounced version of the emit function
+    const debouncedEmit = debounce((value: string) => {
+
+      emit('search', value);
+    }, 500); // Adjust the delay as needed
+
+
 </script>

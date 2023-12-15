@@ -16,10 +16,12 @@ console.log("props.searchParam: ", props.searchParam)
 if (props.searchParam != undefined) {
     params = props.searchParam as SearchPostsRequestV4
 }
+else {
+    params.sort = "created_at DESC"
+}
 console.log(params)
 // let params = {} as SearchPostsRequestV3
 var res = ref({} as SearchPostsResponseV4)
-params.sort = "created_at DESC"
 // params.sort
 searchPostsV4(params).then((response) => {
     res.value = response
