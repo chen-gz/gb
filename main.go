@@ -2,13 +2,14 @@ package main
 
 import (
 	"embed"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 	"go_blog/database"
 	hd "go_blog/handler"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 //go:embed front_end/dist/*
@@ -77,40 +78,6 @@ func ginServer() {
 	})
 	r.POST("/api/photo/v2/insert_photo", func(c *gin.Context) {
 		hd.InsertPhotoV2(c, db_user, db_photo, photo_minio_client)
-	})
-	///////////////////////////////////////////////////////////////////////////////////// end of v2 api
-	r.POST("/api/video/v1/add_video", func(c *gin.Context) {
-		// get md5 and sha256 from query
-		md5 := c.Query("md5")
-		sha256 := c.Query("sha256")
-		title := c.Query("title")
-		ext := c.Query("ext")
-		hd.AddVideo(c, db_user, dbVideo, videoMinioClient, md5, sha256, title, ext)
-	})
-	r.GET("/api/video/v1/get_video_list", func(c *gin.Context) {
-		hd.GetVideoList(c, db_user, dbVideo)
-	})
-	r.GET("/api/video/v1/get_video", func(c *gin.Context) {
-		md5 := c.Query("md5")
-		sha256 := c.Query("sha256")
-		id := c.Query("id")
-		// convert id to int, if failed id set to 0
-		idInt, err := strconv.Atoi(id)
-		if err != nil {
-			idInt = 0
-		}
-		hd.GetVideo(c, db_user, dbVideo, videoMinioClient, md5, sha256, idInt)
-	})
-	r.GET("/api/video/v1/get_video_meta", func(c *gin.Context) {
-		md5 := c.Query("md5")
-		sha256 := c.Query("sha256")
-		id := c.Query("id")
-		// convert id to int, if failed id set to 0
-		idInt, err := strconv.Atoi(id)
-		if err != nil {
-			idInt = 0
-		}
-		hd.GetVideoMeta(c, db_user, dbVideo, videoMinioClient, md5, sha256, idInt)
 	})
 
 	///////////////////////////////////////////////////////////////////////////////////// video api

@@ -8,7 +8,6 @@ const routes = [
         children: [
             {path: '', name: 'Home', component: () => import(/* webpackChunkName: "home" */ '@/views/Home.vue'),},
             {path: 'about', name: 'About', component: () => import('@/views/About.vue'),},
-            // {path: 'tags', name: 'Tags', component: () => import('@/views/Tags.vue'),}
         ]
     },
     {
