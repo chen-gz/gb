@@ -31,9 +31,9 @@
                     </div>
                 </div>
             </div>
-            <div class="fixed-sidebar " style="height: 100%">
+            <!-- <div class="fixed-sidebar " style="height: 100%">
                 <div v-if="post_toc.length > 0" id="post_toc" v-html="post_toc"></div>
-            </div>
+            </div> -->
 
         </div>
 

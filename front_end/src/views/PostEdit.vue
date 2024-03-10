@@ -9,11 +9,11 @@
                      class="fill-height"/>
 
             </div>
-            <div style="width: 50vw; height: 100vh;">
+            <!-- <div style="width: 50vw; height: 100vh;">
                 <article id="content-preview"
                          style="width: 100%; border: 1px solid #ccc;  height: 100vh; display: block; overflow-y: auto;"
                          class="fill-height markdown-body" v-html="rendered_content"/>
-            </div>
+            </div> -->
         </div>
         <!--      </v-row>-->
         <!--    </v-container>-->
