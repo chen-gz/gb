@@ -15,6 +15,7 @@
 </template>
 
 <style scoped lang="sass">
+@import "src/assets/variables"
 
 .profile-wrapper
   margin: 3rem 1.5rem 2.5rem 2.5rem
@@ -46,7 +47,7 @@
   font-weight: 600
   margin-top: 1rem
   margin-bottom: 0.5rem
-  font-family: 'Lato', sans-serif
+  font-family: $sidebar-title-font
 
   a
     color: #212529

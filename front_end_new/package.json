@@ -9,11 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.4.15"
+    "vue": "^3.4.15",
+    "vue-router": "4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.3",
+    "@vue/babel-plugin-jsx": "^1.2.1",
     "sass": "^1.71.1",
-    "vite": "^5.1.5"
+    "vite": "^5.1.6"
   }
 }

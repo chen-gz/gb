@@ -1,28 +1,26 @@
-<script setup>
-
-import WelcomeItem from "@/components/WelcomeItem.vue";
+<script setup lang="jsx">
+// let from_jsx = "from jsx";
+// const hello = (<div>hello); // {from_jsx}</div>);
+// export hello;
 </script>
 
 <template>
   <nav class="flex-column flex-grow-1">
-      <div class="nav-item active">
-        <a href="/" class="nav-link">
-          <i class="fa-fw fas fa-home"/>
-          <span>HOME</span>
-        </a>
-      </div>
-      <div class="nav-item">
-        <a href="/categories/" class="nav-link">
-          <i class="fa-fw fas fa-stream"/>
-          <span>CATEGORIES</span>
-        </a>
-      </div>
-      <div class="nav-item"><a href="/tags/" class="nav-link"> <i class="fa-fw fas fa-tags"></i> <span>TAGS</span> </a>
-      </div>
-      <div class="nav-item"><a href="/archives/" class="nav-link"> <i class="fa-fw fas fa-archive"></i>
-        <span>ARCHIVES</span> </a></div>
-      <div class="nav-item"><a href="/about/" class="nav-link"> <i class="fa-fw fas fa-info-circle"></i>
-        <span>ABOUT</span> </a></div>
+    <div class="nav-item active">
+      <a href="/" class="nav-link"> <i class="fa-fw fas fa-home"/> <span>HOME</span> </a>
+    </div>
+    <div class="nav-item">
+      <a href="/categories/" class="nav-link">
+        <i class="fa-fw fas fa-stream"/>
+        <span>CATEGORIES</span>
+      </a>
+    </div>
+    <div class="nav-item"><a href="/tags/" class="nav-link"> <i class="fa-fw fas fa-tags"></i> <span>TAGS</span> </a>
+    </div>
+    <div class="nav-item"><a href="/archives/" class="nav-link"> <i class="fa-fw fas fa-archive"></i>
+      <span>ARCHIVES</span> </a></div>
+    <div class="nav-item"><a href="/about/" class="nav-link"> <i class="fa-fw fas fa-info-circle"></i>
+      <span>ABOUT</span> </a></div>
   </nav>
 
 </template>
@@ -59,6 +57,7 @@ nav
   font-family: $font-family-heading
   //add space between <i> and <span>
   text-decoration: none
+
   a
     opacity: 0.6
     padding-top: 0.6rem
@@ -67,9 +66,11 @@ nav
     align-items: center
     text-decoration: none
     color: var(--sidebar-text-color)
+
     span
       padding-left: 2rem
       line-height: $line-height
+
   i
     //margin-right: 2rem
     width: $line-height

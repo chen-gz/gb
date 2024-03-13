@@ -1,16 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <link rel="icon" href="/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.coom/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-xw1aZxrXr7mv/3uxENLnSYgILsEtkp8lhJOV5q0xmA4G7A3KugqPZ7Xp5R54XbUzgJeHvmIaQ6+LPdSYdVXW4g==" crossorigin="anonymous" />-->
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.25.0/tocbot.min.js"
+            integrity="sha512-P4MxNnVYFHmkj6ZlNusCPMjrqfYF7/AWRM0m7vEHkzTITuiW/6LaXk/Ah/mheuPI1xI80it2dP/8Nz+FLJT9MQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tocbot/4.25.0/tocbot.min.css"
+          integrity="sha512-4q0OX9NAYcRTFEfy9nTK0AV9N7MxM665neDXEW3CjAj1pXc6+8Bcd6ryXl6cY8mTBBXt0aXepnSDLLQZSuJRww=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/a11y-light.min.css"
+          integrity="sha512-WDk6RzwygsN9KecRHAfm9HTN87LQjqdygDmkHSJxVkVI7ErCZ8ZWxP6T8RvBujY1n2/E4Ac+bn2ChXnp5rnnHA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+          integrity="sha512-0aPQyyeZrWj9sCA46UlmWgKOP0mUipLQ6OZXu8l4IcAmD2u31EPEy9VcIMvl7SoAaKe8bLXZhYoMaE/in+gcgA=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"
+            integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                tags: 'ams',
+                displayAlign: 'left', // Optional: Aligns equations to the left
+                displayIndent: '2em' // Optional: Indents equations when aligned to the left
+            },
+            options: {
+                enableMenu: false,
+                menuOptions: {
+                    settings: {
+                        texHints: true,        // put TeX-related attributes on MathML
+                        semantics: false,      // put original format in <semantic> tag in MathML
+                        zoom: 'NoZoom',        // or 'Click' or 'DoubleClick' as zoom trigger
+                        zscale: '200%',        // zoom scaling factor
+                        renderer: 'CHTML',     // or 'SVG'
+                        alt: false,            // true if ALT required for zooming
+                        cmd: false,            // true if CMD required for zooming
+                        ctrl: false,           // true if CTRL required for zooming
+                        shift: false,          // true if SHIFT required for zooming
+                        scale: 1,              // scaling factor for all math
+                        inTabOrder: true,      // true if tabbing includes math
 
-      <title>Vite App</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+                        assistiveMml: true,    // true if hidden assistive MathML should be generated for screen readers
+                        collapsible: false,    // true if complex math should be collapsible
+                        explorer: false,       // true if the expression explorer should be active
+                    },
+                    annotationTypes: {
+                        TeX: ['TeX', 'LaTeX', 'application/x-tex'],
+                        StarMath: ['StarMath 5.0'],
+                        Maple: ['Maple'],
+                        ContentMathML: ['MathML-Content', 'application/mathml-content+xml'],
+                        OpenMath: ['OpenMath']
+                    }
+                }
+            }
+        };
+    </script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+    </script>
+
+
+    <title>Vite App</title>
+</head>
+<body>
+<div id="app"></div>
+<script type="module" src="/src/main.js"></script>
+</body>
 </html>

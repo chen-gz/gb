@@ -8,7 +8,6 @@
       <i class="fas fa-adjust">
       </i>
     </button>
-<!--    <span class="icon-border"></span>-->
     <a aria-label="github" href="https://github.com/chen-gz"
        rel="noopener noreferrer"
        target="_blank"> <i class="fab fa-github"></i> </a> <a
@@ -54,25 +53,9 @@ button
   border-radius: 50%
   background-color: inherit
   border: none
-  //i
-  //  line-height: 1.75rem
-  //  height: 1.75rem
-  //  width: 1.75rem
-  //  padding: 0
-  //  margin: 0
-  //  opacity: 0.6
-
 a
   text-decoration: none
   color: inherit
   opacity: 0.6
-
-//i
-//  line-height: 1.75rem
-//  height: 1.75rem
-//  width: 1.75rem
-//  padding: 0
-//  margin: 0
-//  //opacity: 0.6
 
 </style>
