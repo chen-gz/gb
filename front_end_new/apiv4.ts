@@ -171,10 +171,6 @@ export function logined() {
     // return localStorage.getItem("token") != null
 }
 
-// export async function searchPostsV4(request: SearchPostsRequestV4){
-//
-// }
-
 export interface LoginResponse {
     email: string
     message: string
@@ -182,8 +178,8 @@ export interface LoginResponse {
     token: string
 }
 
-export async function loginV4(email: string, password: string) {
-    fetch(`${blogBackendUrl}/api/v4/login`, {
+export async function loginV4(email: string, password: string) : Promise<boolean> {
+    return fetch(`${blogBackendUrl}/api/v4/login`, {
         method: "POST",
         body: JSON.stringify({
             email: email,
@@ -191,21 +187,24 @@ export async function loginV4(email: string, password: string) {
         }),
     }).then(response => {
             if (!response.ok) {
-                showError("Login failed")
-                return;
+                showError("Login failed");
+                return false;
             }
             if (response.status == 200) {
                 // convert response to LoginResponse
                 response.json().then(response => {
-                    const lg_res: LoginResponse = response as LoginResponse
+                    const lg_res: LoginResponse = response as LoginResponse;
                     localStorage.setItem("token", lg_res.token);
                     localStorage.setItem("userName", lg_res.name);
                     localStorage.setItem("userEmail", lg_res.email);
-                })
+                });
                 showSuccess("Login success");
+                return true;
             } else {
-                showError("Login failed")
+                showError("Login failed");
+                return false;
             }
+
         }
     );
 }

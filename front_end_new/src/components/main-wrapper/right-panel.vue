@@ -15,5 +15,6 @@
   display: flex
   flex-grow: 0
   flex-shrink: 0
+  padding-top: 48px
 
 </style>

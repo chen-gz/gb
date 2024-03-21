@@ -1,80 +1,50 @@
 /*@import './base.css';*/
-@import "markdown.css";
+@import "post.css";
 @import "toc.css";
+
 body {
-  height: 100vh;
-  width: 100vw;
-  margin: 0;
-  /*font-size: ;*/
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    font-family: "Source Sans Pro", "Microsoft Yahei", sans-serif
 }
+
 #app {
-  /*max-width: 1280px;*/
-  margin: 0rem;
-  /*display: flex;*/
-  /*padding: 2rem;*/
-  /*font-weight: normal;*/
-  /*position: fixed;*/
-  /*top: 0px;*/
-  /*left: 0px;*/
-  /*height: calc(100vh - 30px);*/
-  /*width: calc(100vw - 30px);*/
-  height: 100vh;
-  width: calc(100vw);
-  display: flex;
-  flex-direction: row;
-  flex-grow: 0;
-  flex-shrink: 0;
-  /*margin-right: 3px;*/
-  /*overflow: scroll;*/
-  /*margin: 1 1 1 1rem;*/
-  /*width: calc(100% - var(--sidebar));*/
-  /*width: 100vw;*/
-  /*width: 100%;*/
-  /*flex-grow: 1;
-  */
-  /*background: #2c3e50;*/
-
-  z-index: 1;
+    margin: 0rem;
+    height: 100vh;
+    width: calc(100vw);
+    display: flex;
+    flex-direction: row;
+    flex-grow: 0;
+    flex-shrink: 0;
+    z-index: 1;
 }
 
-/*a,*/
-/*.green {*/
-/*  text-decoration: none;*/
-/*  color: hsla(160, 100%, 37%, 1);*/
-/*  transition: 0.4s;*/
-/*  padding: 3px;*/
-/*}*/
-
-/*@media (hover: hover) {*/
-/*  a:hover {*/
-/*    background-color: hsla(160, 100%, 37%, 0.2);*/
-/*  }*/
-/*}*/
-
-/*@media (min-width: 1024px) {*/
-/*  body {*/
-/*    display: flex;*/
-/*    place-items: center;*/
-/*  }*/
-
-/*  #app {*/
-/*    display: grid;*/
-/*    grid-template-columns: 1fr 1fr;*/
-/*    padding: 0 2rem;*/
-/*  }*/
-/*}*/
+/*reset all default padding and margin*/
+* {
+    padding: 0;
+    margin: 0;
+    /*box-sizing: border-box;*/
+    margin-block-start: 0;
+    margin-block-end: 0;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+}
 
 .d-flex {
-  display: flex;
+    display: flex;
 }
+
 .flex-column {
-  flex-direction: column;
+    flex-direction: column;
 }
+
 .flex-row {
-  flex-direction: row;
+    flex-direction: row;
 }
+
 .flex-grow-1 {
-  flex-grow: 1;
+    flex-grow: 1;
 }
 
 

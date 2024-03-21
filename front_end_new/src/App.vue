@@ -8,8 +8,6 @@ import Category from "@/components/main-wrapper/content/category.vue";
 import MainWrapper from "@/components/main-wrapper.vue";
 import Sidebar_bottom from "@/components/sidebar/sidebar_bottom.vue";
 
-watch(() => {
-});
 
 </script>
 
@@ -40,4 +38,15 @@ main
     flex-grow: 1
     flex-shrink: 0
     overflow: hidden
+@media (max-width: 768px)
+    main
+        width: 100%
+    #app-sidebar
+        width: 0
+        display: none
+    //.sidebar-bottom
+    //    display: none
+    //.sidebar-top
+    //    display: none
+    //.sidebar-top
 </style>
