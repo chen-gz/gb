@@ -1,69 +1,11 @@
-# base
+## rule for `id`
 
-## Project setup
+The `id` is an basic attribute for html elements. It is used to identify the element in the document. It is used to link to the element from other parts of the document. 
+It is used to style the element with CSS.
+We may face a problem that two elements have the same `id` in the same document. It is not allowed. But the `id` should be unique in the document.
+Here, we following the following rule for `id` namign: 
 
-```
-# yarn
-yarn
 
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# bun
-bun install
-```
-
-### Compiles and hot-reloads for development
-
-```
-# yarn
-yarn dev
-
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# bun
-pnpm run dev
-```
-
-### Compiles and minifies for production
-
-```
-# yarn
-yarn build
-
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# bun
-pnpm run build
-```
-
-### Lints and fixes files
-
-```
-# yarn
-yarn lint
-
-# npm
-npm run lint
-
-# pnpm
-pnpm lint
-
-# bun
-pnpm run lint
-```
-
-### Customize configuration
-
-See [Configuration Reference](https://vitejs.dev/config/).
+- The `id` should be unique in the document.
+- the `id` start from the "filename-" and then the name of the element.
+- All filename in the project should be in lower case and unique

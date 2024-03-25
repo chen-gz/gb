@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//go:embed front_end/dist/*
+//go:embed front_end.bak/dist/*
 var frontend embed.FS
 
 func ginServer() {
@@ -110,7 +110,7 @@ func ginServer() {
 	///////////////////////////////////////////////////////////////////////////////////// v4 api
 	r.GET("/assets/*filepath", func(c *gin.Context) {
 		//c.FileFromFS("/assets/", frontendBox)
-		if data, err := frontend.ReadFile("front_end/dist/assets" + c.Param("filepath")); err == nil {
+		if data, err := frontend.ReadFile("front_end.bak/dist/assets" + c.Param("filepath")); err == nil {
 			if c.Param("filepath")[len(c.Param("filepath"))-3:] == ".js" {
 				c.Data(200, "application/javascript", data)
 			} else if c.Param("filepath")[len(c.Param("filepath"))-4:] == ".css" {
@@ -123,14 +123,14 @@ func ginServer() {
 		} else {
 			c.String(404, "File not found")
 		}
-		// frontend.ReadFile("front_end/dist/assets/" + c.Param("filepath"))
+		// frontend.ReadFile("front_end.bak/dist/assets/" + c.Param("filepath"))
 		//print(err)
 	})
 
 	// all other path will be redirected to index.html
 	//r.GET("/", func(c *gin.Context) {
 	r.NoRoute(func(c *gin.Context) {
-		c.FileFromFS("front_end/dist/", http.FS(frontend))
+		c.FileFromFS("front_end.bak/dist/", http.FS(frontend))
 	})
 	r.Run(":2009") // listen and serve on
 }
