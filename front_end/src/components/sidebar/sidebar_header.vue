@@ -39,11 +39,13 @@
 .title
     margin-top: 1rem
     margin-bottom: 0.5rem
+    font-weight: $sidebar-title-font-weight
     a
         font-family: $sidebar-title-font-family
         font-size: $sidebar-title-font-size
         font-weight: $sidebar-title-font-weight
-        line-height: $sidebar-title-line-height
+        //line-height: $sidebar-title-line-height
+        line-height: 34px
         color: $sidebar-title-color
         text-decoration: none
 

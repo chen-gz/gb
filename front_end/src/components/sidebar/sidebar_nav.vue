@@ -29,7 +29,7 @@
 <style lang="sass" scoped>
 @import "@/assets/variables.sass"
 // define font size and line height
-$font-size: 1rem
+$font-size: 0.9rem
 $line-height: 0.8
 nav
     width: 100%
@@ -48,8 +48,8 @@ nav::-webkit-scrollbar
 .nav-item
     //margin-top: 2rem
     position: relative
-    padding-right: 1.5rem
-    padding-left: 1.5rem
+    padding-right: 1rem
+    padding-left: 1rem
     padding-top: 0.4rem
     padding-bottom: 0.4rem
 
@@ -70,9 +70,12 @@ nav::-webkit-scrollbar
         align-items: center
         text-decoration: none
         color: var(--sidebar-text-color)
+        padding-left: 1.5rem
+
 
         span
-            padding-left: 2rem
+            letter-spacing: 0.2px
+            padding-left: 1.5rem
             line-height: $line-height
 
     i
