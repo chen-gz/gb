@@ -82,17 +82,19 @@ export async function updatePostV4(request: V4PostData): Promise<UpdatePostRespo
 //     })
 // }
 //
-// export async function savePost(post: V4PostData) {
-//     updatePostV4(post).then(
-//         (response) => {
-//             if (response.status == "success") {
-//                 showSuccess("Post saved")
-//                 router.push({path: '/posts/edit/' + response.post.url})
-//             } else {
-//                 showError("Failed to save post")
-//             }
-//         })
-// }
+export async function savePost(post: V4PostData) {
+    updatePostV4(post).then(
+        (response) => {
+            if (response.status == "success") {
+                // showSuccess("Post saved")
+                alert("Post saved")
+                // router.push({path: '/posts/edit/' + response.post.url})
+            } else {
+                // showError("Failed to save post")
+                alert("failed to save post");
+            }
+        })
+}
 
 export interface NewPostResponseV4 {
     status: string
@@ -187,7 +189,7 @@ export async function loginV4(email: string, password: string) : Promise<boolean
         }),
     }).then(response => {
             if (!response.ok) {
-                showError("Login failed");
+                // showError("Login failed");
                 return false;
             }
             if (response.status == 200) {
@@ -198,10 +200,10 @@ export async function loginV4(email: string, password: string) : Promise<boolean
                     localStorage.setItem("userName", lg_res.name);
                     localStorage.setItem("userEmail", lg_res.email);
                 });
-                showSuccess("Login success");
+                // showSuccess("Login success");
                 return true;
             } else {
-                showError("Login failed");
+                // showError("Login failed");
                 return false;
             }
 
@@ -232,30 +234,30 @@ export function logout() {
     localStorage.removeItem("userEmail")
 }
 
-export const alert = ref({
-    show: false,
-    type: '',
-    message: '',
-    color: '',
-})
+// export const alert = ref({
+//     show: false,
+//     type: '',
+//     message: '',
+//     color: '',
+// })
 
-export function showError(msg: string) {
-    alert.value = {
-        show: true,
-        type: 'error',
-        message: msg,
-        color: 'error'
-    }
-}
-
-export function showSuccess(msg: string) {
-    alert.value = {
-        show: true,
-        type: 'info',
-        message: msg,
-        color: 'success'
-    }
-}
+// export function showError(msg: string) {
+//     alert.value = {
+//         show: true,
+//         type: 'error',
+//         message: msg,
+//         color: 'error'
+//     }
+// }
+//
+// export function showSuccess(msg: string) {
+//     alert.value = {
+//         show: true,
+//         type: 'info',
+//         message: msg,
+//         color: 'success'
+//     }
+// }
 
 export function formatDate(date: Date) {
     date = new Date(date)

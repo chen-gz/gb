@@ -3,7 +3,8 @@
  */
 /* light-scheme */
 #markdown_content > * {
-  margin-bottom: 1rem; }
+  margin-bottom: 1rem;
+  font-weight: 400; }
 
 #markdown_content ul, #markdown_content ol {
   padding-inline-start: 1.5rem;

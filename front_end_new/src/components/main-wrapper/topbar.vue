@@ -1,35 +1,64 @@
 <script setup lang="ts">
+/// dynamic update based on the router path
+
 //watch for the router path change
 // import {logined} from "/apiv4.js";
-import {logined} from "/apiv4.js";
+import {logined, newPostV4} from "/apiv4.js";
 import {useRouter} from "vue-router";
 import {watch, ref} from "vue";
 
 const router = useRouter()
 
+let isLogin = ref(true)
+let breadcrumb = ref([]) // name and link
 watch(router.currentRoute, (to, from) => {
     // check the loging status
-    if (logined()) {
+    isLogin.value = logined();
+    // Reset breadcrumb and always start with Home
+    breadcrumb.value = [{ name: 'Home', link: '/' }];
 
-    }
-})
-let isLogin = ref(true)
+    // Extract parts of the path to build the breadcrumb
+    const pathSegments = to.path.split('/').filter(path => path !== '');
+
+    // get the character back such as "%20"
+    pathSegments.forEach((segment, index) => {
+        pathSegments[index] = decodeURIComponent(segment);
+        // pathSegments[index] = pathSegments[index].charAt(0).toUpperCase() + pathSegments[index].slice(1);
+    });
+    let pathSoFar = '';
+    pathSegments.forEach(segment => {
+        pathSoFar += `/${segment}`;
+        //capitalize the first letter for name
+        let name = segment.charAt(0).toUpperCase() + segment.slice(1);
+
+        breadcrumb.value.push({ name: name, link: pathSoFar });
+    });})
+function new_post() {
+    console.log("new post")
+    // create a new post and redirect to the new post
+    newPostV4().then((response) => {
+        console.log(response)
+        router.push(`/post_edit/${response.url}`)
+    })
+}
 
 </script>
 
 <template>
     <div id="topbar-wrapper-inner" class="d-flex flex-row">
         <nav id="breadcrumb" aria-label="Breadcrumb">
-            <span> <a href="/">Home</a> </span>
-            <span>Codeforce Round 926</span>
+            <span v-for="(item, index) in breadcrumb" :key="index" style="justify-content: center">
+                <a v-if="index < breadcrumb.length - 1" :href="item.link">{{ item.name }}</a>
+                <span v-else>{{ item.name }}</span>
+            </span>
         </nav>
         <span class="flex-grow-1"></span>
         <input> </input>
-        <button v-if="!isLogin"  @click="$router.push('/login')">
+        <button v-if="!isLogin" @click="$router.push('/login')">
             <i class="fas fa-user"></i>
         </button>
-        <button v-else @click="$router.push('/logout')">
-            <i class="fas fa-sign-out-alt"></i>
+        <button v-else @click="new_post">
+            <i class="fas fa-plus"></i>
         </button>
     </div>
 

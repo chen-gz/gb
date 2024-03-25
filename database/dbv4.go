@@ -315,7 +315,7 @@ type SearchParams struct {
 
 func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, error) {
 	roles, _ := getUserRole(db, user)
-	stmt := fmt.Sprintf(`SELECT * from %s WHERE `, blogDbConfig.BlogTable)
+	stmt := fmt.Sprintf(`SELECT * except content from %s WHERE `, blogDbConfig.BlogTable)
 	for index, item := range roles.ToSlice() {
 		if index == 0 {
 			stmt += `(FIND_IN_SET("` + item + `", view_groups) `

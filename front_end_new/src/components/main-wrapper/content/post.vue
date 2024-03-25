@@ -5,23 +5,26 @@
             <h1> {{ post.title }}</h1>
             <div class="post-meta text-muted">
                 <div class="post-header">
-        <span> Posted on {{
-                new Date(post.created_at).toLocaleDateString("en-US", {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                })
-            }}</span>
-                    <span class="before_dot"> Updated on {{
+                    <span> Posted on </span>
+                    <span style="font-weight: 600; margin-right: 7px"> {{
+                            new Date(post.created_at).toLocaleDateString("en-US", {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            })
+                        }}
+                    </span>
+                    <span>   Updated on </span>
+                    <span class="before_dot" style="font-weight: 600"> {{
                             new Date(post.updated_at).toLocaleDateString("en-US", {
                                 year: 'numeric',
                                 month: 'short',
                                 day: 'numeric'
                             })
                         }}</span>
-                    <!--        <span>Updated {{post.updated_at}}</span>-->
                     <div class="sub-meta">
-                        <span class="author">{{ post.author }}</span>
+                        <span>By</span>
+                        <span class="author" style="font-weight: 600;">{{ post.author }}</span>
                         <!--          add edit button-->
                         <button @click="route.push('/post_edit/' + post.url)">edit</button>
                         <button>delete</button>
@@ -35,25 +38,52 @@
 
 <style lang="sass" scoped>
 .post_page
-    margin-top: 48px
+    margin-top: 1.5rem
+    font-weight: 400
+
+.post-header
+    margin-top: 2rem
+    margin-bottom: 20px
+    display: block
+    color: rgb(117, 117, 117)
+    font-size: 0.8rem
+    font-weight: 500
+
+
+.sub-meta
+    margin-top: 8px
+    margin-bottom: 20px
+    display: block
+    color: rgb(117, 117, 117)
+    font-size: 0.8rem
+
+    button
+        width: 4rem
+        background-color: white
+        border: 1px solid #d1d5da
+        //round
+        border-radius: 6px
+
+    & > span, button
+        margin-right: 10px
+
+        &:first-child
+            margin-right: 3px
+
+        &:last-child
+            margin-right: 0
 </style>
 
 <script lang="ts" setup>
 import {nextTick, onMounted, ref, watch, watchEffect} from "vue";
-// import {getPostV4, V4PostData} from "../../../../apiv4";
-import {getPostV4,V4PostData} from "/apiv4";
-
+import {getPostV4, V4PostData} from "/apiv4";
 import {useRouter} from "vue-router";
 
 const route = useRouter();
-
-// let url = "253"
-// let route = useRoute()
 let url = route.currentRoute.value.params.id
 console.log(url)
 
 let post = ref({} as V4PostData);
-// let post = ref();
 let post_content = ref("");
 let post_toc = ref("");
 
@@ -70,7 +100,6 @@ getPostV4(url, true).then((response) => {
     } else {
         post_toc.value = post_content.value.substring(nav_start, nav_end + 6)
         post_content.value = post_content.value.substring(nav_end + 6)
-
     }
     post_toc.value = post_toc.value.substring(16, post_toc.value.length - 19)
     console.log(post_toc.value)
@@ -81,11 +110,14 @@ watch(post_content, () => {
     nextTick(() => {
         // @ts-ignore
         // window.MathJax.Hub.Queue(["Typeset", window.MathJax.Hub]);
+        // tocbot.run();
         window.MathJax.startup.defaultReady();
 
-// @ts-ignore
+        // @ts-ignore
         window.hljs.highlightAll()
+        // @ts-ignore
         if (typeof window.tocbot !== 'undefined') {
+            // @ts-ignore
             window.tocbot.init({
                 tocSelector: '#toc',
                 contentSelector: '#markdown_content',
@@ -94,7 +126,7 @@ watch(post_content, () => {
                 orderedList: false,
                 scrollSmooth: false
             });
-            // tocbot.run();
+            // @ts-ignore
             window.tocbot.refresh();
             console.log('tocbot is defined');
         } else {

@@ -1,96 +1,78 @@
-<!--<script setup lang="ts">-->
-<!--import {useRouter} from "vue-router";-->
-<!--import loader from "@monaco-editor/loader";-->
-
-<!--import {getPostV4, V4PostData} from "../../../../apiv4";-->
-<!--import {onMounted} from "vue";-->
-<!--// onMounted(async () => {-->
-<!--// let router = useRouter()-->
-<!--// let url = router.currentRoute.value.params.id as string-->
-<!--// let post = {} as V4PostData-->
-<!--// await getPostV4(url, false).then(-->
-<!--//     (response) => {-->
-<!--//         post = response.post-->
-<!--//     }-->
-<!--// )-->
-<!--console.log("post" + post.content)-->
-<!--// onMounted(-->
-<!--//     async () => {-->
-<!--const monaco = await loader.init()-->
-<!--const editor = monaco.editor.create(document.getElementById('code_editor'), {-->
-<!--    value: post.content,-->
-<!--    language: 'markdown',-->
-<!--    theme: 'one-light',-->
-<!--});-->
-<!--console.log("loaded editor")-->
-<!--//     }-->
-<!--// )-->
-
-<!--// loader.init().then(monaco => {-->
-<!--//     const editor = monaco.editor.create(document.getElementById('code_editor'), {-->
-<!--//         value: `function x() {-->
-<!--//   console.log("Hello world!");-->
-<!--// }`,-->
-<!--//         // value: post.content,-->
-<!--//         language: 'markdown',-->
-<!--//         theme: 'one-light',-->
-<!--//     });-->
-<!--// });-->
-
-<!--</script>-->
-
-
-<script setup lang="ts">
+<script lang="ts" setup>
 import loader from "@monaco-editor/loader";
 import {useRouter} from "vue-router";
-import {getPostV4} from "../../../../apiv4";
+import {getPostV4, savePost, V4PostData} from "../../../../apiv4";
 import {ref} from "vue";
 
-let route = useRouter()
-// let url = router.currentRoute.value.params.id;
-// getPostV4(url, false).then(
-//     (response) => {
-//         console.log("post" + response.post.content)
-//         loader.init().then(monaco => {
-//             const editor = monaco.editor.create(document.getElementById('code_editor'), {
-//                 value: response.post.content,
-//                 language: 'markdown',
-//                 theme: 'one-light',
-//             });
-//         });
-//     }
-// )
-
-let url = route.currentRoute.value.params.id
+let router = useRouter()
+let url = router.currentRoute.value.params.id as string
 console.log(url)
 
 let post = ref({} as V4PostData);
-// let post = ref();
-let post_content = ref("");
-let post_toc = ref("");
-console.log(url)
 
+let editor: any = null
 getPostV4(url, true).then((response) => {
     console.log(response)
     post.value = response.post
     loader.init().then(monaco => {
-        const editor = monaco.editor.create(document.getElementById('code_editor'), {
+        editor = monaco.editor.create(document.getElementById('code_editor'), {
             value: post.value.content,
             language: 'markdown',
             theme: 'one-light',
             wrappingColumn: 80,
             wordWrap: 'on',
+            scrollBeyondLastLine: false,
         });
     });
 })
+let editor_shows = ref("content")
+document.addEventListener('keydown', function (e) {
+    // control + 'S' to save or (command + 'S' on mac)
+    if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        console.log('ctrl+s');
+        // save the post
+        if (editor) {
+            if (editor_shows.value === "meta")
+                post.value = JSON.parse(editor.getValue())
+            else
+                post.value.content = editor.getValue()
+        }
+        savePost(post.value).then((response) => {
+            // console.log(response)
+        })
+        // push to new url
+        router.push("/post_edit/" + post.value.url)
+    }
+    // control + 'E' to edit or (command + 'E' on mac)
+    if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey) && e.key === 'e') {
+        e.preventDefault();
+        console.log('ctrl+e');
+        // if editor is showing content, switch to meta
+        if (editor_shows.value === "content") {
+            editor_shows.value = "meta"
+            editor.setValue(JSON.stringify(post.value, null, 4))
+            // disable word wrap and set language to json
+            editor.updateOptions({wordWrap: 'off', language: 'json'})
+        } else {
+            editor_shows.value = "content"
+            editor.setValue(post.value.content)
+            // editor.setModelLanguage(editor.getModel(), 'markdown')
+            // enable word wrap
+            editor.updateOptions({wordWrap: 'on', language: 'markdown'})
+        }
+
+    }
+
+});
 
 </script>
 <template>
-            <div id="code_editor"></div>
+    <div id="code_editor"></div>
 </template>
 
 
-<style scoped lang="sass">
+<style lang="sass" scoped>
 
 #code_editor
     width: calc(100% - 2px)

@@ -43,7 +43,7 @@ searchPostsV4(params).then((response) => {
              </span>
 
             <time>
-                {{result.updated_at.toString()}}
+                {{formatDate(result.updated_at)}}
             </time>
         </li>
     </ul>

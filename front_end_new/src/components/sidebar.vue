@@ -31,6 +31,10 @@ a
     height: 100%
     background-color: var(--sidebar-bg)
     font-family: $font-family-heading
+    // high scroll bar
+
+//#content-wrapper-inner::-webkit-scrollbar
+//    display: none
 
 
 </style>

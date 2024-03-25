@@ -30,7 +30,6 @@ import RightPanel from "@/components/main-wrapper/right-panel.vue";
     padding-right: 0.75rem
     height: 100%
 
-
 #main-wrapper-topbar-wrapper-outer
     height: $topbar-height
     width: calc(100% - 2rem)
