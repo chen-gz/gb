@@ -39,6 +39,7 @@ searchPostsV4(param).then((res) => {
     flex-grow: 0
     flex-shrink: 0
     padding-top: 48px
+    padding-left: 15px
     flex-direction: column
     // add vertical spacing between each items
     > div

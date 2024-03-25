@@ -34,7 +34,7 @@ onMounted(() => {
         <div id="tags" class="d-flex flex-wrap">
             <div v-for="(item, index) in tags.values" :key="index">
                 <div class="item">
-                    <a :href="'/list?tag=' + item">
+                    <a :href="'/tag/' + item">
                         {{ item }}
                         <span> 1 </span>
                     </a>

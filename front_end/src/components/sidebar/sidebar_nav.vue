@@ -9,13 +9,13 @@
         <div class="nav-item active">
             <a class="nav-link" href="/"> <i class="fa-fw fas fa-home"/> <span>HOME</span> </a>
         </div>
-<!--        <div class="nav-item">-->
-<!--            <a class="nav-link" href="/categories/">-->
-<!--                <i class="fa-fw fas fa-stream"/>-->
-<!--                <span>CATEGORIES</span>-->
-<!--            </a>-->
-<!--        </div>-->
-        <div class="nav-item"><a class="nav-link" href="/tags/"> <i class="fa-fw fas fa-tags"></i> <span>TAGS</span>
+        <div class="nav-item">
+            <a class="nav-link" href="/cate/">
+                <i class="fa-fw fas fa-stream"/>
+                <span>CATEGORIES</span>
+            </a>
+        </div>
+        <div class="nav-item"><a class="nav-link" href="/tag/"> <i class="fa-fw fas fa-tags"></i> <span>TAGS</span>
         </a>
         </div>
 <!--        <div class="nav-item"><a class="nav-link" href="/archives/"> <i class="fa-fw fas fa-archive"></i>-->

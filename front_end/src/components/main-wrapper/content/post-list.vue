@@ -6,11 +6,23 @@ import {formatDate, SearchPostsRequestV4, SearchPostsResponseV4, searchPostsV4} 
 // let searchParam = SearchPostsRequestV4
 const route = useRouter();
 // url is tags/:id
-let searchParam = {
-    tags: route.currentRoute.value.query.tag,
-    categories: route.currentRoute.value.query.cate,
-    sort: "created_at DESC"
-} as SearchPostsRequestV4;
+// url can be "tag/:id" or "cate/:id" or "post/
+// parse the url first
+let url_cate_post = route.currentRoute.value.path.split("/")[1]
+let url_id = route.currentRoute.value.path.split("/")[2]
+console.log("call list page" + url_cate_post + " " + url_id)
+
+let searchParam = {} as SearchPostsRequestV4
+if (url_cate_post == "tag") {
+    searchParam.tags = url_id
+    searchParam.sort = "created_at DESC"
+} else if (url_cate_post == "cate") {
+    searchParam.categories = url_id
+    searchParam.sort = "created_at DESC"
+} else {
+    searchParam.sort = "created_at DESC"
+}
+
 let params = searchParam
 // let params = {} as SearchPostsRequestV3
 var res = ref({} as SearchPostsResponseV4)

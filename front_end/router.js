@@ -5,6 +5,7 @@ import PostList from "@/components/main-wrapper/content/post-list.vue";
 import Login from "@/components/main-wrapper/content/login.vue";
 import Home from "@/components/main-wrapper/content/home.vue";
 import PostEdit from "@/components/main-wrapper/content/post-edit.vue";
+import Category from "@/components/main-wrapper/content/category.vue";
 
 const routes = [
     {
@@ -13,12 +14,18 @@ const routes = [
         component: Home
     },
     {
-        path: '/tags/',
+        path: '/tag/',
         name: 'Tags',
         component: Tags
     },
     {
-        path: '/list',
+        path:'/cate/',
+        name:'Categories',
+        component: Category
+
+    },
+    {
+        path: '/tag/:id',
         name: 'Tag and Category',
         component: PostList
     },
@@ -26,6 +33,11 @@ const routes = [
         path: '/post/:id',
         name: 'PostPage',
         component: PostPage
+    },
+    {
+        path: '/post/',
+        name: 'PostList',
+        component: PostList
     },
     {
         path:'/post_edit/:id',
