@@ -18,12 +18,12 @@ steps:
   - name:  prepare front-end build
     commands:
 #       build front-end
-      - cd front_end.bak
+      - cd front_end
       - yarn install
   - name: bulid front-end
     commands:
       - pwd
-      - cd front_end.bak
+      - cd front_end
       - yarn build
 
   - name: build back-end
