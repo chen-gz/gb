@@ -22,7 +22,6 @@ const routes = [
         path:'/cate/',
         name:'Categories',
         component: Category
-
     },
     {
         path: '/tag/:id',

@@ -25,13 +25,21 @@ watch(router.currentRoute, (to, from) => {
         pathSegments[index] = decodeURIComponent(segment);
         // pathSegments[index] = pathSegments[index].charAt(0).toUpperCase() + pathSegments[index].slice(1);
     });
+    // if the router is /post_edit/xxx, then the breadcrumb should be /post/xxx and post will post to the page
+
     let pathSoFar = '';
     pathSegments.forEach(segment => {
         pathSoFar += `/${segment}`;
         //capitalize the first letter for name
         let name = segment.charAt(0).toUpperCase() + segment.slice(1);
-
-        breadcrumb.value.push({ name: name, link: pathSoFar });
+        let link  = pathSoFar;
+        if (name == "Post_edit") {
+            name = "Post"
+            // last part of the path is the post id
+            let post_id = pathSegments[pathSegments.length - 1]
+            link = pathSoFar.replace("post_edit", "post") + `/${post_id}`
+        }
+        breadcrumb.value.push({ name: name, link: link });
     });})
 function new_post() {
     console.log("new post")
