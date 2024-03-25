@@ -375,7 +375,7 @@ func searchPosts(db *sql.DB, params SearchParams, user User) ([]V4PostData, erro
 		var created_at_str, updated_at_str string
 		var view_groups_str, edit_groups_str string
 		err := rows.Scan(&post.Id, &post.Title, &post.Author, &post.AuthorEmail, &post.Url,
-			&post.IsDraft, &post.IsDeleted, &post.Content, &post.ContentRendered, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
+			&post.IsDraft, &post.IsDeleted /*&post.Content,*/, &post.ContentRendered, &post.Summary, &post.Tags, &post.Category, &post.CoverImage,
 			&created_at_str, &updated_at_str, &view_groups_str, &edit_groups_str)
 		post.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", created_at_str)
 		post.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", updated_at_str)
