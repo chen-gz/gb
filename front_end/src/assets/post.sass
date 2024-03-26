@@ -1,10 +1,13 @@
 @import "variables"
 @import typography-light
 #markdown_content
-    >*
+    //font-family: "Times New Roman", Times
+    font-family: "Vollkorn", Palatino, Times, sans-serif
+
+    > *
         margin-bottom: 1rem
         font-weight: 400
-        //font: $font-family-base
+    //font: $font-family-base
     ul, ol
         padding-inline-start: 1.5rem
         padding-inline-end: 1.5rem
@@ -23,73 +26,61 @@
             margin-block-end: 0.5rem
             margin-inline-start: 0
             margin-inline-end: 0
-//#post-inner-wrapper
-//    >*
-//        margin-bottom: 1rem
-    //width: 100%
-    //// small indent for the post content
-    //// indent for ul and ol to avoid the bullet points and numbers outside the container
-    //.post_page::-webkit-scrollbar
-    //    display: none
-    //
-    //.post_page
-    //    @include light-scheme
-    //    //background-color: #07a8f7
-    //    z-index: 10
-    //
-    //h1
-    //    margin-top: 1.5rem
-    //    margin-bottom: 1.5rem
-    //    font-size: 1.92rem
-    //    color: var(--heading-color)
-    //    font-family: $font-family-heading !important
-    //    font-weight: 400
-    //
-    //p
-    //    font-family: $font-family-base
-    //    //margin-bottom: 1.1rem
-    //    //margin-top: 1.1rem
-    //    margin-block-start: 1rem
-    //    margin-block-end: 1rem
-    //    margin-inline-start: 0.5rem
-    //    margin-inline-end: 0.5rem
-    //
-    //h2
-    //    font-size: 1.54rem
-    //    font-weight: 400
-    //    color: var(--heading-color)
-    //    font-family: $font-family-heading
-    //
-    //h3
-    //    font-size: 1.25rem
-    //    color: var(--heading-color)
-    //    font-family: $font-family-heading
-    //
-    //h4
-    //    font-size: 1.1rem
-    //    font-weight: 500
-    //    color: var(--heading-color)
-    //    font-family: $font-family-heading
-    //    margin-bottom: 1.1rem
-    //    margin-top: 1.1rem
-    //
-    //pre
-    //    margin-left: 1rem
-    //
-    //code
-    //    overflow-x: scroll
-    //    scrollbar-width: initial
-    //    white-space: pre-wrap
-    //    font-family: "JetBrains Mono", ui-monospace
+    h1
+        margin-top: 1.6em
+        font-weight: normal
+        font-size: 3em
+    h2
+        margin-top: 2em
+        font-weight: normal
 
-//blockquote
-//    // citation color
-//    //background-color: #f4f4f4
-//    opacity: 0.6
-//    border-left: #8e8e8e 0.25rem solid
-//    //padding-left:
-//    //margin-inline-end: 0rem
-//    margin-inline-start: 1rem
-//    //margin-block-start: 1rem
-//    padding-left: 2rem
+    h3
+        font-weight: normal
+        font-style: italic
+        margin-top: 3em
+
+    h1, h2, h3
+        text-align: center
+
+    h2:after
+        border-bottom: 1px solid #2f2f2f
+            content: ''
+            width: 100px
+            display: block
+            margin: 0 auto
+            height: 1px
+
+    h1 + h2, h2 + h3
+        margin-top: 0.83em
+
+    p, .mathjax-block
+        margin-top: 0
+        -webkit-hypens: auto
+        -moz-hypens: auto
+        hyphens: auto
+    ul
+        list-style: square
+        padding-left: 1.2em
+    ol
+        padding-left: 1.2em
+    a
+	    color: #2484c1
+	    text-decoration: none
+    a:hover
+        text-decoration: underline
+
+    a img
+        border: none
+
+    h1 a,
+    h1 a:hover
+	    color: #333
+	    text-decoration: none
+    .math
+        font-size: 0.95em
+
+    code, pre
+        font-family: "Consolas", "Menlo", "Monaco", monospace, serif
+	    font-size: .9em
+	    background: white
 
