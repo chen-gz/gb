@@ -8,46 +8,15 @@ import PostEdit from "@/components/main-wrapper/content/post-edit.vue";
 import Category from "@/components/main-wrapper/content/category.vue";
 
 const routes = [
-    {
-        path: '/',
-        name: 'Home',
-        component: Home
-    },
-    {
-        path: '/tag/',
-        name: 'Tags',
-        component: Tags
-    },
-    {
-        path:'/cate/',
-        name:'Categories',
-        component: Category
-    },
-    {
-        path: '/tag/:id',
-        name: 'Tag and Category',
-        component: PostList
-    },
-    {
-        path: '/post/:id',
-        name: 'PostPage',
-        component: PostPage
-    },
-    {
-        path: '/post/',
-        name: 'PostList',
-        component: PostList
-    },
-    {
-        path:'/post_edit/:id',
-        name:'PostEdit',
-        component:PostEdit
-    },
-    {
-        path: '/login',
-        name: 'Login',
-        component: Login
-    }
+    {path: '/', name: 'Home', component: Home},
+    {path: '/tag/', name: 'Tags', component: Tags},
+    {path: '/cate/', name: 'Categories', component: Category},
+    {path: '/post/:id', name: 'PostPage', component: PostPage},
+    {path: '/post_edit/:id', name: 'PostEdit', component: PostEdit},
+    {path: '/login', name: 'Login', component: Login},
+    {path: '/tag/:id', name: 'Tag and Category', component: PostList},
+    {path: '/post/', name: 'PostList', component: PostList},
+    {path: '/search/:id', name: 'Search', component: PostList},
 ];
 
 const router = createRouter({

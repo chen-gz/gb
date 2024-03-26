@@ -39,6 +39,10 @@ watch(router.currentRoute, (to, from) => {
             let post_id = pathSegments[pathSegments.length - 1]
             link = pathSoFar.replace("post_edit", "post") + `/${post_id}`
         }
+        else if (name == "search") {
+            // stop the for each loop
+            return
+        }
         breadcrumb.value.push({ name: name, link: link });
     });})
 function new_post() {
@@ -48,6 +52,12 @@ function new_post() {
         console.log(response)
         router.push(`/post_edit/${response.url}`)
     })
+}
+
+let search_message = ref("")
+function onSearch() {
+    console.log("search", search_message.value)
+    router.push(`/search/${search_message.value}`)
 }
 
 </script>
@@ -61,7 +71,8 @@ function new_post() {
             </span>
         </nav>
         <span class="flex-grow-1"></span>
-        <input> </input>
+        <input v-model="search_message" v-on:keyup.enter="onSearch"> </input>
+
         <button v-if="!isLogin" @click="$router.push('/login')">
             <i class="fas fa-user"></i>
         </button>
