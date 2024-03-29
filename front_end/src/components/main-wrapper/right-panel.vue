@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {searchPostsV4, SearchPostsRequestV4} from "../../../apiv4.js";
+import {getPostV4,searchPostsV4, SearchPostsRequestV4, GetFileList} from "../../../apiv4.js";
 import {ref, watch} from "vue";
 import {useRouter} from "vue-router";
 
@@ -22,10 +22,22 @@ watch(useRouter().currentRoute, (to, from) => {
     } else {
         editor.value = false
     }
+    let url = to.path.split("/")
+    let url2 = url[url.length - 1] as string
+
+    // get post
+    let current_post = ref({})
+    getPostV4(url2, false).then((res) => {
+        current_post.value = res
+    })
+
     console.log(to.path)
     if (editor.value) {
         // get files list from the server
         console.warn("todo: get files list")
+        GetFileList(current_post.value.id).then((res) => {
+            console.log(res)
+        })
     }
 })
 
@@ -37,8 +49,8 @@ watch(useRouter().currentRoute, (to, from) => {
             <h4>Recently Updated</h4>
             <ul>
                 <li v-for
-                        ="post in posts" :key="post.id">
-                    <a :href="'/post/' + post.url">{{ post.title }}</a>
+                        ="p in posts" :key="p.id">
+                    <a :href="'/post/' + p.url">{{ p.title }}</a>
                 </li>
             </ul>
         </div>

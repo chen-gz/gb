@@ -1,4 +1,5 @@
-import {ref} from "vue";
+import {ref, watch} from "vue";
+import {useRouter} from "vue-router";
 // const crc32 = require("crc32");
 // import "crc32/lib/crc32.js"
 // import CRC32 from "crc-32/crc32.js"
@@ -362,3 +363,35 @@ export async function getRenderedContent(content: string): Promise<string> {
         })
     })
 }
+
+// type UploadFileResponse struct {
+//     Filenames []string `json:"filenames"`
+//     FileUrl   []string `json:"file_url"` // the file url with be updated by the server
+//     Message   string   `json:"message"`
+// }
+export interface GetFileListResponse  {
+    filenames: string[]
+    file_url: string[]
+    message: string
+}
+
+// r.GET("/api/blog_file/v1/get_file_lists/:id", func(c *gin.Context) {
+export async function GetFileList(post_id: number): Promise<string[]> {
+    return await fetch(`${blogBackendUrl}/api/blog_file/v1/get_file_lists/${post_id}`, {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+    }).then((response) => {
+        if (!response.ok) {
+            console.error(response);
+            return response.json()
+        }
+        return response.json().then((response) => {
+            response as GetFileListResponse
+            return response.filenames
+        })
+    })
+}
+
+
