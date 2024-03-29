@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"time"
 )
 
@@ -35,8 +36,8 @@ func GetPresignedUrl(c *gin.Context, db_user *sql.DB, db_blog *sql.DB, client *m
 	type UploadFileResponse struct {
 		PresignedUrl string `json:"presigned_url"`
 		Message      string `json:"message"`
-		Filename     string `json:"filename"` // the file name with be update by the server
-		FileUrl      string `json:"file_url"` // the file url with be update by the server
+		Filename     string `json:"filename"` // the file name with be updated by the server
+		FileUrl      string `json:"file_url"` // the file url with be updated by the server
 	}
 	user := database.V3GetUserByAuthHeader(db_user, c.Request.Header.Get("Authorization"))
 	var uploadFileRequest UploadFileRequest
@@ -73,6 +74,43 @@ func GetPresignedUrl(c *gin.Context, db_user *sql.DB, db_blog *sql.DB, client *m
 		Filename:     file_name_with_hash,
 		Message:      "success",
 		FileUrl:      publicUrl,
+	})
+}
+
+func GetFileList(c *gin.Context, db_user *sql.DB, db_blog *sql.DB) {
+	type GetFileListResponse struct {
+		Filenames []string `json:"filenames"`
+		FileUrl   []string `json:"file_url"` // the file url with be updated by the server
+		Message   string   `json:"message"`
+	}
+	user := database.V3GetUserByAuthHeader(db_user, c.Request.Header.Get("Authorization"))
+	// get id from parameter
+	id := c.Param("id")
+	// convert id from string to int
+	id_int, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, GetFileListResponse{Filenames: nil, FileUrl: nil})
+		return
+	}
+	// check request is parameter valid or not
+	if !database.UpdatePostPermissionCheck(db_blog, user, id_int) {
+		c.JSON(http.StatusForbidden, GetFileListResponse{Message: "permission denied"})
+		return
+	}
+	//database.SearchFile(db_blog, id_int);
+	files, err := database.SearchFile(db_blog, user, id_int)
+	//make filename and fileurl list
+	var filenames []string
+	var fileurls []string
+	for _, file := range files {
+		filenames = append(filenames, file.FileName)
+		fileurls = append(fileurls, file.FileUrl)
+	}
+
+	c.JSON(http.StatusOK, GetFileListResponse{
+		Filenames: filenames,
+		FileUrl:   fileurls,
+		Message:   "success",
 	})
 }
 

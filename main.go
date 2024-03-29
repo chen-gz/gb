@@ -46,6 +46,10 @@ func ginServer() {
 	r.POST("/api/blog_file/v1/get_presigned_url", func(c *gin.Context) {
 		hd.GetPresignedUrl(c, db_user, db_blog, minio_client)
 	})
+	r.GET("/api/blog_file/v1/get_file_lists/:id", func(c *gin.Context) {
+		hd.GetFileList(c, db_user, db_blog)
+	})
+
 	r.GET("/api/photo/v2/get_photo_list", func(c *gin.Context) {
 		hd.GetPhotoIdsV2(c, db_user, db_photo)
 	})
