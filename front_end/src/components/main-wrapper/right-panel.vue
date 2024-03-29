@@ -15,6 +15,7 @@ let editor = ref(false)
 
 let router = useRouter()
 let path = router.currentRoute.value.path
+let file_list = ref([])
 watch(useRouter().currentRoute, (to, from) => {
     // if post_edit in url
     if (to.path.includes("post_edit")) {
@@ -23,22 +24,32 @@ watch(useRouter().currentRoute, (to, from) => {
         editor.value = false
     }
     let url = to.path.split("/")
+    console.log(url)
     let url2 = url[url.length - 1] as string
+    // convert url2 to string from html encoded
+    url2 = decodeURIComponent(url2)
+    console.log(url2)
 
     // get post
     let current_post = ref({})
     getPostV4(url2, false).then((res) => {
-        current_post.value = res
+        current_post.value = res.post
+        console.log("current post", current_post.value)
+
+        console.log("to path", to.path)
+        if (editor.value) {
+            // get files list from the server
+            console.warn("todo: get files list")
+            GetFileList(current_post.value.id).then((res) => {
+                file_list.value = res
+
+                // console.log(res)
+                // console.log("files list", res)
+            })
+        }
+
     })
 
-    console.log(to.path)
-    if (editor.value) {
-        // get files list from the server
-        console.warn("todo: get files list")
-        GetFileList(current_post.value.id).then((res) => {
-            console.log(res)
-        })
-    }
 })
 
 </script>
@@ -56,6 +67,11 @@ watch(useRouter().currentRoute, (to, from) => {
         </div>
         <div v-if="editor">
             <h4>Files</h4>
+            <ul v-if="file_list.length > 0">
+                <li v-for="f in file_list" :key="f">
+                    <a :href="'/file/' + f.id">{{ f}}</a>
+                </li>
+            </ul>
         </div>
         <div id="toc-wrapper">
             <h4> Contents</h4>

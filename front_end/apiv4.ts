@@ -377,7 +377,8 @@ export interface GetFileListResponse  {
 
 // r.GET("/api/blog_file/v1/get_file_lists/:id", func(c *gin.Context) {
 export async function GetFileList(post_id: number): Promise<string[]> {
-    return await fetch(`${blogBackendUrl}/api/blog_file/v1/get_file_lists/10`, {
+    console.log(`${blogBackendUrl}/api/blog_file/v1/get_file_lists/${post_id}`)
+    return await fetch(`${blogBackendUrl}/api/blog_file/v1/get_file_lists/${post_id}`, {
         method: "GET",
         headers: {
             "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
@@ -385,7 +386,7 @@ export async function GetFileList(post_id: number): Promise<string[]> {
     }).then((response) => {
         if (!response.ok) {
             console.error(response);
-            return response.json()
+            // return response.json()
         }
         console.log(response)
         return response.json().then((response) => {
