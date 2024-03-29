@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import {searchPostsV4, SearchPostsRequestV4} from "../../../apiv4.js";
-import {ref} from "vue";
+import {ref, watch} from "vue";
+import {useRouter} from "vue-router";
 
 let param = {} as SearchPostsRequestV4
 param.limit = {start: 0, size: 5}
@@ -8,6 +9,24 @@ param.sort = "updated_at DESC"
 let posts = ref([])
 searchPostsV4(param).then((res) => {
     posts.value = res.posts
+})
+let editor = ref(false)
+// watch url
+
+let router = useRouter()
+let path = router.currentRoute.value.path
+watch(useRouter().currentRoute, (to, from) => {
+    // if post_edit in url
+    if (to.path.includes("post_edit")) {
+        editor.value = true
+    } else {
+        editor.value = false
+    }
+    console.log(to.path)
+    if (editor.value) {
+        // get files list from the server
+        console.warn("todo: get files list")
+    }
 })
 
 </script>
@@ -23,8 +42,8 @@ searchPostsV4(param).then((res) => {
                 </li>
             </ul>
         </div>
-        <div id="trending Tags" >
-            <h4>Trending Tags</h4>
+        <div v-if="editor">
+            <h4>Files</h4>
         </div>
         <div id="toc-wrapper">
             <h4> Contents</h4>

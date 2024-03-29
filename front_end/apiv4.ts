@@ -283,49 +283,51 @@ export interface GetPresignedUrlResponse {
     file_url: string
 }
 
-// import "crc32/lib/crc32.js"
 
-// export async function UploadFile(file: File, post_id: number) {
-//     console.log(file)
-//     const hash = await file.arrayBuffer().then((buffer) => {
-//         console.log(buffer)
-//         const uint8array = new Uint8Array(buffer);
-//         return (CRC32.buf(uint8array) >>> 0).toString(16);
-//     });
-//     const request: GetPresignedUrlRequest = {
-//         file_name: file.name,
-//         post_id: post_id,
-//         hash_crc32: hash.toString()
-//     }
-//     fetch(`${blogBackendUrl}/api/blog_file/v1/get_presigned_url`, {
-//         method: "POST",
-//         headers: {
-//             "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
-//         },
-//         body:
-//             JSON.stringify(request),
-//     }).then((response) => {
-//         if (!response.ok) {
-//             console.error(response);
-//             return;
-//         }
-//         response.json().then((response) => {
-//             response as GetPresignedUrlResponse
-//             console.log(response)
-//             navigator.clipboard.writeText(response.file_url).then(() => {
-//                 showSuccess("Copied to clipboard")
-//             });
-//             uploadFileToPresignURL(file, response.presigned_url).then(response => {
-//                 if (!response.ok) {
-//                     console.error(response);
-//                     return;
-//                 }
-//             })
-//         })
-//     }).catch((e) => {
-//         console.error(e);
-//     });
-// }
+export async function UploadFile(file: File, post_id: number) {
+    console.log(file)
+    const hash = await file.arrayBuffer().then(async (buffer) => {
+        console.log(buffer)
+        const uint8array = new Uint8Array(buffer);
+        let digits = await window.crypto.subtle.digest("SHA-256", uint8array);
+        // get the first 4 bytes of the hash
+        let hash = new Uint32Array(digits)[0];
+        return hash.toString(16);
+    });
+    const request: GetPresignedUrlRequest = {
+        file_name: file.name,
+        post_id: post_id,
+        hash_crc32: hash.toString()
+    }
+    fetch(`${blogBackendUrl}/api/blog_file/v1/get_presigned_url`, {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+        body:
+            JSON.stringify(request),
+    }).then((response) => {
+        if (!response.ok) {
+            console.error(response);
+            return;
+        }
+        response.json().then((response) => {
+            response as GetPresignedUrlResponse
+            console.log(response)
+            navigator.clipboard.writeText(response.file_url).then(() => {
+                // showSuccess("Copied to clipboard")
+            });
+            uploadFileToPresignURL(file, response.presigned_url).then(response => {
+                if (!response.ok) {
+                    console.error(response);
+                    return;
+                }
+            })
+        })
+    }).catch((e) => {
+        console.error(e);
+    });
+}
 
 function uploadFileToPresignURL(file: File, presignedURL: string): Promise<Response> {
     return fetch(presignedURL, {

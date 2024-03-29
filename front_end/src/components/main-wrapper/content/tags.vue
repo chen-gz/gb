@@ -36,7 +36,7 @@ onMounted(() => {
                 <div class="item">
                     <a :href="'/tag/' + item">
                         {{ item }}
-                        <span> 1 </span>
+                        <span>  </span>
                     </a>
                 </div>
             </div>

@@ -10,7 +10,8 @@ const route = useRouter();
 // parse the url first
 /// watch the url change
 let res = ref({} as SearchPostsResponseV4)
-function page_init(){
+
+function page_init() {
     let tag_cate_post = route.currentRoute.value.path.split("/")[1]
     let url_id = route.currentRoute.value.path.split("/")[2]
     console.log("call list page" + tag_cate_post + " " + url_id)
@@ -43,6 +44,7 @@ function page_init(){
         console.log(res.value)
     })
 }
+
 page_init();
 
 watch(route.currentRoute, (to, from) => {
@@ -52,15 +54,13 @@ watch(route.currentRoute, (to, from) => {
 </script>
 
 <template>
-    <h1>
-        Tags Lists
-    </h1>
+    <h1/>
     <ul>
         <li v-for="result in res.posts" :key="result.id">
             <a href="#" @click="route.push('/post/' + result.url)">
                 {{ result.title }}
             </a>
-            <span class="dashs">
+            <span class="dash">
 <!--            add dash to fill the space -->
              </span>
 
@@ -72,11 +72,12 @@ watch(route.currentRoute, (to, from) => {
 </template>
 
 <style lang="sass" scoped>
-
-.dashs
-    margin-left: 10px
+.dash
+    margin-left: 5px
+    margin-bottom: 10px
+    margin-right: 10px
     flex-grow: 1
-    border-bottom: 1px dotted currentColor
+    border-bottom: 2px dotted currentColor
 // ; /* Use a dotted border bottom */
 
 li

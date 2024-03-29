@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import loader from "@monaco-editor/loader";
 import {useRouter} from "vue-router";
-import {getPostV4, savePost, V4PostData} from "../../../../apiv4";
-import {ref} from "vue";
+import {getPostV4, savePost, UploadFile, V4PostData} from "/apiv4";
+import {onMounted, ref} from "vue";
 
 let router = useRouter()
 let url = router.currentRoute.value.params.id as string
@@ -63,8 +63,21 @@ document.addEventListener('keydown', function (e) {
         }
 
     }
-
 });
+// monitor drop event on the editor (id: code_editor) after mount
+
+onMounted(() => {
+    document.getElementById('code_editor').addEventListener('drop', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        // get the file
+        let file = e.dataTransfer.files[0];
+        console.log(file);
+        // upload the file
+        UploadFile(file, post.value.id);
+    });
+})
+
 
 </script>
 <template>
