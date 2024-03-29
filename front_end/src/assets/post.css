@@ -6,7 +6,8 @@
   font-family: "Adobe Garamond Pro", "Noto Serif SC", serif; }
   #markdown_content > * {
     margin-bottom: 1rem;
-    font-weight: 400; }
+    font-weight: 400;
+    font-size: 1rem; }
   #markdown_content ul, #markdown_content ol {
     padding-inline-start: 1.5rem;
     padding-inline-end: 1.5rem;
