@@ -1,13 +1,12 @@
 @import "variables"
 @import typography-light
 #markdown_content
-    //font-family: "Times New Roman", Times
-    font-family: "Vollkorn", Palatino, Times, sans-serif
+    //font-family: "Vollkorn", Palatino, Times, sans-serif
+    font-family: $font-family-base
 
     > *
         margin-bottom: 1rem
         font-weight: 400
-    //font: $font-family-base
     ul, ol
         padding-inline-start: 1.5rem
         padding-inline-end: 1.5rem
@@ -41,6 +40,7 @@
 
     h1, h2, h3
         text-align: center
+        font-family: $font-family-heading
 
     h2:after
         border-bottom: 1px solid #2f2f2f
@@ -80,7 +80,6 @@
         font-size: 0.95em
 
     code, pre
-        font-family: "Consolas", "Menlo", "Monaco", monospace, serif
-	    font-size: .9em
-	    background: white
-
+        font-family: "JetBrains Mono", monospace
+        font-size: 0.9em
+        background: white
