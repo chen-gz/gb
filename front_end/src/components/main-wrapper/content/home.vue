@@ -63,13 +63,14 @@ article
 #home-inner
     display: flex
     flex-direction: column
+    width: 100%
 
 .home-card
     height: 150px
     border: 1px solid #f6f6f6
     border-radius: 16px
     padding: 1rem
-    width: calc(100% - 2rem)
+    width: 100%
     margin-bottom: 20px
 
     &:hover

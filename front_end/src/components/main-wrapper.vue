@@ -25,14 +25,14 @@ import RightPanel from "@/components/main-wrapper/right-panel.vue";
 @import "src/assets/main-wrapper.sass"
 
 #main-wrapper-inner
-    width: calc(100% - 1.5rem)
+    width: 100%
     padding-left: 0.75rem
-    padding-right: 0.75rem
+    //padding-right: 0.75rem
     height: 100%
 
 #main-wrapper-topbar-wrapper-outer
     height: $topbar-height
-    width: calc(100% - 2rem)
+    width: 100%
     padding-right: 1rem
     padding-left: 1rem
     //margin-bottom: 8px

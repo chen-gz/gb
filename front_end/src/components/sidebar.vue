@@ -26,7 +26,7 @@ a
     //position: fixed
     @include light-scheme
     //width: calc($sidebar-width - 1px) // remove border size
-    width: calc(100% - 1px)
+    width: calc(100%)
     border-right: 1px solid var(--sidebar-border-color)
     height: 100%
     background-color: var(--sidebar-bg)
