@@ -81,14 +81,14 @@ import {useRouter} from "vue-router";
 
 const route = useRouter();
 let url = route.currentRoute.value.params.id
-console.log(url)
+// console.log(url)
 
 let post = ref({} as V4PostData);
 let post_content = ref("");
 let post_toc = ref("");
 
 getPostV4(url, true).then((response) => {
-    console.log(response)
+    // console.log(response)
     post.value = response.post
     post_content.value = response.html
     // get toc from post content they are surrended by <nav> tag
@@ -102,7 +102,7 @@ getPostV4(url, true).then((response) => {
         post_content.value = post_content.value.substring(nav_end + 6)
     }
     post_toc.value = post_toc.value.substring(16, post_toc.value.length - 19)
-    console.log(post_toc.value)
+    // console.log(post_toc.value)
 })
 
 watch(post_content, () => {
@@ -132,8 +132,33 @@ watch(post_content, () => {
         } else {
             console.error('tocbot is not defined');
         }
+
+
+
+		let code_blocks = document.querySelectorAll("pre code");
+		console.log("code block", code_blocks)
+		code_blocks.forEach((block) => {
+			let copy_button = document.createElement("button");
+			// copy_button.innerText = "copy";
+			// set copy icon from font awesome
+			copy_button.innerHTML = '<i class="fa fa-copy"></i>';
+			copy_button.className = "copy-button";
+			copy_button.onclick = () => {
+				navigator.clipboard.writeText(block.innerText).then(() => {
+					console.log("copied")
+				})
+				// update copy button icon to check mark
+				copy_button.innerHTML = '<i class="fa fa-check-circle"></i>';
+				// wait some time and change back to copy icon
+				setTimeout(() => {
+					copy_button.innerHTML = '<i class="fa-solid fa-copy"></i>';
+				}, 2000)
+			}
+			block.parentElement?.appendChild(copy_button)
+		})
     })
 });
+
 
 </script>
 

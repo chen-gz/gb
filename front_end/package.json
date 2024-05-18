@@ -17,6 +17,6 @@
     "@vitejs/plugin-vue": "^5.0.3",
     "@vue/babel-plugin-jsx": "^1.2.1",
     "sass": "^1.71.1",
-    "vite": "^5.1.6"
+    "vite": "^5.2.11"
   }
 }

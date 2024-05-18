@@ -79,7 +79,21 @@
     .math
         font-size: 0.95em
 
-    code, pre
-        font-family: "JetBrains Mono", monospace
-        font-size: 0.9em
+    pre
+        position: relative
+        code
+            font-family: "JetBrains Mono", monospace
+            font-size: 0.9em
+            background: white
+    pre .copy-button
+        position: absolute
+        right: 10px
+        top: -10px
+        z-index: 1
         background: white
+        border: none
+        padding: 0.5rem
+        cursor: pointer
+        &:hover
+          background: #f0f0f0
+

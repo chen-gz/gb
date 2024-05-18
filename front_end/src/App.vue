@@ -8,6 +8,31 @@ import Category from "@/components/main-wrapper/content/category.vue";
 import MainWrapper from "@/components/main-wrapper.vue";
 import Sidebar_bottom from "@/components/sidebar/sidebar_bottom.vue";
 
+// add copy button to code block
+watch(() => {
+	nextTick(() => {
+  		document.querySelectorAll('pre').forEach((block) => {
+		  if (!block.querySelector('.copy-button')) {
+			const copyButton = document.createElement('button');
+			copyButton.className = 'copy-button';
+			copyButton.textContent = 'Copy';
+			copyButton.addEventListener('click', () => {
+			  navigator.clipboard.writeText(block.textContent).then(() => {
+				copyButton.textContent = 'Copied!';
+				setTimeout(() => {
+				  copyButton.textContent = 'Copy';
+				}, 2000);
+			  });
+			});
+			block.style.position = 'relative';
+			block.appendChild(copyButton);
+		  }
+		});
+
+	});
+});
+
+
 
 </script>
 

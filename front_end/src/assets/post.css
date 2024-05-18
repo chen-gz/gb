@@ -68,7 +68,20 @@
     text-decoration: none; }
   #markdown_content .math {
     font-size: 0.95em; }
-  #markdown_content code, #markdown_content pre {
-    font-family: "JetBrains Mono", monospace;
-    font-size: 0.9em;
-    background: white; }
+  #markdown_content pre {
+    position: relative; }
+    #markdown_content pre code {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.9em;
+      background: white; }
+  #markdown_content pre .copy-button {
+    position: absolute;
+    right: 10px;
+    top: -10px;
+    z-index: 1;
+    background: white;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer; }
+    #markdown_content pre .copy-button:hover {
+      background: #f0f0f0; }
