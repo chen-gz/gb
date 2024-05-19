@@ -3,7 +3,7 @@
  */
 /* light-scheme */
 #markdown_content {
-  font-family: "Adobe Garamond Pro", "Noto Serif SC", serif; }
+  font-family: "CMU Serif", serif; }
   #markdown_content > * {
     margin-bottom: 1rem;
     font-weight: 400;
@@ -67,19 +67,22 @@
     color: #333;
     text-decoration: none; }
   #markdown_content .math {
-    font-size: 0.95em; }
+    font-size: 0.85em;
+    font-weight: 100; }
   #markdown_content pre {
-    position: relative; }
+    position: relative;
+    background: #f0f0f0; }
     #markdown_content pre code {
       font-family: "JetBrains Mono", monospace;
       font-size: 0.9em;
-      background: white; }
+      background: #f0f0f0;
+      z-index: 10; }
   #markdown_content pre .copy-button {
     position: absolute;
-    right: 10px;
-    top: -10px;
-    z-index: 1;
-    background: white;
+    right: 2px;
+    top: -5px;
+    z-index: 20;
+    background: none;
     border: none;
     padding: 0.5rem;
     cursor: pointer; }

@@ -74,10 +74,11 @@ function onSearch() {
         <input v-model="search_message" v-on:keyup.enter="onSearch"> </input>
 
         <button v-if="!isLogin" @click="$router.push('/login')">
-            <i class="fas fa-user"></i>
+            <i class="fa-solid fa-user"></i>
+				 <!-- fa-user"></i> -->
         </button>
         <button v-else @click="new_post">
-            <i class="fas fa-plus"></i>
+            <i class="fa fa-plus"></i>
         </button>
     </div>
 

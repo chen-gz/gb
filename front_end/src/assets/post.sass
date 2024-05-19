@@ -77,20 +77,25 @@
 	    color: #333
 	    text-decoration: none
     .math
-        font-size: 0.95em
+        font-size: 0.85em
+        font-weight: 100
 
     pre
         position: relative
+        background: #f0f0f0
         code
             font-family: "JetBrains Mono", monospace
             font-size: 0.9em
-            background: white
+            // background: white
+            background: #f0f0f0
+            z-index: 10
     pre .copy-button
         position: absolute
-        right: 10px
-        top: -10px
-        z-index: 1
-        background: white
+        right: 2px
+        top: -5px
+        z-index: 20
+        background: none
+        // background: white
         border: none
         padding: 0.5rem
         cursor: pointer
