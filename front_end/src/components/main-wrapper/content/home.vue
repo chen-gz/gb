@@ -68,10 +68,11 @@ article
 .home-card
     height: 150px
     border: 1px solid #f6f6f6
-    border-radius: 16px
-    padding: 1rem
+    border-radius: 8px
+    padding: 10px 10px 3px 16px
     width: 100%
     margin-bottom: 20px
+    // box-shadow: 1px 1px 3px lightgrey
 
     &:hover
         background-color: #f6f6f6
@@ -79,16 +80,29 @@ article
     .home-summary
         color: #666
         flex-grow: 1
+        // use ... to hide the overflow
+        text-overflow: ellipsis
+        //white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsi
+        display: -webkit-box
+        -webkit-box-orient: vertical
+        -webkit-line-clamp: 3
+       
+      
+
 
 
 //    put at the bottom of the card
 .home-card-bottom
+    position: relative
     display: flex
     //justify-content: space-between
-    height: 30px
+    height: 25px
     font-size: 0.8em
     color: #666
     align-items: center
+    bottom: 1px
 
     span
         margin-right: 20px
