@@ -38,7 +38,7 @@ searchPostsV4(param).then((res) => {
             <p class="home-summary"> {{ post.summary }}</p>
             <div class="home-card-bottom">
                 <span>
-                    <i class="far fa-calendar-alt"></i>
+                    <i class="fas fa-calendar-alt"></i>
                     {{ formatDate(post.created_at) }}
                 </span>
                 <span v-if="post.category != ''"> <i class="fas fa-folder"></i> {{ post.category }} </span>
@@ -72,7 +72,8 @@ article
     padding: 10px 10px 3px 16px
     width: 100%
     margin-bottom: 20px
-    // box-shadow: 1px 1px 3px lightgrey
+    margin-top: 3px
+    box-shadow: 1px 1px 5px lightgrey
 
     &:hover
         background-color: #f6f6f6
@@ -105,10 +106,10 @@ article
     bottom: 1px
 
     span
-        margin-right: 20px
-        margin-left: 10px
-
+        margin-right: 25px
         &:last-child
             margin-right: 0
+        i 
+            margin-right: 5px
 
 </style>

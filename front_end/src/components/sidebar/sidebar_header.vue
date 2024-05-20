@@ -8,7 +8,7 @@
             <img src="https://minio.ggeta.com/blog-public-data/mine_square.jpg"
                  width="112" height="112" alt="avatar"
                  onerror="this.style.display='none'"></a>
-        <h1 class="title"><a href="/">GGETA</a></h1>
+        <h1 class="title"><a href="/">Guangzong Chen</a></h1>
         <p class="subtitle fst-italic mb-0">Knowledge and Live</p>
     </header>
 

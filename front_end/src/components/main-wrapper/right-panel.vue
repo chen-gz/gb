@@ -74,7 +74,7 @@ watch(useRouter().currentRoute, (to, from) => {
             </ul>
         </div>
         <div id="toc-wrapper">
-            <h4> Contents</h4>
+            <h4 style="margin-bottom=3px;"> Contents</h4>
             <div id="toc"></div>
         </div>
     </div>
@@ -86,7 +86,7 @@ watch(useRouter().currentRoute, (to, from) => {
     flex-grow: 0
     flex-shrink: 0
     padding-top: 48px
-    padding-left: 15px
+    // padding-left: 15px
     flex-direction: column
     // add vertical spacing between each items
     > div
@@ -94,6 +94,8 @@ watch(useRouter().currentRoute, (to, from) => {
 
 #recently-updated
     margin-bottom: 20px
+    border-left: 2px solid #f1f1f1
+    padding-left: 10px
     ul
         margin:  0 0 10px 0
         //margin-bottom: 10px
@@ -111,6 +113,8 @@ watch(useRouter().currentRoute, (to, from) => {
             padding-top: 3.2px
 
 
+#toc-wrapper
+    padding-left: 10px
 
 
 </style>
