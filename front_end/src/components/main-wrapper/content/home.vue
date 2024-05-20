@@ -38,11 +38,11 @@ searchPostsV4(param).then((res) => {
             <p class="home-summary"> {{ post.summary }}</p>
             <div class="home-card-bottom">
                 <span>
-                    <i class="fas fa-calendar-alt"></i>
+                    <i class="fa-fw fas fa-calendar-alt"></i>
                     {{ formatDate(post.created_at) }}
                 </span>
-                <span v-if="post.category != ''"> <i class="fas fa-folder"></i> {{ post.category }} </span>
-                <span v-if="post.tags != ''"> <i class="fas fa-tag"></i> {{ post.tags }}</span></div>
+                <span v-if="post.category != ''"> <i class="fa-fw fas fa-folder"></i> {{ post.category }} </span>
+                <span v-if="post.tags != ''"> <i class="fa-fw fas fa-tags"></i> {{ post.tags }}</span></div>
         </article>
     </div>
 </template>
@@ -104,6 +104,8 @@ article
     color: #666
     align-items: center
     bottom: 1px
+
+    opacity: 0.77
 
     span
         margin-right: 25px

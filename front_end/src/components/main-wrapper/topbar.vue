@@ -74,7 +74,7 @@ function onSearch() {
         <input v-model="search_message" v-on:keyup.enter="onSearch"> </input>
 
         <button v-if="!isLogin" @click="$router.push('/login')">
-            <i class="fa-solid fa-user"></i>
+            <i class="fa-fw fas fa-user" style="font-size: 1.3em;"></i>
 				 <!-- fa-user"></i> -->
         </button>
         <button v-else @click="new_post">
@@ -115,7 +115,7 @@ button
 input
     min-width: 100px
     width: 200px
-    height: 2rem
+    height: 1.6rem
     align-self: center
     border-radius: 1rem
     border: 1px solid #0d6efd
