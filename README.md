@@ -1,5 +1,7 @@
 ## Personal Blog System
 
+This project is a dynamic, lightweight blog platform designed for flexibility and simplicity. It enables users to easily write, edit, and manage blog posts with support for advanced features like mathematical equations.
+
 Check out the [example page](https://blog.ggeta.com/).
 
 ### Key Features
